@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Convocados · Armá tu equipo</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/onboarding.css">
+</head>
+<body>
+
+  <main class="onb">
+
+    <!-- Columna izquierda -->
+    <section class="onb__panel">
+
+      <header class="onb__header">
+        <a class="brand" href="onboarding.html" aria-label="Convocados, inicio">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+            </svg>
+          </span>
+          <span class="brand__name">Convoca<span>dos</span></span>
+        </a>
+
+        <button class="link-btn" type="button" id="btn-omitir">Omitir</button>
+      </header>
+
+      <div class="onb__content" id="contenido" aria-live="polite">
+        <p class="eyebrow" id="onb-eyebrow">Tu equipo empieza acá</p>
+        <h1 class="onb__title" id="onb-titulo">¿Te faltan jugadores?</h1>
+        <p class="onb__text" id="onb-texto">
+          Armá tu equipo, publicá los puestos libres y encontrá el refuerzo ideal en tu zona para salir a la cancha.
+        </p>
+        <ul class="onb__list" id="onb-lista">
+          <li>Partidos cerca de tu barrio</li>
+          <li>Perfiles por posición y nivel</li>
+          <li>Convocatorias simples y rápidas</li>
+        </ul>
+      </div>
+
+      <footer class="onb__footer">
+        <div class="dots" id="dots" role="tablist" aria-label="Pasos de la introducción"></div>
+        <button class="btn btn--primary" type="button" id="btn-siguiente">Siguiente</button>
+      </footer>
+
+    </section>
+
+    <!-- Columna derecha: ilustración -->
+    <section class="onb__visual" aria-hidden="false">
+      <div class="onb__slides" id="slides-img"></div>
+
+      <div class="onb__caption">
+        <strong id="cap-titulo">Fútbol amateur, mejor conectado.</strong>
+        <span id="cap-sub">CABA · +120 convocatorias esta semana</span>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/core.js"></script>
+  <script src="js/onboarding.js"></script>
+</body>
+</html>
