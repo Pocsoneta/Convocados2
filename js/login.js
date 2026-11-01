@@ -75,22 +75,10 @@
     });
   });
 
-  /* ---------- Autenticación (simulada) ---------- */
+  /* ---------- Autenticación (backend Go) ---------- */
   function autenticar({ email, password }) {
-    return new Promise((resolver, rechazar) => {
-      setTimeout(() => {
-        // Usuarios registrados en este navegador (los crea la pantalla de registro)
-        const usuarios = Store.get("usuarios", []);
-        const usuario = usuarios.find((u) => u.email === email);
-
-        // Modo demo: si todavía no hay usuarios, se acepta cualquier credencial válida
-        if (usuarios.length === 0 || (usuario && usuario.password === password)) {
-          resolver({ email, nombre: usuario ? usuario.nombre : email.split("@")[0] });
-        } else {
-          rechazar(new Error("El email o la contraseña no son correctos."));
-        }
-      }, 700);
-    });
+    // POST /api/auth/login → guarda la cookie de sesión en el servidor
+    return API.post("/api/auth/login", { email, password });
   }
 
   function cargando(estado) {

@@ -1,43 +1,68 @@
 /* =========================================================
    inicio.js — lógica de esta pantalla
 
-   "Partidos cerca tuyo", "Tu próximo partido" y los conteos
-   por modalidad están construidos pero NO se usan todavía:
-   hasta que exista la pantalla de búsqueda y su API, las tres
-   funciones `obtener...` devuelven vacío y se ven los estados
-   vacíos. Para activarlas, completá solo esas funciones.
+   Las tres funciones `obtener...` van al backend:
+     GET /api/inicio/cercanos
+     GET /api/inicio/proximo
+     GET /api/inicio/conteos
+   Si el backend no responde se ven los estados vacíos.
    ========================================================= */
 
 (() => {
   if (!Auth.sesion()) return;
 
   const $ = (id) => document.getElementById(id);
-  const usuario = Auth.usuario();
 
-  /* ---------- Saludo ---------- */
-  $("saludo-nombre").textContent = usuario.nombre.split(" ")[0] || "jugador";
+  /* ---------- Ubicación (para "cerca tuyo") ---------- */
+  // Si el navegador da la posición, la mandamos; si no (o si el
+  // permiso se rechaza), usamos el centro de CABA como respaldo.
+  const UBICACION_POR_DEFECTO = { lat: -34.6037, lng: -58.3816 };
+
+  function coordenadas() {
+    return new Promise((resolver) => {
+      if (!navigator.geolocation) return resolver(UBICACION_POR_DEFECTO);
+      const alTiempo = setTimeout(() => resolver(UBICACION_POR_DEFECTO), 4000);
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          clearTimeout(alTiempo);
+          resolver({ lat: p.coords.latitude, lng: p.coords.longitude });
+        },
+        () => {
+          clearTimeout(alTiempo);
+          resolver(UBICACION_POR_DEFECTO);
+        },
+        { timeout: 4000, maximumAge: 600000 }
+      );
+    });
+  }
+
+  const conCoords = async (ruta) => {
+    const c = await coordenadas();
+    return `${ruta}?lat=${encodeURIComponent(c.lat)}&lng=${encodeURIComponent(c.lng)}`;
+  };
 
   /* =======================================================
-     API (pendiente) — reemplazar cuando exista el backend
+     API
      ======================================================= */
 
   // Debe devolver un array de partidos cercanos, por ejemplo:
   // { id, modalidad: "Fútbol 7", nombre: "Club Palermo Soho", zona: "Palermo, CABA",
   //   distanciaKm: 1.2, nivel: "Amateur", cupos: 2 }
   async function obtenerPartidosCercanos() {
-    return [];
+    const datos = await API.get(await conCoords("/api/inicio/cercanos") + "&limit=6");
+    return Array.isArray(datos) ? datos : [];
   }
 
   // Debe devolver el próximo partido del usuario o null, por ejemplo:
   // { id, nombre: "Club Palermo Soho", fecha: "2026-11-02T21:00:00", direccion: "Honduras 5050, Palermo" }
   async function obtenerProximoPartido() {
-    return null;
+    return API.get(await conCoords("/api/inicio/proximo"));
   }
 
   // Debe devolver la cantidad de partidos por modalidad, por ejemplo:
   // { "futbol-5": 12, "futbol-7": 12, "futbol-11": 12 }
   async function obtenerConteoModalidades() {
-    return {};
+    return API.get("/api/inicio/conteos");
   }
 
   /* ---------- Helpers de DOM ---------- */
@@ -169,6 +194,14 @@
 
   /* ---------- Inicio ---------- */
   async function iniciar() {
+    // Ficha del usuario (saludo del encabezado)
+    try {
+      const usuario = (await Auth.usuario()) || { nombre: "" };
+      $("saludo-nombre").textContent = (usuario.nombre || "").split(" ")[0] || "jugador";
+    } catch {
+      $("saludo-nombre").textContent = "jugador";
+    }
+
     // Cada bloque se carga por separado: si uno falla, los otros siguen
     const [cercanos, proximo, conteos] = await Promise.all([
       obtenerPartidosCercanos().catch(() => []),
@@ -176,9 +209,9 @@
       obtenerConteoModalidades().catch(() => ({}))
     ]);
 
-    renderCercanos(cercanos);
-    renderProximo(proximo);
-    renderConteos(conteos);
+    renderCercanos(Array.isArray(cercanos) ? cercanos : []);
+    renderProximo(proximo || null);
+    renderConteos(conteos || {});
   }
 
   iniciar();
