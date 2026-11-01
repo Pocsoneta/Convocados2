@@ -121,22 +121,16 @@
     });
   });
 
-  /* ---------- Alta (simulada) ---------- */
+  /* ---------- Alta (backend Go) ---------- */
   function crearCuenta(datos) {
-    return new Promise((resolver, rechazar) => {
-      setTimeout(() => {
-        const usuarios = Store.get("usuarios", []);
-
-        if (usuarios.some((u) => u.email === datos.email)) {
-          rechazar(new Error("Ya existe una cuenta con ese email. Probá iniciando sesión."));
-          return;
-        }
-
-        // OJO: guardar contraseñas en texto plano es solo para esta demo.
-        usuarios.push(datos);
-        Store.set("usuarios", usuarios);
-        resolver({ email: datos.email, nombre: datos.nombre });
-      }, 800);
+    // POST /api/auth/registro — si el email ya existe responde con error
+    // y ese mensaje es el que se muestra en el formulario.
+    return API.post("/api/auth/registro", {
+      nombre: datos.nombre,
+      apellido: datos.apellido,
+      email: datos.email,
+      password: datos.password,
+      nacimiento: datos.nacimiento
     });
   }
 

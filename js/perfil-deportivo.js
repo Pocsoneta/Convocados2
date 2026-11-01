@@ -125,20 +125,15 @@
     i.addEventListener("change", () => setError(posiciones, ""))
   );
 
-  /* ---------- Guardado (simulado) ---------- */
+  /* ---------- Guardado (backend Go) ---------- */
   function guardarPerfil(perfil) {
-    return new Promise((resolver) => {
-      setTimeout(() => {
-        // Se guarda dentro del usuario registrado, si existe
-        const usuarios = Store.get("usuarios", []);
-        const usuario = usuarios.find((u) => u.email === sesion.email);
-        if (usuario) {
-          usuario.perfilDeportivo = perfil;
-          Store.set("usuarios", usuarios);
-        }
-        Store.set("perfil_deportivo", perfil);
-        resolver(perfil);
-      }, 700);
+    // PUT /api/perfil — guarda localidad, posiciones, nivel y foto
+    // (la foto va como data URL en base64).
+    return API.put("/api/perfil", {
+      localidad: perfil.localidad,
+      posiciones: perfil.posiciones,
+      nivel: perfil.nivel,
+      foto: perfil.foto
     });
   }
 
