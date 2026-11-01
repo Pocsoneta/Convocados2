@@ -1,0 +1,20 @@
+# Binarios compilados
+/bin/
+/convocados-api
+*.exe
+*.test
+*.out
+
+# Configuración local (contraseñas, secretos)
+.env
+.env.local
+
+# Dependencias
+/vendor/
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,211 @@
+/* =========================================================
+   inicio.css — solo estilos de esta pantalla
+   ========================================================= */
+
+.inicio { max-width: 1240px; }
+
+.btn--create {
+  flex: none;
+  height: 48px;
+  gap: 10px;
+  padding: 0 24px;
+  border-radius: 10px;
+}
+
+.inicio__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+  margin-top: 30px;
+}
+
+/* ---------- Encabezado de sección ---------- */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.section-head__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Partidos cerca tuyo ---------- */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.match {
+  display: grid;
+  align-content: start;
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.match:hover {
+  border-color: rgba(0, 245, 109, 0.5);
+  transform: translateY(-2px);
+}
+
+.match__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.match__dist { font-size: 12px; color: var(--text-muted); }
+
+.match__name {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.2;
+}
+.match__zone {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.match__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--card-border);
+}
+.match__foot > div { display: grid; gap: 3px; }
+.match__foot > div:last-child { text-align: right; }
+
+.match__label {
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.match__value { font-size: 14px; font-weight: 700; }
+.match__value--accent { color: var(--accent); }
+
+/* ---------- Estados vacíos ---------- */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 24px;
+  border: 1px dashed #26334b;
+  border-radius: 16px;
+  text-align: center;
+}
+.match-grid .empty { grid-column: 1 / -1; }
+
+.empty__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--accent);
+}
+.empty__title { font-size: 15px; font-weight: 700; }
+.empty__text {
+  max-width: 360px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.empty .link-green { margin-top: 10px; }
+
+/* ---------- Tu próximo partido ---------- */
+.next {
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+}
+
+.next__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.next__name {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 21px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.next__meta {
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.btn--soft {
+  width: 100%;
+  height: 48px;
+  margin-top: 16px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: #141e31;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color .15s ease;
+}
+.btn--soft:hover { border-color: rgba(0, 245, 109, 0.5); }
+
+.next--empty .next__name { font-size: 17px; }
+
+
+/* ---------- Tablet / mobile ---------- */
+@media (max-width: 1180px) {
+  .inicio__grid { grid-template-columns: 1fr; }
+
+  /* El próximo partido y las modalidades van primero y lado a lado */
+  .inicio__side {
+    order: -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+  .modos { margin-top: 0; }
+
+  .match-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .page-head { flex-direction: column; }
+  .page-head__title { font-size: 26px; }
+  .btn--create { width: 100%; }
+}
