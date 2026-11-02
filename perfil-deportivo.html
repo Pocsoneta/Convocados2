@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ficha deportiva · Convocados</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/perfil-deportivo.css">
+</head>
+<body>
+
+  <div class="perfil">
+
+    <!-- Barra lateral: progreso del registro -->
+    <aside class="perfil__aside">
+
+      <header class="perfil__brand">
+        <a class="brand" href="onboarding.html" aria-label="Convocados, inicio">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+            </svg>
+          </span>
+          <span class="brand__name">Convoca<span>dos</span></span>
+        </a>
+      </header>
+
+      <div class="perfil__steps">
+        <p class="eyebrow">Paso 2 de 2</p>
+        <h2 class="perfil__steps-title">Armá tu ficha deportiva</h2>
+        <p class="perfil__steps-text">
+          Estos datos ayudan a los equipos a encontrarte por posición, nivel y barrio.
+        </p>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-label="Paso 2 de 2">
+          <span class="progress__fill"></span>
+        </div>
+      </div>
+
+      <footer class="perfil__note">
+        Tu información deportiva será visible para organizadores y jugadores.
+      </footer>
+
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="perfil__main">
+
+      <header class="perfil__head">
+        <h1 class="perfil__title">Ficha Deportiva</h1>
+        <p class="perfil__lead">Completá tus datos para que los equipos te conozcan.</p>
+      </header>
+
+      <form class="perfil__form" id="form-perfil" novalidate>
+
+        <div class="perfil__grid">
+
+          <!-- Tarjeta: foto + localidad -->
+          <section class="card card--avatar">
+
+            <div class="avatar">
+              <button class="avatar__btn" type="button" id="btn-foto" aria-label="Cambiar foto de perfil">
+                <span class="avatar__ring">
+                  <img class="avatar__img" id="foto-preview" alt="" hidden>
+                  <svg class="avatar__placeholder" id="foto-placeholder" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8.5" r="3.8"/>
+                    <path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/>
+                  </svg>
+                </span>
+                <span class="avatar__badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.2-2h6.6l1.2 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9z"/>
+                    <circle cx="12" cy="13" r="3.2"/>
+                  </svg>
+                </span>
+              </button>
+              <input type="file" id="input-foto" accept="image/png,image/jpeg,image/webp" hidden>
+            </div>
+
+            <h2 class="card__name">Foto de perfil</h2>
+            <p class="card__hint" id="foto-hint">Subí una foto con tu camiseta preferida.</p>
+            <p class="field__error field__error--center" id="error-foto" role="alert"></p>
+
+            <div class="field" id="field-localidad">
+              <label class="field__label" for="localidad">Localidad (Barrio)</label>
+              <div class="field__control">
+                <input class="field__input field__input--icon" id="localidad" name="localidad"
+                       type="text" autocomplete="address-level2" placeholder="Ej: Palermo, CABA"
+                       aria-describedby="error-localidad" required>
+                <span class="field__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/>
+                    <circle cx="12" cy="9.5" r="2.5"/>
+                  </svg>
+                </span>
+              </div>
+              <p class="field__error" id="error-localidad" role="alert"></p>
+            </div>
+
+          </section>
+
+          <!-- Tarjeta: posiciones y nivel -->
+          <section class="card card--datos">
+
+            <fieldset class="group" id="field-posiciones">
+              <legend class="group__title">¿En qué posiciones jugás?</legend>
+              <div class="chips">
+                <label class="chip">
+                  <input class="chip__input" type="checkbox" name="posiciones" value="arquero">
+                  <span class="chip__label">Arquero</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="checkbox" name="posiciones" value="defensor">
+                  <span class="chip__label">Defensor</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="checkbox" name="posiciones" value="mediocampista">
+                  <span class="chip__label">Mediocampista</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="checkbox" name="posiciones" value="delantero">
+                  <span class="chip__label">Delantero</span>
+                </label>
+              </div>
+              <p class="field__error" id="error-posiciones" role="alert"></p>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend class="group__title">Tu nivel de juego</legend>
+              <div class="levels">
+                <label class="level">
+                  <input class="level__input" type="radio" name="nivel" value="principiante">
+                  <span class="level__box">
+                    <span class="level__dot" aria-hidden="true"></span>
+                    <span class="level__name">Principiante</span>
+                    <span class="level__hint level__hint--off">Seleccionar</span>
+                    <span class="level__hint level__hint--on">Seleccionado</span>
+                  </span>
+                </label>
+                <label class="level">
+                  <input class="level__input" type="radio" name="nivel" value="amateur">
+                  <span class="level__box">
+                    <span class="level__dot" aria-hidden="true"></span>
+                    <span class="level__name">Amateur</span>
+                    <span class="level__hint level__hint--off">Seleccionar</span>
+                    <span class="level__hint level__hint--on">Seleccionado</span>
+                  </span>
+                </label>
+                <label class="level">
+                  <input class="level__input" type="radio" name="nivel" value="intermedio" checked>
+                  <span class="level__box">
+                    <span class="level__dot" aria-hidden="true"></span>
+                    <span class="level__name">Intermedio</span>
+                    <span class="level__hint level__hint--off">Seleccionar</span>
+                    <span class="level__hint level__hint--on">Recomendado</span>
+                  </span>
+                </label>
+                <label class="level">
+                  <input class="level__input" type="radio" name="nivel" value="avanzado">
+                  <span class="level__box">
+                    <span class="level__dot" aria-hidden="true"></span>
+                    <span class="level__name">Avanzado</span>
+                    <span class="level__hint level__hint--off">Seleccionar</span>
+                    <span class="level__hint level__hint--on">Seleccionado</span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+
+          </section>
+        </div>
+
+        <div class="perfil__actions">
+          <p class="perfil__edit-note">Podés editar estos datos más adelante.</p>
+          <button class="btn btn--primary" type="submit" id="btn-submit">
+            <span class="btn__label">Guardar perfil</span>
+          </button>
+        </div>
+
+        <p class="form__error" id="error-general" role="alert"></p>
+
+      </form>
+    </main>
+
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/perfil-deportivo.js"></script>
+</body>
+</html>
