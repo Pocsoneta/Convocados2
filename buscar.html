@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscar partidos · Convocados</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/buscar.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ============ Barra lateral (se repite en las pantallas internas) ============ -->
+    <aside class="sidebar">
+
+      <a class="brand" href="inicio.html" aria-label="Convocados, inicio">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/>
+            <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+          </svg>
+        </span>
+        <span class="brand__name">Convoca<span>dos</span></span>
+      </a>
+
+      <nav class="sidebar__nav" aria-label="Principal">
+        <a class="nav-link" href="inicio.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>Inicio</span>
+        </a>
+        <a class="nav-link is-active" href="buscar.html" aria-current="page">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+          </svg>
+          <span>Buscar</span>
+        </a>
+        <a class="nav-link" href="crear-partido.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8v8M8 12h8"/>
+          </svg>
+          <span>Crear partido</span>
+        </a>
+        <a class="nav-link" href="mis-partidos.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="5" width="16" height="15" rx="3"/>
+            <path d="M4 10h16M8 3v4M16 3v4"/>
+          </svg>
+          <span>Mis partidos</span>
+        </a>
+        <a class="nav-link" href="perfil.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20.5c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
+          </svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__user">
+        <a class="user" href="perfil.html" aria-label="Ver y editar mi perfil">
+          <span class="user__avatar" id="user-avatar">
+            <img id="user-foto" alt="" hidden>
+            <span id="user-iniciales" aria-hidden="true"></span>
+          </span>
+          <span class="user__info">
+            <strong id="user-nombre">Mi cuenta</strong>
+            <span id="user-localidad"></span>
+          </span>
+        </a>
+        <button class="user__logout" type="button" id="btn-logout" aria-label="Cerrar sesión" title="Cerrar sesión">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"/>
+            <path d="m16 17 5-5-5-5M21 12H9"/>
+          </svg>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ============ Contenido ============ -->
+    <main class="app__main">
+      <div class="buscar">
+
+        <header class="page-head">
+          <div>
+            <h1 class="page-head__title">Buscar partidos</h1>
+            <p class="page-head__lead">Encontrá canchas y partidos disponibles en la zona del mapa.</p>
+          </div>
+        </header>
+
+        <!-- Buscador por nombre de cancha o localidad -->
+        <form class="searchbar" id="form-busqueda" role="search">
+          <label class="searchbar__field" for="texto">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="m20 20-3.5-3.5"/>
+            </svg>
+            <input id="texto" name="texto" type="search" autocomplete="off"
+                   placeholder="Buscar canchas o clubes…" aria-label="Buscar por nombre de cancha o localidad">
+          </label>
+          <button class="btn btn--primary btn--search" type="submit">Buscar</button>
+        </form>
+
+        <div class="buscar__grid">
+
+          <!-- Filtros: fecha y zona -->
+          <aside class="filtros" aria-label="Filtros">
+
+            <div class="filtros__head">
+              <h2 class="filtros__title">Filtros</h2>
+              <button class="link-green link-btn-green" type="button" id="btn-limpiar">Limpiar</button>
+            </div>
+
+            <div class="filtros__body">
+
+              <div class="filtros__group">
+                <p class="filtros__label" id="fecha-etiqueta">Fecha</p>
+
+                <div class="cal" role="group" aria-labelledby="fecha-etiqueta">
+                  <div class="cal__head">
+                    <strong class="cal__title" id="cal-titulo" aria-live="polite"></strong>
+                    <div class="cal__nav">
+                      <button class="cal__btn" type="button" id="cal-prev" aria-label="Mes anterior">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+                      </button>
+                      <button class="cal__btn" type="button" id="cal-next" aria-label="Mes siguiente">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="cal__week" aria-hidden="true">
+                    <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                  </div>
+                  <div class="cal__grid" id="cal-grid"></div>
+                </div>
+              </div>
+
+              <div class="filtros__group">
+                <label class="filtros__label" for="zona">Zona</label>
+                <div class="zona">
+                  <input class="zona__input" id="zona" name="zona" type="text"
+                         autocomplete="off" placeholder="Ej: Palermo, CABA">
+                  <span class="zona__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/>
+                      <circle cx="12" cy="9.5" r="2.5"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+          <!-- Resultados: mapa + lista -->
+          <section class="resultados" aria-labelledby="res-titulo">
+
+            <div class="resultados__head">
+              <h2 class="resultados__title" id="res-titulo">Resultados encontrados (0)</h2>
+              <div class="resultados__meta">
+                <span class="tag" id="tag-modalidad" hidden>
+                  <span id="tag-modalidad-texto"></span>
+                  <button type="button" id="tag-modalidad-quitar" aria-label="Quitar filtro de modalidad">×</button>
+                </span>
+                <span>Ordenar: Más cercanos</span>
+              </div>
+            </div>
+
+            <div class="mapa-card">
+              <div class="mapa-card__head">
+                <div>
+                  <h3 class="mapa-card__title">Mapa de la zona</h3>
+                  <p class="mapa-card__sub" id="mapa-zona">Todas las zonas</p>
+                </div>
+                <button class="btn btn--primary btn--zone" type="button" id="btn-zona-mapa">Buscar en esta zona</button>
+              </div>
+
+              <!-- Acá se montará Google Maps. Mientras tanto, js/mapa-zona.js dibuja una vista previa. -->
+              <div class="mapa" id="mapa" role="group" aria-label="Mapa con los partidos encontrados"></div>
+            </div>
+
+            <ol class="lista" id="lista" aria-live="polite" aria-busy="false"></ol>
+
+          </section>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/mapa-zona.js"></script>
+  <script src="js/buscar.js"></script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publicar partido · Convocados</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/crear-partido.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ============ Barra lateral (se repite en las pantallas internas) ============ -->
+    <aside class="sidebar">
+
+      <a class="brand" href="inicio.html" aria-label="Convocados, inicio">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/>
+            <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+          </svg>
+        </span>
+        <span class="brand__name">Convoca<span>dos</span></span>
+      </a>
+
+      <nav class="sidebar__nav" aria-label="Principal">
+        <a class="nav-link" href="inicio.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>Inicio</span>
+        </a>
+        <a class="nav-link" href="buscar.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+          </svg>
+          <span>Buscar</span>
+        </a>
+        <a class="nav-link is-active" href="crear-partido.html" aria-current="page">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8v8M8 12h8"/>
+          </svg>
+          <span>Crear partido</span>
+        </a>
+        <a class="nav-link" href="mis-partidos.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="5" width="16" height="15" rx="3"/>
+            <path d="M4 10h16M8 3v4M16 3v4"/>
+          </svg>
+          <span>Mis partidos</span>
+        </a>
+        <a class="nav-link" href="perfil.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20.5c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
+          </svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__user">
+        <a class="user" href="perfil.html" aria-label="Ver y editar mi perfil">
+          <span class="user__avatar" id="user-avatar">
+            <img id="user-foto" alt="" hidden>
+            <span id="user-iniciales" aria-hidden="true"></span>
+          </span>
+          <span class="user__info">
+            <strong id="user-nombre">Mi cuenta</strong>
+            <span id="user-localidad"></span>
+          </span>
+        </a>
+        <button class="user__logout" type="button" id="btn-logout" aria-label="Cerrar sesión" title="Cerrar sesión">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"/>
+            <path d="m16 17 5-5-5-5M21 12H9"/>
+          </svg>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ============ Contenido ============ -->
+    <main class="app__main">
+      <div class="crear">
+
+        <header class="page-head">
+          <div>
+            <h1 class="page-head__title">Publicar partido</h1>
+            <p class="page-head__lead">Creá una convocatoria clara para completar tu equipo.</p>
+          </div>
+        </header>
+
+        <form class="crear__grid" id="form-partido" novalidate>
+
+          <!-- ===== Formulario ===== -->
+          <section class="formcard" aria-label="Datos del partido">
+
+            <fieldset class="group" id="field-modalidad">
+              <legend class="field__label">Modalidad de cancha</legend>
+              <div class="chips">
+                <label class="chip">
+                  <input class="chip__input" type="radio" name="modalidad" value="futbol-5">
+                  <span class="chip__label">Fútbol 5</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="radio" name="modalidad" value="futbol-7">
+                  <span class="chip__label">Fútbol 7</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="radio" name="modalidad" value="futbol-8">
+                  <span class="chip__label">Fútbol 8</span>
+                </label>
+                <label class="chip">
+                  <input class="chip__input" type="radio" name="modalidad" value="futbol-11">
+                  <span class="chip__label">Fútbol 11</span>
+                </label>
+              </div>
+              <p class="field__error" id="error-modalidad" role="alert"></p>
+            </fieldset>
+
+            <!-- Fecha / Hora / Duración -->
+            <div class="row row--3">
+
+              <div class="field" id="field-fecha">
+                <label class="field__label" for="fecha">Fecha</label>
+                <div class="control">
+                  <input class="input input--icon input--date" id="fecha" name="fecha" type="date"
+                         aria-describedby="error-fecha">
+                  <button class="control__btn" type="button" id="abrir-calendario" aria-label="Abrir calendario">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/>
+                      <path d="M3.5 10h17M8 3v4M16 3v4"/>
+                    </svg>
+                  </button>
+                </div>
+                <p class="field__error" id="error-fecha" role="alert"></p>
+              </div>
+
+              <div class="field" id="field-hora">
+                <label class="field__label" for="hora">Hora</label>
+                <div class="control">
+                  <select class="input input--icon input--select" id="hora" name="hora" aria-describedby="error-hora">
+                    <option value="" selected disabled>Elegí la hora</option>
+                  </select>
+                  <span class="control__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="8.5"/>
+                      <path d="M12 7.5V12l3 2"/>
+                    </svg>
+                  </span>
+                </div>
+                <p class="field__error" id="error-hora" role="alert"></p>
+              </div>
+
+              <div class="field" id="field-duracion">
+                <label class="field__label" for="duracion">Duración</label>
+                <div class="control">
+                  <select class="input input--icon input--select" id="duracion" name="duracion">
+                    <option value="60" selected>1 hora</option>
+                    <option value="90">1 hora y 30 min</option>
+                    <option value="120">2 horas</option>
+                    <option value="150">2 horas y 30 min</option>
+                    <option value="180">3 horas</option>
+                  </select>
+                  <span class="control__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="14" r="7"/>
+                      <path d="M12 14l2.5-2.5M9.5 3h5"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Jugadores faltantes / Precio de la cancha -->
+            <div class="row row--2">
+
+              <div class="field" id="field-jugadores">
+                <span class="field__label" id="lbl-jugadores">Jugadores faltantes</span>
+                <div class="stepper" role="group" aria-labelledby="lbl-jugadores">
+                  <span class="stepper__hint">¿Cuántos puestos buscás llenar?</span>
+                  <button class="stepper__btn" type="button" id="jug-menos" aria-label="Quitar un jugador">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>
+                  </button>
+                  <output class="stepper__value" id="jugadores" aria-live="polite">1</output>
+                  <button class="stepper__btn stepper__btn--plus" type="button" id="jug-mas" aria-label="Sumar un jugador">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>
+                  </button>
+                </div>
+                <p class="field__error" id="error-jugadores" role="alert"></p>
+              </div>
+
+              <div class="field" id="field-precio">
+                <label class="field__label" for="precio">Precio de la cancha</label>
+                <div class="control">
+                  <input class="input input--icon input--tall" id="precio" name="precio" type="text"
+                         inputmode="numeric" autocomplete="off" placeholder="Ej: $35.000"
+                         aria-describedby="error-precio">
+                  <span class="control__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/>
+                      <rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/>
+                      <path d="M16.5 13.5h.01"/>
+                    </svg>
+                  </span>
+                </div>
+                <p class="field__error" id="error-precio" role="alert"></p>
+              </div>
+
+            </div>
+
+            <!-- Ubicación -->
+            <div class="field" id="field-ubicacion">
+              <label class="field__label" for="ubicacion">Ubicación / cancha</label>
+              <div class="control">
+                <!-- Más adelante se conecta al autocompletado de Google Places -->
+                <input class="input input--icon" id="ubicacion" name="ubicacion" type="text"
+                       autocomplete="off" placeholder="Ej: Club Palermo Soho, Honduras 5050"
+                       aria-describedby="error-ubicacion">
+                <span class="control__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/>
+                    <circle cx="12" cy="9.5" r="2.5"/>
+                  </svg>
+                </span>
+              </div>
+              <p class="field__error" id="error-ubicacion" role="alert"></p>
+            </div>
+
+            <!-- Detalle -->
+            <div class="field" id="field-detalle">
+              <label class="field__label" for="detalle">Detalle para los jugadores</label>
+              <textarea class="input input--area" id="detalle" name="detalle" rows="3" maxlength="300"
+                        placeholder="Ej: Partido amistoso. Traer camiseta clara y llegar 15 minutos antes."></textarea>
+            </div>
+
+          </section>
+
+          <!-- ===== Resumen ===== -->
+          <aside class="resumen" aria-labelledby="resumen-titulo">
+            <h2 class="resumen__title" id="resumen-titulo">Resumen</h2>
+
+            <div class="preview">
+              <span class="badge badge--empty" id="prev-modalidad">Modalidad</span>
+              <h3 class="preview__name is-empty" id="prev-nombre">Nombre de la cancha</h3>
+              <div class="preview__meta">
+                <p id="prev-fecha">Elegí fecha y hora</p>
+                <p id="prev-direccion" hidden></p>
+                <p id="prev-jugadores">Buscás 1 jugador</p>
+              </div>
+            </div>
+
+            <div class="progress-row">
+              <span>Convocatoria completa</span>
+              <strong id="prog-texto">0%</strong>
+            </div>
+            <div class="progress" id="prog-barra" role="progressbar" aria-label="Convocatoria completa"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span class="progress__fill" id="prog-relleno"></span>
+            </div>
+
+            <p class="resumen__note">
+              Tu convocatoria será visible para jugadores dentro del rango seleccionado.
+            </p>
+
+            <button class="btn btn--primary btn--publish" type="submit" id="btn-publicar">
+              <span class="btn__label">Publicar partido</span>
+            </button>
+            <p class="form__error" id="error-general" role="alert"></p>
+          </aside>
+
+        </form>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Ventana emergente: partido confirmado y publicado -->
+  <div class="modal" id="modal-confirmado" hidden>
+    <div class="modal__backdrop" data-cerrar></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true"
+         aria-labelledby="modal-titulo" aria-describedby="modal-texto" tabindex="-1">
+
+      <span class="pill pill--ok">Seña aprobada</span>
+
+      <button class="modal__close" type="button" data-cerrar aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+
+      <div class="modal__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="m8 12.5 3 3 5-6"/>
+        </svg>
+      </div>
+
+      <h2 class="modal__title" id="modal-titulo">¡Partido confirmado!</h2>
+      <p class="modal__text" id="modal-texto">
+        El pago de la seña figura aprobado. Tu reserva y convocatoria están confirmadas.
+      </p>
+
+      <div class="ticket">
+        <span class="ticket__tag" id="mc-modalidad"></span>
+        <h3 class="ticket__name" id="mc-nombre"></h3>
+        <p class="ticket__addr" id="mc-direccion" hidden></p>
+        <p class="ticket__when" id="mc-cuando"></p>
+
+        <dl class="ticket__rows">
+          <div><dt>Costo total</dt><dd id="mc-total"></dd></div>
+          <div><dt>Seña pagada</dt><dd class="is-ok" id="mc-sena"></dd></div>
+          <div><dt>Saldo pendiente</dt><dd id="mc-saldo"></dd></div>
+        </dl>
+      </div>
+
+      <a class="btn btn--primary btn--modal" id="mc-ver" href="detalle-partido.html">Ver partido</a>
+      <a class="btn btn--share" id="mc-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>
+        </svg>
+        Compartir por WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/crear-partido.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis partidos · Convocados</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/mis-partidos.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ============ Barra lateral (se repite en las pantallas internas) ============ -->
+    <aside class="sidebar">
+
+      <a class="brand" href="inicio.html" aria-label="Convocados, inicio">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8.5"/>
+            <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+          </svg>
+        </span>
+        <span class="brand__name">Convoca<span>dos</span></span>
+      </a>
+
+      <nav class="sidebar__nav" aria-label="Principal">
+        <a class="nav-link" href="inicio.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>Inicio</span>
+        </a>
+        <a class="nav-link" href="buscar.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-3.5-3.5"/>
+          </svg>
+          <span>Buscar</span>
+        </a>
+        <a class="nav-link" href="crear-partido.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8v8M8 12h8"/>
+          </svg>
+          <span>Crear partido</span>
+        </a>
+        <a class="nav-link is-active" href="mis-partidos.html" aria-current="page">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="5" width="16" height="15" rx="3"/>
+            <path d="M4 10h16M8 3v4M16 3v4"/>
+          </svg>
+          <span>Mis partidos</span>
+        </a>
+        <a class="nav-link" href="perfil.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20.5c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>
+          </svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__user">
+        <a class="user" href="perfil.html" aria-label="Ver y editar mi perfil">
+          <span class="user__avatar" id="user-avatar">
+            <img id="user-foto" alt="" hidden>
+            <span id="user-iniciales" aria-hidden="true"></span>
+          </span>
+          <span class="user__info">
+            <strong id="user-nombre">Mi cuenta</strong>
+            <span id="user-localidad"></span>
+          </span>
+        </a>
+        <button class="user__logout" type="button" id="btn-logout" aria-label="Cerrar sesión" title="Cerrar sesión">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"/>
+            <path d="m16 17 5-5-5-5M21 12H9"/>
+          </svg>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ============ Contenido ============ -->
+    <main class="app__main">
+      <div class="mis">
+
+        <header class="page-head">
+          <div>
+            <h1 class="page-head__title">Mis partidos</h1>
+            <p class="page-head__lead">Seguí tus próximas fechas y administrá tus convocatorias.</p>
+          </div>
+          <a class="btn btn--primary btn--create" href="crear-partido.html">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Crear partido
+          </a>
+        </header>
+
+        <div class="tabs" role="tablist" aria-label="Filtrar partidos">
+          <button class="tab is-active" type="button" role="tab" id="tab-proximos"
+                  aria-selected="true" aria-controls="panel" data-tab="proximos">Próximos</button>
+          <button class="tab" type="button" role="tab" id="tab-solicitudes"
+                  aria-selected="false" aria-controls="panel" data-tab="solicitudes">Solicitudes<span id="tab-solicitudes-n"></span></button>
+          <button class="tab" type="button" role="tab" id="tab-historial"
+                  aria-selected="false" aria-controls="panel" data-tab="historial">Historial</button>
+        </div>
+
+        <div class="mis__grid">
+
+          <!-- Lista: partidos que creó y partidos a los que se unió -->
+          <section class="panel" id="panel" role="tabpanel" aria-labelledby="tab-proximos">
+            <h2 class="panel__title" id="panel-titulo">Tus próximas fechas</h2>
+            <ul class="lista" id="lista" aria-live="polite" aria-busy="false"></ul>
+          </section>
+
+          <!-- Resumen del mes -->
+          <aside class="resumen" aria-labelledby="resumen-mes">
+            <h2 class="resumen__title" id="resumen-mes">Mes</h2>
+            <div class="stats">
+              <div class="stat">
+                <strong class="stat__num stat__num--accent" id="stat-partidos">0</strong>
+                <span class="stat__label">Partidos</span>
+              </div>
+              <div class="stat">
+                <strong class="stat__num" id="stat-confirmados">0</strong>
+                <span class="stat__label">Confirmados</span>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="js/core.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/mis-partidos.js"></script>
+</body>
+</html>
