@@ -164,7 +164,7 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filas, err := s.DB.Query(`
-		SELECT u.id_usuario, u.nombre, u.apellido, COALESCE(u.foto, ''), COALESCE(u.posicion, '')
+		SELECT u.id_usuario, u.nombre, u.apellido, COALESCE(u.foto, '')
 		  FROM USUARIO_EQUIPO ue
 		  JOIN USUARIO u ON u.id_usuario = ue.id_usuario
 		 WHERE ue.id_equipo = ? ORDER BY u.nombre`, id)
@@ -177,14 +177,14 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 	integrantes := []map[string]any{}
 	for filas.Next() {
 		var idU int64
-		var nombreU, apellido, foto, posicion string
-		if err := filas.Scan(&idU, &nombreU, &apellido, &foto, &posicion); err != nil {
+		var nombreU, apellido, foto string
+		if err := filas.Scan(&idU, &nombreU, &apellido, &foto); err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
 		integrantes = append(integrantes, map[string]any{
 			"id": idU, "nombre": capitalizar(nombreU), "apellido": capitalizar(apellido),
-			"foto": foto, "posicion": posicion,
+			"foto": foto,
 		})
 	}
 

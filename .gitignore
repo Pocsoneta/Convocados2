@@ -1,16 +1,24 @@
+# ============================================================
+# Convocados — proyecto completo (front + backend)
+# ============================================================
+
+# Configuración local: contraseñas y secretos (no se suben nunca)
+.env
+.env.local
+
+# Copias de seguridad de los repos anteriores (Front y backend-go
+# eran repos aparte; sus historias ya están en GitHub)
+.respaldo-ramas-github/
+
 # Binarios compilados
-/bin/
-/convocados-api
+backend-go/bin/
+backend-go/convocados-api
 *.exe
 *.test
 *.out
 
-# Configuración local (contraseñas, secretos)
-.env
-.env.local
-
 # Dependencias
-/vendor/
+vendor/
 
 # Sistema / editores
 .DS_Store
@@ -18,3 +26,4 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+*~

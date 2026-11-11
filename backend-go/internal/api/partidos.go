@@ -48,13 +48,21 @@ const colsPartido = `SELECT
 	COALESCE(c.lat, 0), COALESCE(c.lng, 0),
 	COALESCE(ca.nombre, ''), COALESCE(ca.numero_cancha, 0),
 	(SELECT COUNT(*) FROM USUARIO_PARTIDO up
-	  WHERE up.id_partido = p.id_partido AND up.fecha_baja IS NULL)
+	  WHERE up.id_partido = p.id_partido AND up.fecha_baja IS NULL AND up.estado = 'Confirmado')
 	+ (SELECT COUNT(*) FROM EQUIPO_PARTIDO ep
-	     JOIN USUARIO_EQUIPO ue ON ue.id_equipo = ep.id_equipo
 	    WHERE ep.id_partido = p.id_partido AND ep.fecha_baja IS NULL) AS inscriptos
 	FROM PARTIDO p
 	LEFT JOIN COMPLEJO c ON c.id_complejo = p.id_complejo
 	LEFT JOIN CANCHA ca  ON ca.id_cancha  = p.id_cancha`
+
+// sqlOcupados cuenta los lugares ocupados de un partido (dos parámetros: id):
+// jugadores confirmados más equipos inscriptos. Las solicitudes pendientes
+// de jugadores no ocupan lugar hasta que el organizador las acepta.
+const sqlOcupados = `SELECT
+	(SELECT COUNT(*) FROM USUARIO_PARTIDO
+	  WHERE id_partido = ? AND estado = 'Confirmado' AND fecha_baja IS NULL)
+	+ (SELECT COUNT(*) FROM EQUIPO_PARTIDO
+	    WHERE id_partido = ? AND fecha_baja IS NULL)`
 
 func escanearPartido(sc interface{ Scan(...any) error }) (*partido, error) {
 	p := &partido{}
@@ -334,14 +342,17 @@ func (s *Server) detallePartido(w http.ResponseWriter, r *http.Request) {
 		costo = p.Costo.Float64
 	}
 
-	// ¿Estoy inscripto?
-	inscripto := false
+	// ¿Qué estado tengo en este partido? ("" | "pendiente" | "confirmado")
+	miEstado := ""
+	esOrganizador := claims != nil && p.IDCreador.Valid && p.IDCreador.Int64 == claims.Sub
 	if claims != nil {
-		var n int
-		s.DB.QueryRow(`SELECT COUNT(*) FROM USUARIO_PARTIDO
-		                WHERE id_partido = ? AND id_usuario = ? AND fecha_baja IS NULL`,
-			id, claims.Sub).Scan(&n)
-		inscripto = n > 0
+		var estado string
+		err := s.DB.QueryRow(`SELECT estado FROM USUARIO_PARTIDO
+		                       WHERE id_partido = ? AND id_usuario = ? AND fecha_baja IS NULL`,
+			id, claims.Sub).Scan(&estado)
+		if err == nil {
+			miEstado = strings.ToLower(estado)
+		}
 	}
 
 	JSON(w, http.StatusOK, map[string]any{
@@ -353,8 +364,11 @@ func (s *Server) detallePartido(w http.ResponseWriter, r *http.Request) {
 		"numeroCancha":       p.NumeroCancha,
 		"creador":            s.usuarioPublico(p.IDCreador),
 		"participantes":      s.listarParticipantes(id),
-		"miInscripcion":      inscripto,
-		"puedeInscribirse":   !inscripto && p.Disponibles() > 0 && p.Fecha.After(time.Now()),
+		"miInscripcion":      miEstado != "",
+		"miEstado":           miEstado,
+		"esOrganizador":      esOrganizador,
+		"puedeInscribirse": miEstado == "" && !esOrganizador && p.Estado == "Publicado" &&
+			p.Disponibles() > 0 && p.Fecha.After(time.Now()),
 	})
 }
 
@@ -364,7 +378,7 @@ func (s *Server) listarParticipantes(idPartido int64) []participante {
 		       COALESCE(u.foto, '') AS foto, up.estado
 		  FROM USUARIO_PARTIDO up
 		  JOIN USUARIO u ON u.id_usuario = up.id_usuario
-		 WHERE up.id_partido = ? AND up.fecha_baja IS NULL
+		 WHERE up.id_partido = ? AND up.fecha_baja IS NULL AND up.estado = 'Confirmado'
 		UNION ALL
 		SELECT 'equipo', ep.id_equipo, e.nombre, '', '', ep.estado
 		  FROM EQUIPO_PARTIDO ep
@@ -406,15 +420,16 @@ func (s *Server) usuarioPublico(id sql.NullInt64) map[string]any {
 /* ---------- Alta ---------- */
 
 type partidoReq struct {
-	IDComplejo         int64    `json:"idComplejo"`
-	IDCancha           int64    `json:"idCancha"`
-	FechaHora          string   `json:"fechaHora"`
-	CupoTotal          int      `json:"cupoTotal"`
-	JugadoresFaltantes int      `json:"jugadoresFaltantes"`
-	Descripcion        string   `json:"descripcion"`
-	CostoTotal         *float64 `json:"costoTotal"`
-	Modalidad          string   `json:"modalidad"`
-	Nivel              string   `json:"nivel"`
+	IDComplejo         int64          `json:"idComplejo"`
+	Complejo           *complejoNuevo `json:"complejo"`
+	IDCancha           int64          `json:"idCancha"`
+	FechaHora          string         `json:"fechaHora"`
+	CupoTotal          int            `json:"cupoTotal"`
+	JugadoresFaltantes int            `json:"jugadoresFaltantes"`
+	Descripcion        string         `json:"descripcion"`
+	CostoTotal         *float64       `json:"costoTotal"`
+	Modalidad          string         `json:"modalidad"`
+	Nivel              string         `json:"nivel"`
 }
 
 // POST /api/partidos
@@ -427,6 +442,14 @@ func (s *Server) crearPartido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.IDComplejo == 0 && req.Complejo != nil {
+		id, err := s.resolverComplejo(req.Complejo)
+		if err != nil {
+			respondeErrJSON(w, err)
+			return
+		}
+		req.IDComplejo = id
+	}
 	if req.IDComplejo == 0 {
 		Error(w, http.StatusBadRequest, "Elegí el complejo donde se juega.")
 		return
@@ -536,31 +559,48 @@ func (s *Server) inscribirse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ¿Ya estaba?
-	var fechaBaja sql.NullTime
-	err = s.DB.QueryRow(`SELECT fecha_baja FROM USUARIO_PARTIDO
-	                      WHERE id_partido = ? AND id_usuario = ?`, id, claims.Sub).Scan(&fechaBaja)
-	if err == nil && !fechaBaja.Valid {
-		Error(w, http.StatusConflict, "Ya estás inscripto en ese partido.")
+	if p.Estado != "Publicado" {
+		Error(w, http.StatusConflict, "Ese partido ya no está disponible.")
+		return
+	}
+	if p.IDCreador.Valid && p.IDCreador.Int64 == claims.Sub {
+		Error(w, http.StatusConflict, "Sos el organizador de ese partido.")
 		return
 	}
 
-	if err == nil { // se había dado de baja: vuelve a ocupar cupo
+	// ¿Ya tenía algo con este partido?
+	var estado string
+	var fechaBaja sql.NullTime
+	err = s.DB.QueryRow(`SELECT estado, fecha_baja FROM USUARIO_PARTIDO
+	                      WHERE id_partido = ? AND id_usuario = ?`, id, claims.Sub).Scan(&estado, &fechaBaja)
+	if err == nil && !fechaBaja.Valid {
+		if estado == "Pendiente" {
+			Error(w, http.StatusConflict, "Ya enviaste una solicitud para ese partido.")
+		} else {
+			Error(w, http.StatusConflict, "Ya estás inscripto en ese partido.")
+		}
+		return
+	}
+
+	// Entra como solicitud: ocupa cupo recién cuando el organizador la acepta.
+	if err == nil { // antes la habían dado de baja o rechazado: vuelve a pedirlo
 		if _, err := s.DB.Exec(`UPDATE USUARIO_PARTIDO
-		                          SET fecha_baja = NULL, estado = 'Confirmado', fecha_alta = NOW()
+		                          SET fecha_baja = NULL, estado = 'Pendiente', fecha_alta = NOW()
 		                        WHERE id_partido = ? AND id_usuario = ?`, id, claims.Sub); err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
 	} else {
 		if _, err := s.DB.Exec(`INSERT INTO USUARIO_PARTIDO (id_partido, id_usuario, estado)
-		                          VALUES (?, ?, 'Confirmado')`, id, claims.Sub); err != nil {
+		                          VALUES (?, ?, 'Pendiente')`, id, claims.Sub); err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
 	}
 
-	JSON(w, http.StatusCreated, map[string]any{"ok": "te inscribiste correctamente", "id": id})
+	JSON(w, http.StatusCreated, map[string]any{
+		"ok": "solicitud enviada, el organizador la va a revisar", "id": id,
+	})
 }
 
 // DELETE /api/partidos/{id}/inscripcion
@@ -615,7 +655,18 @@ func (s *Server) sumarEquipo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := escanearPartido(s.DB.QueryRow(colsPartido+" WHERE p.id_partido = ?", id))
+	tx, err := s.DB.Begin()
+	if err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	defer tx.Rollback()
+
+	// Bloquea el partido: dos equipos no pueden tomar el mismo último cupo.
+	var estado string
+	var cupo int
+	err = tx.QueryRow("SELECT estado, cupo_total FROM PARTIDO WHERE id_partido = ? FOR UPDATE",
+		id).Scan(&estado, &cupo)
 	if err == sql.ErrNoRows {
 		Error(w, http.StatusNotFound, "No encontramos ese partido.")
 		return
@@ -624,22 +675,39 @@ func (s *Server) sumarEquipo(w http.ResponseWriter, r *http.Request) {
 		respondeErrJSON(w, err)
 		return
 	}
-	if p.Disponibles() <= 0 {
+	if estado != "Publicado" {
+		Error(w, http.StatusConflict, "Ese partido ya no está disponible.")
+		return
+	}
+
+	var ocupados int
+	if err := tx.QueryRow(sqlOcupados, id, id).Scan(&ocupados); err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	if ocupados >= cupo {
 		Error(w, http.StatusConflict, "No quedan cupos libres para ese partido.")
 		return
 	}
 
 	var ya int
-	s.DB.QueryRow(`SELECT COUNT(*) FROM EQUIPO_PARTIDO
-	                WHERE id_partido = ? AND id_equipo = ? AND fecha_baja IS NULL`,
-		id, req.IDEquipo).Scan(&ya)
+	if err := tx.QueryRow(`SELECT COUNT(*) FROM EQUIPO_PARTIDO
+	                        WHERE id_partido = ? AND id_equipo = ? AND fecha_baja IS NULL`,
+		id, req.IDEquipo).Scan(&ya); err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
 	if ya > 0 {
 		Error(w, http.StatusConflict, "Tu equipo ya está inscripto en ese partido.")
 		return
 	}
 
-	if _, err := s.DB.Exec(`INSERT INTO EQUIPO_PARTIDO (id_partido, id_equipo, estado)
-	                          VALUES (?, ?, 'Pendiente')`, id, req.IDEquipo); err != nil {
+	if _, err := tx.Exec(`INSERT INTO EQUIPO_PARTIDO (id_partido, id_equipo, estado)
+	                       VALUES (?, ?, 'Pendiente')`, id, req.IDEquipo); err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	if err := tx.Commit(); err != nil {
 		respondeErrJSON(w, err)
 		return
 	}

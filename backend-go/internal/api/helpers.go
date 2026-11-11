@@ -65,35 +65,6 @@ func zonaTexto(barrio, ciudad string) string {
 	}
 }
 
-// normaliza las posiciones enviadas por el front ("AR,DEF,MC").
-func normalizarPosiciones(posiciones []string) string {
-	limpias := make([]string, 0, len(posiciones))
-	vistas := map[string]bool{}
-	for _, p := range posiciones {
-		p = strings.ToUpper(strings.TrimSpace(p))
-		if p == "" || vistas[p] {
-			continue
-		}
-		vistas[p] = true
-		limpias = append(limpias, p)
-	}
-	return strings.Join(limpias, ",")
-}
-
-func csvALista(csv string) []string {
-	if strings.TrimSpace(csv) == "" {
-		return []string{}
-	}
-	parte := strings.Split(csv, ",")
-	salida := make([]string, 0, len(parte))
-	for _, p := range parte {
-		if p = strings.TrimSpace(p); p != "" {
-			salida = append(salida, p)
-		}
-	}
-	return salida
-}
-
 func aFloat64(v sql.NullFloat64) float64 {
 	if v.Valid {
 		return v.Float64

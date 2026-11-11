@@ -143,7 +143,8 @@ func (s *Server) misPartidos(w http.ResponseWriter, r *http.Request) {
 	consulta := colsPartido + `
 		 WHERE ` + condFecha + `
 		   AND (
-		        EXISTS (SELECT 1 FROM USUARIO_PARTIDO up
+		        p.id_usuario_creador = ?
+		     OR EXISTS (SELECT 1 FROM USUARIO_PARTIDO up
 		                 WHERE up.id_partido = p.id_partido
 		                   AND up.id_usuario = ? AND up.fecha_baja IS NULL)
 		     OR EXISTS (SELECT 1 FROM EQUIPO_PARTIDO ep
@@ -154,24 +155,36 @@ func (s *Server) misPartidos(w http.ResponseWriter, r *http.Request) {
 		 ORDER BY ` + orden + `
 		 LIMIT 50`
 
-	filas, err := s.DB.Query(consulta, claims.Sub, claims.Sub)
+	filas, err := s.DB.Query(consulta, claims.Sub, claims.Sub, claims.Sub)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return
 	}
 	defer filas.Close()
 
-	f := leerFiltros(r)
-	complejos, _ := cargarComplejos(s.DB)
-
-	lista := []partidoJSON{}
+	partidos := []partido{}
 	for filas.Next() {
 		p, err := escanearPartido(filas)
 		if err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
-		lista = append(lista, p.aJSON(complejos, f.Lat, f.Lng))
+		partidos = append(partidos, *p)
+	}
+	if err := filas.Err(); err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	filas.Close()
+
+	f := leerFiltros(r)
+	complejos, _ := cargarComplejos(s.DB)
+
+	lista := []misPartidoJSON{}
+	for i := range partidos {
+		item := misPartidoJSON{partidoJSON: partidos[i].aJSON(complejos, f.Lat, f.Lng)}
+		item.Rol, item.Estado, item.SolicitudesPendientes = s.miSituacion(&partidos[i], claims.Sub)
+		lista = append(lista, item)
 	}
 	JSON(w, http.StatusOK, lista)
 }

@@ -10,15 +10,14 @@ import (
 /* =========================================================
    Perfil deportivo (paso 2 del registro) y datos de la cuenta.
      GET  /api/perfil
-     PUT  /api/perfil   { localidad, posiciones[], nivel, foto }
+     PUT  /api/perfil   { localidad, nivel, foto }
      PUT  /api/cuenta    { nombre, apellido, telefono }
    ========================================================= */
 
 type perfilReq struct {
-	Localidad  string   `json:"localidad"`
-	Posiciones []string `json:"posiciones"`
-	Nivel      string   `json:"nivel"`
-	Foto       *string  `json:"foto"`
+	Localidad string  `json:"localidad"`
+	Nivel     string  `json:"nivel"`
+	Foto      *string `json:"foto"`
 }
 
 func (s *Server) obtenerPerfil(w http.ResponseWriter, r *http.Request) {
@@ -49,12 +48,6 @@ func (s *Server) guardarPerfil(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusBadRequest, "Es muy corto.")
 		return
 	}
-	posiciones := normalizarPosiciones(req.Posiciones)
-	if posiciones == "" {
-		Error(w, http.StatusBadRequest, "Elegí al menos una posición.")
-		return
-	}
-
 	nivel := strings.TrimSpace(req.Nivel)
 	if nivel == "" {
 		nivel = "Amateur"
@@ -66,14 +59,9 @@ func (s *Server) guardarPerfil(w http.ResponseWriter, r *http.Request) {
 		foto = *req.Foto
 	}
 
-	// La primera posición pasa a ser la "principal" (columna posicion)
-	principal := strings.Split(posiciones, ",")[0]
-
 	_, err := s.DB.Exec(
-		`UPDATE USUARIO
-		    SET localidad = ?, posiciones = ?, posicion = ?, nivel = ?, foto = ?
-		  WHERE id_usuario = ?`,
-		localidad, posiciones, principal, nivel, foto, claims.Sub)
+		`UPDATE USUARIO SET localidad = ?, nivel = ?, foto = ? WHERE id_usuario = ?`,
+		localidad, nivel, foto, claims.Sub)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return
