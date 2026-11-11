@@ -3,9 +3,8 @@
 
    - El resumen de la derecha se arma en vivo con lo que se
      va completando.
-   - "Publicar partido" valida, guarda el partido de forma
-     simulada y abre la ventana de "Partido confirmado".
-     Para conectar el backend, reemplazá solo `publicarPartido`.
+   - "Publicar partido" valida, lo envía al backend (POST
+     /api/partidos) y abre la ventana de "Partido confirmado".
 
    La seña (30 %) y su aprobación están SIMULADAS: no hay
    integración de pago todavía.
@@ -14,12 +13,13 @@
 (() => {
   if (!Auth.requerir()) return;
 
-  const usuario = Auth.usuario();
   const $ = (id) => document.getElementById(id);
 
   const PORCENTAJE_SENA = 0.3;
-  const MAX_JUGADORES_GENERAL = 22;
+  const MAX_JUGADORES_GENERAL = 21;
 
+  // jugadoresTotales: todos los jugadores de la modalidad, organizador incluido.
+  // Sin equipo armado, el organizador busca a todos los demás.
   const MODALIDADES = {
     "futbol-5": { nombre: "Fútbol 5", jugadoresTotales: 10 },
     "futbol-7": { nombre: "Fútbol 7", jugadoresTotales: 14 },
@@ -43,7 +43,6 @@
   const el = {
     fecha: $("fecha"),
     hora: $("hora"),
-    duracion: $("duracion"),
     precio: $("precio"),
     ubicacion: $("ubicacion"),
     detalle: $("detalle"),
@@ -106,7 +105,8 @@
 
   /* ---------- Jugadores faltantes ---------- */
   const modalidadActual = () => form.elements["modalidad"].value;
-  const tope = () => MODALIDADES[modalidadActual()]?.jugadoresTotales || MAX_JUGADORES_GENERAL;
+  // Lo máximo que se puede buscar: la modalidad menos el organizador
+  const tope = () => (MODALIDADES[modalidadActual()]?.jugadoresTotales - 1) || MAX_JUGADORES_GENERAL;
 
   function pintarJugadores() {
     jugadores = Math.min(Math.max(jugadores, 1), tope());
@@ -124,7 +124,6 @@
       modalidad: modalidadActual(),
       fecha: el.fecha.value,
       hora: el.hora.value,
-      duracion: Number(el.duracion.value),
       jugadores,
       precio: leerPrecio(),
       ubicacion: el.ubicacion.value.trim(),
@@ -150,7 +149,6 @@
       Boolean(v.modalidad),
       Boolean(v.fecha),
       Boolean(v.hora),
-      Boolean(v.duracion),
       v.jugadores >= 1,
       v.precio !== null && v.precio > 0,
       v.ubicacion.length > 0
@@ -162,6 +160,226 @@
   function partirUbicacion(texto) {
     const [nombre, ...resto] = texto.split(",");
     return { nombre: nombre.trim(), direccion: resto.join(",").trim() };
+  }
+
+  /* =======================================================
+     Ubicación de la cancha
+
+     Hay dos caminos, y el back decide cuál:
+       - Si hay MAPS_API_KEY, se carga Google Places y el
+         campo se autocompleta con su API.
+       - Si no hay (o el script no carga), se usa el buscador
+         gratuito de OpenStreetMap vía GET /api/geocode, sin
+         clave ni tarjeta.
+     En los dos casos se guardan lat/lng al publicar. Si
+     ninguna vía está disponible, la dirección se escribe a
+     mano.
+     ======================================================= */
+  const mapa = { elegida: null, conGoogle: false, cargandoGoogle: false };
+
+  function pintarAyuda(texto) {
+    const hint = $("hint-ubicacion");
+    if (!hint) return;
+    hint.hidden = false;
+    hint.textContent = texto;
+  }
+
+  // El usuario eligió un lugar: tomamos su nombre,
+  // su dirección y sus coordenadas.
+  function ubicacionElegida(lugar) {
+    el.ubicacion.value = [lugar.nombre, lugar.direccion].filter(Boolean).join(", ");
+    mapa.elegida = lugar;
+    setError("ubicacion", "");
+    renderResumen();
+  }
+
+  function activarAutocomplete() {
+    if (!window.google || !google.maps || !google.maps.places) return;
+
+    const ac = new google.maps.places.Autocomplete(el.ubicacion, {
+      types: ["geocode"],
+      fields: ["name", "formatted_address", "geometry"]
+    });
+    ac.addListener("place_changed", () => {
+      const p = ac.getPlace();
+      if (!p || !p.geometry || !p.geometry.location) {
+        mapa.elegida = null;
+        return;
+      }
+      ubicacionElegida({
+        nombre: p.name || "",
+        direccion: p.formatted_address || "",
+        lat: p.geometry.location.lat(),
+        lng: p.geometry.location.lng()
+      });
+    });
+
+    mapa.conGoogle = true;
+    pintarAyuda("Buscá la cancha en el mapa o escribí la dirección a mano.");
+  }
+
+  async function cargarMaps() {
+    let clave = "";
+    try {
+      clave = (await API.get("/api/config")).mapsKey || "";
+    } catch {
+      /* sin configuración: usamos el buscador gratuito */
+    }
+    if (clave) {
+      mapa.cargandoGoogle = true;
+      const cargo = await new Promise((ok) => {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(clave)}` +
+                     "&libraries=places&language=es&region=AR";
+        script.async = true;
+        script.onload = () => ok(true);
+        script.onerror = () => ok(false);
+        document.head.appendChild(script);
+      });
+      mapa.cargandoGoogle = false;
+      if (cargo) {
+        activarAutocomplete();
+        if (mapa.conGoogle) return;
+      }
+    }
+    // Sin clave de Google (o no cargó): OpenStreetMap, gratis y sin registro.
+    pintarAyuda("Buscá la cancha mientras escribís; si no aparece, escribí la dirección a mano.");
+  }
+
+  /* =======================================================
+     Sugerencias de OpenStreetMap (GET /api/geocode)
+     ======================================================= */
+  const geo = { items: [], activo: -1, vacio: false, timer: null, ultimo: 0, pedido: 0 };
+
+  const listaSugerencias = () => $("sugerencias-ubicacion");
+
+  function cerrarSugerencias() {
+    const lista = listaSugerencias();
+    geo.items = [];
+    geo.activo = -1;
+    geo.vacio = false;
+    if (lista) {
+      lista.hidden = true;
+      lista.replaceChildren();
+    }
+    el.ubicacion.setAttribute("aria-expanded", "false");
+  }
+
+  function pintarSugerencias() {
+    const lista = listaSugerencias();
+    if (!lista) return;
+
+    // Sin resultados: un mensaje, no una lista vacía
+    if (!geo.items.length) {
+      if (!geo.vacio) {
+        cerrarSugerencias();
+        return;
+      }
+      const aviso = document.createElement("li");
+      aviso.className = "sug-vacio";
+      aviso.setAttribute("role", "presentation");
+      aviso.textContent = "No encontramos esa ubicación. Escribí la dirección a mano.";
+      lista.replaceChildren(aviso);
+      lista.hidden = false;
+      el.ubicacion.setAttribute("aria-expanded", "false");
+      return;
+    }
+
+    const opciones = geo.items.map((it, i) => {
+      const li = document.createElement("li");
+      li.id = `sugerencia-${i}`;
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", String(i === geo.activo));
+
+      const titulo = document.createElement("span");
+      titulo.className = "sug-titulo";
+      titulo.textContent = it.titulo;
+      li.appendChild(titulo);
+
+      if (it.subtitulo) {
+        const sub = document.createElement("span");
+        sub.className = "sug-sub";
+        sub.textContent = it.subtitulo;
+        li.appendChild(sub);
+      }
+
+      // mousedown (y no click) para que no pierda el foco el campo
+      li.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        elegirSugerencia(i);
+      });
+      return li;
+    });
+
+    const pie = document.createElement("li");
+    pie.className = "sugerencias__pie";
+    pie.setAttribute("role", "presentation");
+    pie.textContent = "Ubicaciones de OpenStreetMap";
+
+    lista.replaceChildren(...opciones, pie);
+    lista.hidden = false;
+    el.ubicacion.setAttribute("aria-expanded", "true");
+
+    const activo = geo.activo >= 0 && lista.querySelector(`#sugerencia-${geo.activo}`);
+    if (activo) activo.scrollIntoView({ block: "nearest" });
+  }
+
+  function elegirSugerencia(i) {
+    const it = geo.items[i];
+    if (!it) return;
+    ubicacionElegida({ nombre: it.titulo, direccion: it.subtitulo, lat: it.lat, lng: it.lng });
+    cerrarSugerencias();
+    el.ubicacion.focus();
+  }
+
+  function programarBusqueda() {
+    // Con Google activo no se consulta OpenStreetMap
+    if (mapa.conGoogle || mapa.cargandoGoogle) return;
+    clearTimeout(geo.timer);
+    // Nominatim pide máximo 1 consulta por segundo
+    const espera = Math.max(500, geo.ultimo + 1000 - Date.now());
+    geo.timer = setTimeout(buscarUbicacion, espera);
+  }
+
+  async function buscarUbicacion() {
+    const texto = el.ubicacion.value.trim();
+    if (texto.length < 4) {
+      cerrarSugerencias();
+      return;
+    }
+    geo.ultimo = Date.now();
+    const pedido = ++geo.pedido;
+    try {
+      const items = await API.get(`/api/geocode?q=${encodeURIComponent(texto)}`);
+      if (pedido !== geo.pedido) return; // respuesta que ya no sirve
+      geo.items = Array.isArray(items) ? items : [];
+      geo.vacio = geo.items.length === 0;
+      geo.activo = geo.items.length ? 0 : -1;
+      pintarSugerencias();
+    } catch {
+      if (pedido === geo.pedido) cerrarSugerencias();
+    }
+  }
+
+  function manejarTeclasSugerencias(e) {
+    if (e.key === "Escape") {
+      cerrarSugerencias();
+      return;
+    }
+    if (!geo.items.length || listaSugerencias()?.hidden) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      geo.activo = (geo.activo + 1) % geo.items.length;
+      pintarSugerencias();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      geo.activo = (geo.activo - 1 + geo.items.length) % geo.items.length;
+      pintarSugerencias();
+    } else if (e.key === "Enter" && geo.activo >= 0) {
+      e.preventDefault();
+      elegirSugerencia(geo.activo);
+    }
   }
 
   function renderResumen() {
@@ -248,43 +466,57 @@
   form.addEventListener("input", (e) => {
     const id = e.target.id || e.target.name;
     if (campos[id]) setError(id, "");
+    // Si el usuario vuelve a editar la dirección a mano, las
+    // coordenadas del lugar elegido ya no corresponden.
+    if (id === "ubicacion") {
+      mapa.elegida = null;
+      programarBusqueda();
+    }
     el.errorGeneral.classList.remove("is-visible");
     renderResumen();
   });
   form.addEventListener("change", (e) => {
     if (e.target.name === "modalidad") {
       setError("modalidad", "");
-      pintarJugadores(); // el máximo depende de la modalidad
+      jugadores = tope(); // arranca buscando a todos los demás jugadores
+      pintarJugadores();
     }
     if (e.target.id === "fecha") setError("hora", "");
     renderResumen();
   });
 
   /* =======================================================
-     Publicación (simulada)
+     Publicación (backend Go)
+     POST /api/partidos
      ======================================================= */
   async function publicarPartido(datos) {
-    await new Promise((r) => setTimeout(r, 700));
+    const modalidad = MODALIDADES[datos.modalidad];
+    const { nombre, direccion } = partirUbicacion(datos.ubicacion);
 
-    const partido = {
-      id: `p-${Date.now()}`,
-      creadorEmail: usuario.email,
-      modalidad: MODALIDADES[datos.modalidad].nombre,
-      fecha: `${datos.fecha}T${datos.hora}:00`,
-      duracionMin: datos.duracion,
-      jugadoresFaltantes: datos.jugadores,
-      precioCancha: datos.precio,
-      ubicacion: datos.ubicacion,
-      detalle: datos.detalle,
-      creadoEn: new Date().toISOString()
+    // Si el lugar salió del buscador, usamos sus datos tal cual
+    // (no hay que partir el texto, que puede tener comas).
+    const lugar = mapa.elegida;
+    const complejo = {
+      nombre: (lugar && lugar.nombre) || nombre,
+      direccion: (lugar && lugar.direccion) || direccion || nombre
     };
-
-    const partidos = Store.get("partidos_publicados", []);
-    partidos.push(partido);
-    if (!Store.set("partidos_publicados", partidos)) {
-      throw new Error("No pudimos guardar el partido: el almacenamiento del navegador está lleno.");
+    if (lugar) {
+      complejo.lat = lugar.lat;
+      complejo.lng = lugar.lng;
     }
-    return partido;
+
+    const creado = await API.post("/api/partidos", {
+      complejo,
+      fechaHora: `${datos.fecha}T${datos.hora}`,
+      cupoTotal: datos.jugadores,
+      jugadoresFaltantes: datos.jugadores,
+      descripcion: datos.detalle,
+      costoTotal: datos.precio,
+      modalidad: modalidad.nombre,
+      nivel: "Amateur"
+    });
+
+    return { id: creado.id, modalidad: modalidad.nombre };
   }
 
   function cargando(estado) {
@@ -295,6 +527,8 @@
   function reiniciarFormulario() {
     form.reset();
     jugadores = 1;
+    mapa.elegida = null;
+    cerrarSugerencias();
     Object.keys(campos).forEach((n) => setError(n, ""));
     el.errorGeneral.classList.remove("is-visible");
     pintarJugadores();
@@ -336,16 +570,9 @@
     return `${dos(d.getDate())}/${dos(d.getMonth() + 1)}/${d.getFullYear()}`;
   };
 
-  // "21:00" + 90 min → "22:30"
-  function horaFin(hora, minutos) {
-    const [h, m] = hora.split(":").map(Number);
-    const total = (h * 60 + m + minutos) % (24 * 60);
-    return `${dos(Math.floor(total / 60))}:${dos(total % 60)}`;
-  }
-
   function abrirModal(partido, datos) {
     const { nombre, direccion } = partirUbicacion(datos.ubicacion);
-    const cuando = `${formatoFechaCorta(datos.fecha)} · ${datos.hora}–${horaFin(datos.hora, datos.duracion)}`;
+    const cuando = `${formatoFechaCorta(datos.fecha)} · ${datos.hora} hs`;
 
     // Cuentas: seña del 30 % (simulada) y saldo restante
     const total = datos.precio;
@@ -417,6 +644,9 @@
   });
 
   /* ---------- Inicio ---------- */
+  el.ubicacion.addEventListener("keydown", manejarTeclasSugerencias);
+  el.ubicacion.addEventListener("blur", () => setTimeout(cerrarSugerencias, 120));
   pintarJugadores();
   renderResumen();
+  cargarMaps(); // autocompletado: Google si hay clave, si no OpenStreetMap
 })();

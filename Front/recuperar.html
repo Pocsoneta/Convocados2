@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recuperar contraseña · Convocados</title>
+  <meta name="theme-color" content="#f5f7fc">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/recuperar.css">
+</head>
+<body>
+
+  <main class="login">
+
+    <!-- Columna izquierda: formulario -->
+    <section class="login__panel">
+
+      <header class="login__header">
+        <a class="brand" href="onboarding.html" aria-label="Convocados, inicio">
+          <span class="brand__mark brand__mark--solid" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+            </svg>
+          </span>
+          <span class="brand__name">Convoca<span>dos</span></span>
+        </a>
+      </header>
+
+      <div class="login__main">
+
+        <!-- Paso 1: pedir el enlace (sin token en la URL) -->
+        <div id="paso-email" hidden>
+          <h1 class="login__title">¿Olvidaste tu contraseña?</h1>
+          <p class="login__lead">Ingresá tu email y te enviamos un enlace para crear una nueva.</p>
+
+          <form class="form" id="form-email" novalidate>
+            <div class="field" id="field-email">
+              <label class="field__label" for="email">Email</label>
+              <input class="field__input" id="email" name="email" type="email"
+                     inputmode="email" autocomplete="email" placeholder="tu@email.com"
+                     aria-describedby="error-email" required>
+              <p class="field__error" id="error-email" role="alert"></p>
+            </div>
+
+            <p class="form__error" id="error-general-email" role="alert"></p>
+
+            <button class="btn btn--primary btn--block" type="submit" id="btn-email">
+              <span class="btn__label">Enviar enlace</span>
+            </button>
+          </form>
+
+          <div class="aviso-enviado" id="enviado" role="status" hidden>
+            <p class="aviso-enviado__titulo">Revisá tu email</p>
+            <p class="aviso-enviado__texto" id="enviado-texto"></p>
+          </div>
+
+          <p class="login__alt">
+            ¿Te acordaste? <a href="login.html">Iniciá sesión</a>
+          </p>
+        </div>
+
+        <!-- Paso 2: elegir la nueva contraseña (con token en la URL) -->
+        <div id="paso-clave" hidden>
+          <h1 class="login__title">Creá una nueva contraseña</h1>
+          <p class="login__lead">Usá al menos 8 caracteres.</p>
+
+          <form class="form" id="form-clave" novalidate>
+            <div class="field" id="field-password">
+              <label class="field__label" for="password">Nueva contraseña</label>
+              <div class="field__control">
+                <input class="field__input field__input--icon" id="password" name="password"
+                       type="password" autocomplete="new-password"
+                       aria-describedby="error-password" required>
+                <button class="field__toggle" type="button" id="toggle-password"
+                        aria-label="Mostrar contraseña" aria-pressed="false">
+                  <svg class="icon-hidden" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6 0 9.5 7 9.5 7a15.7 15.7 0 0 1-2.6 3.4M6.6 6.6A15.5 15.5 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1"/>
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                    <path d="M3 3l18 18"/>
+                  </svg>
+                  <svg class="icon-visible" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="field__error" id="error-password" role="alert"></p>
+            </div>
+
+            <div class="field" id="field-repetir">
+              <label class="field__label" for="repetir">Repetí la contraseña</label>
+              <input class="field__input" id="repetir" name="repetir" type="password"
+                     autocomplete="new-password" aria-describedby="error-repetir" required>
+              <p class="field__error" id="error-repetir" role="alert"></p>
+            </div>
+
+            <p class="form__error" id="error-general-clave" role="alert"></p>
+
+            <button class="btn btn--primary btn--block" type="submit" id="btn-clave">
+              <span class="btn__label">Guardar contraseña</span>
+            </button>
+          </form>
+
+          <p class="login__alt">
+            <a href="login.html">Volver a iniciar sesión</a>
+          </p>
+        </div>
+
+      </div>
+
+      <footer class="login__footer">
+        <p>Al continuar aceptás los términos de Convocados.</p>
+      </footer>
+
+    </section>
+
+    <!-- Columna derecha: imagen -->
+    <section class="login__visual">
+      <div class="login__card">
+        <img src="img/login-hero.jpg" alt="" id="login-hero">
+        <div class="login__card-text">
+          <strong>Siempre hay lugar para uno más.</strong>
+          <span>Encontrá tu próxima fecha en minutos.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/core.js"></script>
+  <script src="js/recuperar.js"></script>
+</body>
+</html>

@@ -6,17 +6,14 @@
    - La lista y el mapa muestran los mismos resultados, en
      el mismo orden (fecha más próxima primero).
 
-   Todavía no hay API: la lista y el mapa quedan vacíos hasta
-   que se conecte el backend. Para conectarlo, completá solo
-   `obtenerPartidos`. Para conectar Google Maps, reemplazá
-   js/mapa-zona.js.
+   Los resultados vienen de GET /api/partidos (ver obtenerPartidos).
+   Para conectar Google Maps, reemplazá js/mapa-zona.js.
    ========================================================= */
 
 (() => {
   if (!Auth.sesion()) return;
 
   const $ = (id) => document.getElementById(id);
-  const usuario = Auth.usuario();
 
   /* ---------- Utilidades de fecha y texto ---------- */
   const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
@@ -40,7 +37,7 @@
 
   const estado = {
     texto: "",
-    zona: usuario.localidad || "",
+    zona: "",                        // se completa con la localidad del usuario al cargar
     desde: hoy,                      // por defecto: hoy y los próximos 3 días
     hasta: sumarDias(hoy, 3),
     modalidad: params.get("modalidad") || "",   // viene del filtro de la pantalla de inicio
@@ -71,20 +68,21 @@
   };
 
   /* =======================================================
-     API (pendiente) — completar cuando exista el backend
+     API (backend Go) — GET /api/partidos
 
      Recibe los filtros:
        { texto, desde, hasta, zona, modalidad }
        (desde / hasta son objetos Date, o null si no hay fecha;
         modalidad viene como "futbol-5", "futbol-7" o "futbol-11")
-
-     Debe devolver un array de partidos con esta forma:
-       { id, nombre, modalidad: "Fútbol 5", zona: "Palermo, CABA",
-         distanciaKm: 0.8, fecha: "2026-11-02T21:00:00",
-         cupos: 3, lat: -34.58, lng: -58.43 }
      ======================================================= */
-  async function obtenerPartidos(/* filtros */) {
-    return [];
+  async function obtenerPartidos(filtros) {
+    const q = new URLSearchParams();
+    if (filtros.texto) q.set("q", filtros.texto);
+    if (filtros.zona.trim()) q.set("zona", filtros.zona.trim());
+    if (filtros.modalidad) q.set("modalidad", MODALIDADES[filtros.modalidad]);
+    if (filtros.desde) q.set("desde", `${clave(filtros.desde)}T00:00:00`);
+    if (filtros.hasta) q.set("hasta", `${clave(filtros.hasta)}T23:59:59`);
+    return API.get(`/api/partidos?${q.toString()}`);
   }
 
   /* ---------- Helpers de DOM ---------- */
@@ -387,8 +385,14 @@
   /* ---------- Inicio ---------- */
   MapaZona.iniciar($("mapa"), { alSeleccionar: seleccionar, alResaltar: resaltar });
 
-  el.zona.value = estado.zona;
   renderCalendario();
   renderModalidad();
-  ejecutar(Boolean(estado.modalidad));
+  Auth.usuario()
+    .then((u) => {
+      if (u?.localidad) {
+        estado.zona = u.localidad;
+        el.zona.value = u.localidad;
+      }
+    })
+    .finally(() => ejecutar(Boolean(estado.modalidad)));
 })();
