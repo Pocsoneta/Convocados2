@@ -34,21 +34,19 @@ type usuario struct {
 	Telefono     sql.NullString
 	FechaNac     sql.NullTime
 	Localidad    sql.NullString
-	Posicion     sql.NullString
-	Posiciones   sql.NullString
 	Nivel        sql.NullString
 	Foto         sql.NullString
 	Promedio     float64
 }
 
 const colsUsuario = `id_usuario, nombre, apellido, email, password_hash,
-       telefono, fecha_nacimiento, localidad, posicion, posiciones, nivel, foto,
+       telefono, fecha_nacimiento, localidad, nivel, foto,
        COALESCE(promedio_calificacion, 0)`
 
 func escanearUsuario(sc interface{ Scan(...any) error }) (*usuario, error) {
 	u := &usuario{}
 	err := sc.Scan(&u.ID, &u.Nombre, &u.Apellido, &u.Email, &u.PasswordHash,
-		&u.Telefono, &u.FechaNac, &u.Localidad, &u.Posicion, &u.Posiciones,
+		&u.Telefono, &u.FechaNac, &u.Localidad,
 		&u.Nivel, &u.Foto, &u.Promedio)
 	if err != nil {
 		return nil, err
@@ -239,8 +237,6 @@ func perfilJSON(u *usuario) map[string]any {
 		"apellido":   capitalizar(u.Apellido),
 		"localidad":  aString(u.Localidad),
 		"foto":       foto,
-		"posiciones": csvALista(aString(u.Posiciones)),
-		"posicion":   aString(u.Posicion),
 		"nivel":      aString(u.Nivel),
 		"telefono":   aString(u.Telefono),
 		"nacimiento": nacimiento,

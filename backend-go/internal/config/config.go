@@ -43,6 +43,10 @@ type Config struct {
 	// Migraciones
 	MigrationsDir string
 	AutoMigrate   bool
+
+	// Google Maps (autocompletado de ubicación en Crear partido).
+	// Vacío = la pantalla queda con ingreso manual de dirección.
+	MapsKey string
 }
 
 func Load() *Config {
@@ -61,6 +65,7 @@ func Load() *Config {
 		AllowOrigin:   env("ALLOW_ORIGIN", ""),
 		MigrationsDir: env("MIGRATIONS_DIR", "migrations"),
 		AutoMigrate:   envBool("AUTO_MIGRATE", true),
+		MapsKey:       env("MAPS_API_KEY", ""),
 	}
 }
 

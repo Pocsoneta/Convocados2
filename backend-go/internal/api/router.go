@@ -37,6 +37,14 @@ func (s *Server) Router() http.Handler {
 	})
 	raiz.HandleFunc("POST /api/auth/registro", s.registrar)
 	raiz.HandleFunc("POST /api/auth/login", s.login)
+	raiz.HandleFunc("POST /api/auth/recuperar", s.pedirRecuperacion)
+	raiz.HandleFunc("POST /api/auth/restablecer", s.restablecerClave)
+
+	// Config pública del front (clave de Google Maps para el
+	// autocompletado de ubicación; es una clave de navegador).
+	raiz.HandleFunc("GET /api/config", func(w http.ResponseWriter, r *http.Request) {
+		JSON(w, http.StatusOK, map[string]string{"mapsKey": s.Cfg.MapsKey})
+	})
 
 	// --- Protegidas ---
 	protegido := http.NewServeMux()
@@ -60,8 +68,15 @@ func (s *Server) Router() http.Handler {
 	protegido.HandleFunc("POST /api/partidos/{id}/equipos", s.sumarEquipo)
 	protegido.HandleFunc("DELETE /api/partidos/{id}/equipos/{equipo}", s.bajarEquipo)
 
+	protegido.HandleFunc("GET /api/partidos/{id}/administracion", s.administrarPartido)
+	protegido.HandleFunc("POST /api/partidos/{id}/solicitudes/{usuario}/aceptar", s.aceptarSolicitud)
+	protegido.HandleFunc("DELETE /api/partidos/{id}/solicitudes/{usuario}", s.rechazarSolicitud)
+	protegido.HandleFunc("DELETE /api/partidos/{id}/participantes/{usuario}", s.quitarParticipante)
+	protegido.HandleFunc("POST /api/partidos/{id}/cancelar", s.cancelarPartido)
+
 	protegido.HandleFunc("GET /api/mis-partidos", s.misPartidos)
 
+	protegido.HandleFunc("GET /api/geocode", s.geolocalizar)
 	protegido.HandleFunc("GET /api/complejos", s.listarComplejos)
 	protegido.HandleFunc("POST /api/complejos", s.crearComplejo)
 	protegido.HandleFunc("GET /api/complejos/{id}/canchas", s.canchasDeComplejo)

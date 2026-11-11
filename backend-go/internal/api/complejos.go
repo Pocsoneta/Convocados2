@@ -185,6 +185,57 @@ func (s *Server) listarComplejos(w http.ResponseWriter, r *http.Request) {
 	JSON(w, http.StatusOK, lista)
 }
 
+// complejoNuevo es la cancha que escribe el organizador al crear un partido.
+type complejoNuevo struct {
+	Nombre    string   `json:"nombre"`
+	Direccion string   `json:"direccion"`
+	Lat       *float64 `json:"lat"`
+	Lng       *float64 `json:"lng"`
+}
+
+// resolverComplejo devuelve el id de la cancha. Si ya existe (mismo nombre
+// y dirección, sin importar mayúsculas) la reutiliza; si no, la crea. Las
+// coordenadas llegan del selector de Google Maps y son opcionales: si el
+// registro existente no las tiene, se completan con las nuevas.
+func (s *Server) resolverComplejo(c *complejoNuevo) (int64, error) {
+	nombre := strings.TrimSpace(c.Nombre)
+	direccion := strings.TrimSpace(c.Direccion)
+	if nombre == "" {
+		return 0, mal("Ingresá el nombre de la cancha.")
+	}
+	if direccion == "" {
+		direccion = nombre
+	}
+
+	var lat, lng any
+	if c.Lat != nil && c.Lng != nil {
+		lat, lng = *c.Lat, *c.Lng
+	}
+
+	var id int64
+	err := s.DB.QueryRow(`SELECT id_complejo FROM COMPLEJO
+	                       WHERE LOWER(nombre) = LOWER(?) AND LOWER(direccion) = LOWER(?)
+	                       LIMIT 1`, nombre, direccion).Scan(&id)
+	if err == nil {
+		if lat != nil {
+			_, _ = s.DB.Exec(`UPDATE COMPLEJO
+			                     SET lat = COALESCE(lat, ?), lng = COALESCE(lng, ?)
+			                   WHERE id_complejo = ?`, lat, lng, id)
+		}
+		return id, nil
+	}
+	if err != sql.ErrNoRows {
+		return 0, err
+	}
+
+	res, err := s.DB.Exec(`INSERT INTO COMPLEJO (nombre, direccion, ciudad, lat, lng)
+	                        VALUES (?, ?, 'CABA', ?, ?)`, nombre, direccion, lat, lng)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
 type canchaReq struct {
 	Numero     *int   `json:"numero"`
 	Nombre     string `json:"nombre"`

@@ -62,6 +62,7 @@ del entorno tienen prioridad). Copiá `.env.example` → `.env` y completalo:
 | `MIGRATIONS_DIR` | `migrations` | carpeta de migraciones |
 | `AUTO_MIGRATE` | `true` | aplicar migraciones al arrancar |
 | `ALLOW_ORIGIN` | *vacío* | origen CORS (solo si el front corre en otro puerto) |
+| `MAPS_API_KEY` | *vacío* | clave de Google Maps (Maps JavaScript API + Places API) para elegir la ubicación con autocompletado en **Crear partido**; vacío = ingreso manual de dirección. La clave se expone en `GET /api/config`, así que es una clave de navegador: restringila a tu dominio |
 
 Si arranca con el `JWT_SECRET` o `DB_PASS` por defecto, imprime un
 `AVISO` en el log.
@@ -89,6 +90,7 @@ Salvo lo indicado, **requieren** la cookie de sesión `convocados_token`.
 | Método | Ruta | Body | Devuelve |
 |---|---|---|---|
 | `GET` | `/api/health` | – | `{"ok":"Convocados API"}` |
+| `GET` | `/api/config` | – | `{mapsKey}` (clave de Google Maps si `MAPS_API_KEY` está seteada; vacío si no) |
 | `POST` | `/api/auth/registro` | `{nombre, apellido, email, password, nacimiento}` | `{id, email, nombre}` + cookie |
 | `POST` | `/api/auth/login` | `{email, password}` | `{id, email, nombre}` + cookie |
 
@@ -99,7 +101,7 @@ Salvo lo indicado, **requieren** la cookie de sesión `convocados_token`.
 | `POST` | `/api/auth/logout` | – |
 | `GET` | `/api/auth/me` | – |
 | `GET` | `/api/perfil` | – |
-| `PUT` | `/api/perfil` | `{localidad, posiciones[], nivel, foto}` |
+| `PUT` | `/api/perfil` | `{localidad, nivel, foto}` |
 | `PUT` | `/api/cuenta` | `{nombre, apellido, telefono}` |
 | `GET` | `/api/usuarios/{id}` | – (perfil público) |
 
@@ -123,6 +125,12 @@ Salvo lo indicado, **requieren** la cookie de sesión `convocados_token`.
 | `DELETE` | `/api/partidos/{id}/inscripcion` | – |
 | `POST` | `/api/partidos/{id}/equipos` | `{idEquipo}` |
 | `DELETE` | `/api/partidos/{id}/equipos/{equipo}` | – |
+
+### Ubicación
+
+| Método | Ruta | Body |
+|---|---|---|
+| `GET` | `/api/geocode?q=` | – → `[{titulo, subtitulo, lat, lng}]`. Autocompletado de **Crear partido** vía OpenStreetMap (gratis, sin clave). Caché en memoria de 10 min. Si hay `MAPS_API_KEY`, el front usa Google Places y este queda de respaldo |
 
 ### Complejos / canchas
 

@@ -35,14 +35,13 @@ func (s *Server) usuarioPublicoDetalle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, http.StatusOK, map[string]any{
-		"id":         u.ID,
-		"nombre":     capitalizar(u.Nombre),
-		"apellido":   capitalizar(u.Apellido),
-		"localidad":  aString(u.Localidad),
-		"foto":       aString(u.Foto),
-		"posiciones": csvALista(aString(u.Posiciones)),
-		"nivel":      aString(u.Nivel),
-		"promedio":   u.Promedio,
-		"equipos":    equipos,
+		"id":        u.ID,
+		"nombre":    capitalizar(u.Nombre),
+		"apellido":  capitalizar(u.Apellido),
+		"localidad": aString(u.Localidad),
+		"foto":      aString(u.Foto),
+		"nivel":     aString(u.Nivel),
+		"promedio":  u.Promedio,
+		"equipos":   equipos,
 	})
 }
