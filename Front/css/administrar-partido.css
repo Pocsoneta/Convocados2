@@ -1,0 +1,342 @@
+/* =========================================================
+   administrar-partido.css — solo estilos de esta pantalla
+   ========================================================= */
+
+.admin {
+  --green: #00f56d;
+  --green-soft: rgba(0, 245, 109, 0.12);
+  --red: #ff4d55;
+  --red-soft: rgba(255, 77, 85, 0.08);
+
+  max-width: 1240px;
+}
+
+/* ---------- Botones propios ---------- */
+.btn--ghost {
+  flex: none;
+  height: 44px;
+  padding: 0 26px;
+  border: 1px solid #22304a;
+  border-radius: 10px;
+  background: #101a2b;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color .15s ease;
+}
+.btn--ghost:hover { border-color: rgba(0, 245, 109, 0.45); }
+
+.btn--danger {
+  width: 100%;
+  height: 48px;
+  border: 1.5px solid var(--red);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--red);
+  font-size: 15px;
+  transition: background .15s ease;
+}
+.btn--danger:hover { background: var(--red-soft); }
+
+.btn--accept {
+  height: 46px;
+  border-radius: 10px;
+  background: var(--green);
+  color: var(--accent-ink);
+  font-size: 15px;
+  font-weight: 800;
+  transition: filter .15s ease;
+}
+.btn--accept:hover { filter: brightness(1.08); }
+.btn--accept:disabled { background: #14301f; color: #4f7a61; cursor: not-allowed; }
+
+.btn--reject {
+  height: 46px;
+  border-radius: 10px;
+  background: #1a2439;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  transition: background .15s ease;
+}
+.btn--reject:hover { background: #22304a; }
+
+.btn--quit {
+  flex: none;
+  height: 40px;
+  padding: 0 22px;
+  border: 1.5px solid var(--red);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  transition: background .15s ease;
+}
+.btn--quit:hover { background: var(--red-soft); }
+
+/* ---------- Encabezado ---------- */
+.admin .page-head__lead { font-size: 14px; }
+
+/* ---------- Barra resumen ---------- */
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+.barra__izq,
+.barra__der {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.barra__texto {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.barra__cuenta {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--green);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---------- Estructura ---------- */
+.admin__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  padding: 22px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.panel__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--accent-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pill[hidden] { display: none; }
+
+/* ---------- Persona (avatar + nombre + posición) ---------- */
+.persona {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.persona__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--green);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+}
+.persona__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.persona__texto {
+  display: grid;
+  min-width: 0;
+  line-height: 1.3;
+}
+.persona__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.persona__pos {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Solicitudes ---------- */
+.solicitudes {
+  display: grid;
+  gap: 14px;
+}
+
+.solicitud {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #1d2a40;
+  border-radius: 14px;
+  background: #0a1322;
+}
+.solicitud .persona {
+  padding: 12px 14px;
+  border: 1px solid #1d2a40;
+  border-radius: 10px;
+  background: #0e1828;
+}
+.solicitud__acciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ---------- Confirmados ---------- */
+.confirmados {
+  display: grid;
+  gap: 12px;
+}
+
+.confirmado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #1d2a40;
+  border-radius: 14px;
+  background: #0a1322;
+}
+.confirmado .persona { flex: 1; }
+
+/* ---------- Lugares por cubrir ---------- */
+.faltan {
+  margin-top: 24px;
+}
+.faltan__titulo,
+.riesgo__titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--chip);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.chip--completo {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* ---------- Aviso (guía de posiciones) ---------- */
+.aviso {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(0, 245, 109, 0.22);
+  border-radius: 12px;
+  background: var(--green-soft);
+}
+.aviso__titulo {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--green);
+}
+.aviso__texto {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.aviso[hidden] { display: none; }
+
+/* ---------- Zona de riesgo ---------- */
+.riesgo {
+  margin-top: 28px;
+}
+.riesgo__titulo { color: var(--red); margin-bottom: 10px; }
+
+/* ---------- Estado vacío de cada lista ---------- */
+.vacio {
+  padding: 26px 18px;
+  border: 1px dashed #26334b;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Tablet / mobile ---------- */
+@media (max-width: 1180px) {
+  .admin__grid { grid-template-columns: 1fr; }
+  .panel { min-height: 0; }
+}
+
+@media (max-width: 700px) {
+  .page-head { flex-direction: column; }
+  .page-head__title { font-size: 26px; }
+  .admin__ver { width: 100%; }
+
+  .barra { flex-direction: column; align-items: flex-start; }
+  .solicitud__acciones { grid-template-columns: 1fr; }
+}

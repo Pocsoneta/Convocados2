@@ -1,0 +1,28 @@
+/* =========================================================
+   recuperar.css — solo lo que suma la pantalla de recuperar
+   (el resto del look viene de login.css)
+   ========================================================= */
+
+.aviso-enviado {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 18px 20px;
+  border: 1px solid #cfe9db;
+  border-radius: 12px;
+  background: #eef9f3;
+}
+.aviso-enviado[hidden] { display: none; }
+
+.aviso-enviado__titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f5132;
+}
+.aviso-enviado__texto {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3d4b5f;
+}
+
+.login__main [hidden] { display: none; }

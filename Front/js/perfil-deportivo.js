@@ -88,10 +88,6 @@
     grupo: $("field-localidad"),
     error: $("error-localidad")
   };
-  const posiciones = { grupo: $("field-posiciones"), error: $("error-posiciones") };
-
-  const marcados = (nombre) =>
-    [...form.querySelectorAll(`input[name="${nombre}"]:checked`)].map((i) => i.value);
 
   function setError({ grupo, error }, mensaje) {
     grupo.classList.toggle("has-error", Boolean(mensaje));
@@ -109,10 +105,6 @@
     localidad.input.setAttribute("aria-invalid", msg ? "true" : "false");
     if (msg) errores.push(localidad.input);
 
-    msg = marcados("posiciones").length ? "" : "Elegí al menos una posición.";
-    setError(posiciones, msg);
-    if (msg) errores.push(posiciones.grupo.querySelector("input"));
-
     return errores;
   }
 
@@ -121,17 +113,13 @@
     setError(localidad, "");
     errorGeneral.classList.remove("is-visible");
   });
-  form.querySelectorAll('input[name="posiciones"]').forEach((i) =>
-    i.addEventListener("change", () => setError(posiciones, ""))
-  );
 
   /* ---------- Guardado (backend Go) ---------- */
   function guardarPerfil(perfil) {
-    // PUT /api/perfil — guarda localidad, posiciones, nivel y foto
+    // PUT /api/perfil — guarda localidad, nivel y foto
     // (la foto va como data URL en base64).
     return API.put("/api/perfil", {
       localidad: perfil.localidad,
-      posiciones: perfil.posiciones,
       nivel: perfil.nivel,
       foto: perfil.foto
     });
@@ -141,6 +129,23 @@
     btnSubmit.disabled = estado;
     btnSubmit.classList.toggle("is-loading", estado);
   }
+
+  /* ---------- Ficha guardada (GET /api/perfil) ---------- */
+  async function cargarPerfil() {
+    try {
+      const p = await API.get("/api/perfil");
+      if (p.localidad) localidad.input.value = p.localidad;
+      const radio = form.querySelector(`input[name="nivel"][value="${(p.nivel || "").toLowerCase()}"]`);
+      if (radio) radio.checked = true;
+      if (p.foto) {
+        fotoDataURL = p.foto;
+        fotoPreview.src = p.foto;
+        fotoPreview.hidden = false;
+        fotoPlaceholder.hidden = true;
+      }
+    } catch { /* sin ficha todavía: el formulario queda vacío */ }
+  }
+  cargarPerfil();
 
   /* ---------- Envío ---------- */
   form.addEventListener("submit", async (e) => {
@@ -156,7 +161,6 @@
     const perfil = {
       foto: fotoDataURL,
       localidad: localidad.input.value.trim(),
-      posiciones: marcados("posiciones"),
       nivel: form.elements["nivel"].value
     };
 

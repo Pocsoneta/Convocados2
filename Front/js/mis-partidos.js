@@ -5,9 +5,7 @@
    los que se unió. En los que organiza, cada tarjeta indica
    cuántas personas quieren unirse.
 
-   Todavía no hay API: la lista queda vacía hasta que se
-   conecte el backend. Para conectarlo, completá solo
-   `obtenerMisPartidos`.
+   Los datos vienen de GET /api/mis-partidos (ver obtenerMisPartidos).
    ========================================================= */
 
 (() => {
@@ -40,26 +38,27 @@
   };
 
   /* =======================================================
-     API (pendiente) — completar cuando exista el backend
-
-     Debe devolver un array con los partidos del usuario,
-     tanto los que creó como los que se unió:
-
-       {
-         id,
-         rol: "organizador" | "jugador",
-         modalidad: "Fútbol 7",
-         nombre: "Club Palermo Soho",
-         zona: "Palermo, CABA",
-         fecha: "2026-11-02T21:00:00",
-         foto: "https://…"            // opcional
-         cuposLibres: 3,              // puestos que todavía faltan cubrir
-         estado: "confirmado" | "pendiente" | "rechazado",  // solo si rol es "jugador"
-         solicitudesPendientes: 3     // solo si rol es "organizador"
-       }
+     API (backend Go) — GET /api/mis-partidos
+     Devuelve los partidos que organiza el usuario y los que
+     se sumó (individual o con su equipo), próximos y pasados.
      ======================================================= */
   async function obtenerMisPartidos() {
-    return [];
+    const [proximos, pasados] = await Promise.all([
+      API.get("/api/mis-partidos?momento=proximos"),
+      API.get("/api/mis-partidos?momento=pasados")
+    ]);
+    return [...proximos, ...pasados].map((p) => ({
+      id: p.id,
+      rol: p.rol,
+      modalidad: p.modalidad,
+      nombre: p.nombre,
+      zona: p.zona,
+      fecha: p.fecha,
+      foto: null,
+      cuposLibres: p.cupos,
+      estado: p.estado,
+      solicitudesPendientes: p.solicitudesPendientes
+    }));
   }
 
   /* ---------- Helpers de DOM ---------- */
@@ -137,7 +136,8 @@
   function tarjeta(p) {
     const li = nodo("li");
     const enlace = nodo("a", "partido");
-    enlace.href = `${APP.rutas.detallePartido}?id=${encodeURIComponent(p.id)}`;
+    const ruta = esOrganizador(p) ? APP.rutas.administrarPartido : APP.rutas.detallePartido;
+    enlace.href = `${ruta}?id=${encodeURIComponent(p.id)}`;
 
     // Foto
     const media = nodo("div", "partido__media");

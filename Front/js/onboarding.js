@@ -12,7 +12,7 @@
       texto: "Armá tu equipo, publicá los puestos libres y encontrá el refuerzo ideal en tu zona para salir a la cancha.",
       lista: [
         "Partidos cerca de tu barrio",
-        "Perfiles por posición y nivel",
+        "Perfiles por nivel de juego",
         "Convocatorias simples y rápidas"
       ],
       imagen: "img/onboarding-1.png",
@@ -25,7 +25,7 @@
       texto: "Elegí cancha, día y horario, indicá cuántos jugadores faltan y el nivel que buscás. Lo tenés listo en un minuto.",
       lista: [
         "Elegí cancha, fecha y hora",
-        "Definí posiciones y nivel",
+        "Definí el nivel que buscás",
         "Compartí el link con tu grupo"
       ],
       imagen: "img/onboarding-2.png",

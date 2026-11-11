@@ -204,6 +204,78 @@
   font-size: 12.5px;
   color: var(--error);
 }
+
+/* Ayuda de un campo (por ejemplo el buscador de ubicación) */
+.field__hint {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Sugerencias de ubicación (OpenStreetMap) ---------- */
+.sugerencias {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, .45);
+}
+.sugerencias[hidden] { display: none; }
+.sugerencias li {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.sugerencias li:hover,
+.sugerencias li[aria-selected="true"] {
+  background: var(--field);
+}
+.sugerencias .sug-titulo {
+  display: block;
+  font-size: 13.5px;
+  color: var(--text);
+}
+.sugerencias .sug-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.sugerencias .sug-vacio {
+  cursor: default;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.sugerencias .sug-vacio:hover { background: none; }
+.sugerencias__pie {
+  padding: 6px 10px 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* El desplegable de Google Places respeta los colores del tema */
+.pac-container {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+.pac-item {
+  color: var(--text);
+  padding: 8px 14px;
+}
+.pac-item:hover,
+.pac-item-selected {
+  background: var(--field);
+}
 .field.has-error .field__error,
 .group.has-error .field__error,
 .form__error.is-visible { display: block; }

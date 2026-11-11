@@ -15,8 +15,9 @@ const APP = {
     buscar: "buscar.html",
     crearPartido: "crear-partido.html",
     misPartidos: "mis-partidos.html",
-    perfil: "perfil.html",
+    perfil: "perfil-deportivo.html",
     detallePartido: "detalle-partido.html",
+    administrarPartido: "administrar-partido.html",
     inicio: "inicio.html"
   }
 };
@@ -141,7 +142,6 @@ const Auth = {
         apellido: u.apellido || "",
         localidad: u.localidad || "",
         foto: u.foto || null,
-        posiciones: u.posiciones || [],
         nivel: u.nivel || "",
         telefono: u.telefono || "",
         promedio: u.promedio || 0
