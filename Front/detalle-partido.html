@@ -59,6 +59,15 @@
           </svg>
           <span>Mis partidos</span>
         </a>
+        <a class="nav-link" href="equipos.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="8" r="3.2"/>
+            <path d="M3 19c0-3.3 2.7-5.2 6-5.2s6 1.9 6 5.2"/>
+            <path d="M16.2 5.7a3.2 3.2 0 0 1 0 5.6"/>
+            <path d="M17.6 14.2c2 .7 3.4 2.3 3.4 4.8"/>
+          </svg>
+          <span>Equipo</span>
+        </a>
         <a class="nav-link" href="perfil-deportivo.html">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="8" r="4"/>
@@ -157,6 +166,27 @@
 
           </section>
 
+          <!-- Chat del partido (organizador y confirmados) -->
+          <section class="chat" id="bloque-chat" hidden aria-labelledby="titulo-chat">
+            <div class="panel__head">
+              <h2 class="panel__title" id="titulo-chat">Chat del partido</h2>
+              <span class="chat__estado" id="chat-estado" aria-live="polite"></span>
+            </div>
+
+            <ul class="chat__mensajes" id="chat-mensajes" aria-live="polite"></ul>
+
+            <form class="chat__composer" id="chat-form" novalidate>
+              <input class="chat__input" id="chat-texto" type="text" maxlength="500"
+                     autocomplete="off" placeholder="Escribí un mensaje…"
+                     aria-label="Mensaje del chat">
+              <button class="btn chat__enviar" type="submit" id="chat-enviar" disabled>
+                Enviar
+              </button>
+            </form>
+
+            <p class="error" id="chat-error" role="alert"></p>
+          </section>
+
           <!-- Organizador y jugadores -->
           <aside class="panel" aria-labelledby="titulo-jugadores">
 
@@ -179,6 +209,15 @@
               <p class="accion__titulo" id="nota-titulo"></p>
               <p class="accion__texto" id="nota-texto"></p>
               <button class="btn btn--main" type="button" id="btn-accion" disabled></button>
+
+              <!-- Sumar mi equipo al partido (si tengo equipo y puedo inscribirme) -->
+              <div class="accion__equipo" id="bloque-equipo" hidden>
+                <label class="accion__equipo-label" for="selector-equipo">Sumar con mi equipo</label>
+                <select class="selector" id="selector-equipo"></select>
+                <button class="btn btn--outline" type="button" id="btn-equipo" disabled>Sumar mi equipo</button>
+              </div>
+              <p class="accion__hint" id="equipo-hint" hidden></p>
+
               <p class="error" id="error" role="alert"></p>
             </div>
 

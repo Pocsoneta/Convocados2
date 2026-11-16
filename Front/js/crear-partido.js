@@ -60,10 +60,75 @@
     hora: { grupo: $("field-hora"), error: $("error-hora") },
     jugadores: { grupo: $("field-jugadores"), error: $("error-jugadores") },
     precio: { grupo: $("field-precio"), error: $("error-precio") },
-    ubicacion: { grupo: $("field-ubicacion"), error: $("error-ubicacion") }
+    ubicacion: { grupo: $("field-ubicacion"), error: $("error-ubicacion") },
+    equipo: { grupo: $("field-equipo"), error: $("error-equipo") }
   };
 
   let jugadores = 1;
+
+  /* =======================================================
+     Equipo del partido (opcional)
+
+     Se carga desde GET /api/equipos/mis-equipos. Si se elige
+     uno, se envía idEquipo en el POST /api/partidos y el
+     equipo queda inscripto (ocupa cupos por integrante).
+     ======================================================= */
+  let misEquipos = [];
+
+  const equipoElegido = () => {
+    const marcado = form.querySelector('input[name="equipo"]:checked');
+    if (!marcado || !marcado.value) return null;
+    return misEquipos.find((eq) => String(eq.id) === marcado.value) || null;
+  };
+
+  function pintarEquipos() {
+    const cont = $("chips-equipo");
+    cont.replaceChildren();
+
+    // Primera opción: publicar sin equipo (como hasta ahora)
+    const opciones = [{ id: 0, nombre: "Sin equipo", integrantes: 0 }, ...misEquipos];
+
+    opciones.forEach((eq, i) => {
+      const label = document.createElement("label");
+      label.className = "chip";
+
+      const input = document.createElement("input");
+      input.className = "chip__input";
+      input.type = "radio";
+      input.name = "equipo";
+      input.value = String(eq.id);
+      if (i === 0) input.checked = true;
+
+      const texto = document.createElement("span");
+      texto.className = "chip__label";
+      texto.textContent = eq.id
+        ? `${eq.nombre} · ${eq.integrantes} ${eq.integrantes === 1 ? "integrante" : "integrantes"}`
+        : "Sin equipo";
+
+      label.append(input, texto);
+      cont.appendChild(label);
+    });
+
+    // Sin equipos: invitamos a crear uno desde el menú Equipo
+    const hint = document.querySelector("#field-equipo .field__hint");
+    if (hint) {
+      hint.innerHTML = misEquipos.length
+        ? "Si elegís un equipo, queda inscripto en el partido y ocupa un cupo por cada integrante " +
+          "(vos, como organizador, no ocupás cupo)."
+        : 'Todavía no tenés equipos. <a class="link-green" href="equipos.html">Creá uno</a> ' +
+          "y volvé a publicar tu partido.";
+    }
+  }
+
+  async function cargarEquipos() {
+    try {
+      misEquipos = await API.get("/api/equipos/mis-equipos");
+    } catch {
+      misEquipos = [];
+    }
+    pintarEquipos();
+    renderResumen();
+  }
 
   /* ---------- Opciones de hora (cada 30 minutos) ---------- */
   for (let h = 6; h <= 23; h++) {
@@ -127,7 +192,8 @@
       jugadores,
       precio: leerPrecio(),
       ubicacion: el.ubicacion.value.trim(),
-      detalle: el.detalle.value.trim()
+      detalle: el.detalle.value.trim(),
+      equipo: equipoElegido()
     };
   }
 
@@ -406,6 +472,15 @@
 
     $("prev-jugadores").textContent = `Buscás ${v.jugadores} jugador${v.jugadores === 1 ? "" : "es"}`;
 
+    const pEquipo = $("prev-equipo");
+    if (v.equipo && v.equipo.id) {
+      const n = v.equipo.integrantes;
+      pEquipo.textContent = `Con ${v.equipo.nombre} · ${n} ${n === 1 ? "integrante" : "integrantes"}`;
+      pEquipo.hidden = false;
+    } else {
+      pEquipo.hidden = true;
+    }
+
     const p = porcentaje(v);
     $("prog-texto").textContent = `${p}%`;
     $("prog-relleno").style.width = `${p}%`;
@@ -458,6 +533,18 @@
     if (!v.ubicacion) msg = "Ingresá la cancha y su dirección.";
     else if (v.ubicacion.length < 5) msg = "Es muy corto. Sumá el nombre y la dirección.";
     marcar("ubicacion", msg, el.ubicacion);
+
+    // El equipo tiene que entrar en el cupo que estás publicando
+    // (ocupa un lugar por integrante; el organizador no cuenta).
+    msg = "";
+    if (v.equipo && v.equipo.id) {
+      const ocupan = Math.max(0, v.equipo.integrantes - 1);
+      if (ocupan > v.jugadores) {
+        msg = `Tu equipo ocupa ${ocupan} cupos y solo buscás ${v.jugadores}. ` +
+              "Subí los jugadores que buscás o elegí otro equipo.";
+      }
+    }
+    marcar("equipo", msg, document.querySelector("#chips-equipo .chip__input"));
 
     return fallas;
   }
@@ -513,10 +600,16 @@
       descripcion: datos.detalle,
       costoTotal: datos.precio,
       modalidad: modalidad.nombre,
-      nivel: "Amateur"
+      nivel: "Amateur",
+      // Equipo elegido (si lo hay): queda inscripto en el partido
+      idEquipo: datos.equipo && datos.equipo.id ? datos.equipo.id : 0
     });
 
-    return { id: creado.id, modalidad: modalidad.nombre };
+    return {
+      id: creado.id,
+      modalidad: modalidad.nombre,
+      equipo: datos.equipo && datos.equipo.id ? datos.equipo.nombre : ""
+    };
   }
 
   function cargando(estado) {
@@ -531,6 +624,7 @@
     cerrarSugerencias();
     Object.keys(campos).forEach((n) => setError(n, ""));
     el.errorGeneral.classList.remove("is-visible");
+    pintarEquipos(); // vuelve a marcar "Sin equipo"
     pintarJugadores();
     renderResumen();
   }
@@ -585,6 +679,10 @@
     $("mc-total").textContent = `${formatoPesos(total)} ARS`;
     $("mc-sena").textContent = formatoPesos(sena);
     $("mc-saldo").textContent = formatoPesos(saldo);
+
+    const pEquipo = $("mc-equipo");
+    pEquipo.textContent = partido.equipo ? `Con el equipo ${partido.equipo}` : "";
+    pEquipo.hidden = !partido.equipo;
 
     const pDireccion = $("mc-direccion");
     pDireccion.textContent = direccion;
@@ -648,5 +746,6 @@
   el.ubicacion.addEventListener("blur", () => setTimeout(cerrarSugerencias, 120));
   pintarJugadores();
   renderResumen();
+  cargarEquipos(); // chips con mis equipos (si no hay, queda "Sin equipo")
   cargarMaps(); // autocompletado: Google si hay clave, si no OpenStreetMap
 })();

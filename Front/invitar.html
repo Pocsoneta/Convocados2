@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invitación a un equipo · Convocados</title>
+  <meta name="theme-color" content="#060b14">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/invitar.css">
+</head>
+<body>
+
+  <main class="invitar">
+
+    <section class="invitar__panel">
+
+      <header class="invitar__header">
+        <a class="brand" href="onboarding.html" aria-label="Convocados, inicio">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/>
+            </svg>
+          </span>
+          <span class="brand__name">Convoca<span>dos</span></span>
+        </a>
+      </header>
+
+      <div class="invitar__main">
+
+        <!-- Link inválido o revocado -->
+        <div class="invitar__estado" id="estado-error" hidden>
+          <span class="invitar__estado-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7.5v5.5M12 16.4v.2"/>
+            </svg>
+          </span>
+          <h1 class="invitar__title">Este link no funciona</h1>
+          <p class="invitar__lead" id="error-texto">El link no existe o alguien lo desactivó.</p>
+          <a class="btn btn--primary" href="onboarding.html">Ir a Convocados</a>
+        </div>
+
+        <!-- Cargando -->
+        <div class="invitar__estado" id="estado-cargando" aria-live="polite">
+          <p class="invitar__lead">Cargando la invitación…</p>
+        </div>
+
+        <!-- Equipo al que me invitaron -->
+        <div id="estado-equipo" hidden>
+          <p class="eyebrow">Invitación</p>
+          <h1 class="invitar__title">Te invitaron a un equipo</h1>
+          <p class="invitar__lead">Sumate y ocupá tu lugar en los próximos partidos de este equipo.</p>
+
+          <div class="invitar__equipo" aria-busy="true">
+            <span class="invitar__marca" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="8" r="3.2"/>
+                <path d="M3 19c0-3.3 2.7-5.2 6-5.2s6 1.9 6 5.2"/>
+                <path d="M16.2 5.7a3.2 3.2 0 0 1 0 5.6"/>
+                <path d="M17.6 14.2c2 .7 3.4 2.3 3.4 4.8"/>
+              </svg>
+            </span>
+            <span class="invitar__equipo-info">
+              <strong id="equipo-nombre">—</strong>
+              <span id="equipo-meta"></span>
+            </span>
+          </div>
+
+          <!-- Con sesión: me sumo con mi cuenta -->
+          <form class="form" id="form-sesion" novalidate hidden>
+            <p class="invitar__cuenta" id="sesion-nombre"></p>
+            <button class="btn btn--primary btn--block" type="submit" id="btn-sesion">
+              <span class="btn__label">Unirme con mi cuenta</span>
+            </button>
+            <p class="invitar__alt">
+              ¿No sos vos? <a href="#" id="btn-salir">Cerrar sesión</a>
+            </p>
+          </form>
+
+          <!-- Sin sesión: entro como invitado (sin cuenta) -->
+          <form class="form" id="form-invitar" novalidate hidden>
+            <div class="field" id="field-nombre">
+              <label class="field__label" for="nombre">Nombre</label>
+              <input class="field__input" id="nombre" name="nombre" type="text"
+                     maxlength="60" autocomplete="given-name" placeholder="Tu nombre"
+                     aria-describedby="error-nombre" required>
+              <p class="field__error" id="error-nombre" role="alert"></p>
+            </div>
+
+            <div class="field" id="field-apellido">
+              <label class="field__label" for="apellido">Apellido <span class="field__opcional">(opcional)</span></label>
+              <input class="field__input" id="apellido" name="apellido" type="text"
+                     maxlength="60" autocomplete="family-name" placeholder="Tu apellido"
+                     aria-describedby="error-apellido">
+              <p class="field__error" id="error-apellido" role="alert"></p>
+            </div>
+
+            <p class="form__error" id="error-general" role="alert"></p>
+
+            <button class="btn btn--primary btn--block" type="submit" id="btn-unirse">
+              <span class="btn__label">Unirme al equipo</span>
+            </button>
+
+            <p class="invitar__cuenta">
+              Entrás como <strong>invitado</strong>, sin cuenta ni contraseña.
+              <a href="login.html">¿Ya tenés cuenta?</a>
+            </p>
+          </form>
+
+          <!-- Listo -->
+          <div class="invitar__estado" id="estado-ok" hidden>
+            <span class="invitar__estado-icono invitar__estado-icono--ok" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m5 12.5 4.5 4.5L19 7.5"/>
+              </svg>
+            </span>
+            <h2 class="invitar__title invitar__title--ok">¡Ya sos parte del equipo!</h2>
+            <p class="invitar__lead" id="ok-texto"></p>
+            <div class="invitar__acciones">
+              <a class="btn btn--primary" id="ok-primario" href="equipos.html">Ver mis equipos</a>
+              <a class="btn btn--ghost" href="buscar.html">Buscar partidos</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="invitar__footer">
+        <p>Convocados · Siempre hay lugar para uno más.</p>
+      </footer>
+
+    </section>
+
+  </main>
+
+  <script src="js/core.js"></script>
+  <script src="js/invitar.js"></script>
+</body>
+</html>

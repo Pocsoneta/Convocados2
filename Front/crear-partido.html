@@ -59,6 +59,15 @@
           </svg>
           <span>Mis partidos</span>
         </a>
+        <a class="nav-link" href="equipos.html">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="8" r="3.2"/>
+            <path d="M3 19c0-3.3 2.7-5.2 6-5.2s6 1.9 6 5.2"/>
+            <path d="M16.2 5.7a3.2 3.2 0 0 1 0 5.6"/>
+            <path d="M17.6 14.2c2 .7 3.4 2.3 3.4 4.8"/>
+          </svg>
+          <span>Equipo</span>
+        </a>
         <a class="nav-link" href="perfil-deportivo.html">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="8" r="4"/>
@@ -201,6 +210,17 @@
 
             </div>
 
+            <!-- Equipo (opcional) -->
+            <fieldset class="group" id="field-equipo">
+              <legend class="field__label">Tu equipo (opcional)</legend>
+              <p class="field__hint">
+                Si elegís un equipo, queda inscripto en el partido y ocupa un cupo por cada integrante
+                (vos, como organizador, no ocupás cupo).
+              </p>
+              <div class="chips" id="chips-equipo"></div>
+              <p class="field__error" id="error-equipo" role="alert"></p>
+            </fieldset>
+
             <!-- Ubicación -->
             <div class="field" id="field-ubicacion">
               <label class="field__label" for="ubicacion">Ubicación / cancha</label>
@@ -242,6 +262,7 @@
                 <p id="prev-fecha">Elegí fecha y hora</p>
                 <p id="prev-direccion" hidden></p>
                 <p id="prev-jugadores">Buscás 1 jugador</p>
+                <p id="prev-equipo" hidden></p>
               </div>
             </div>
 
@@ -302,6 +323,7 @@
         <h3 class="ticket__name" id="mc-nombre"></h3>
         <p class="ticket__addr" id="mc-direccion" hidden></p>
         <p class="ticket__when" id="mc-cuando"></p>
+        <p class="ticket__when" id="mc-equipo" hidden></p>
 
         <dl class="ticket__rows">
           <div><dt>Costo total</dt><dd id="mc-total"></dd></div>
