@@ -39,6 +39,10 @@ type Config struct {
 	FrontDir string
 	// Origen permitido para CORS (vacío = solo mismo origen, lo normal)
 	AllowOrigin string
+	// Dirección pública de la app (ej. http://192.168.0.10:8080), que
+	// va en los links de invitación. Vacío = el host con el que entró
+	// quien pide el link.
+	PublicURL string
 
 	// Migraciones
 	MigrationsDir string
@@ -63,6 +67,7 @@ func Load() *Config {
 		JWTExpira:     envDur("JWT_EXPIRA_HORAS", 24*time.Hour),
 		FrontDir:      env("FRONT_DIR", ""),
 		AllowOrigin:   env("ALLOW_ORIGIN", ""),
+		PublicURL:     strings.TrimRight(env("PUBLIC_URL", ""), "/"),
 		MigrationsDir: env("MIGRATIONS_DIR", "migrations"),
 		AutoMigrate:   envBool("AUTO_MIGRATE", true),
 		MapsKey:       env("MAPS_API_KEY", ""),

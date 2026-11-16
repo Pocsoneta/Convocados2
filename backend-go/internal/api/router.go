@@ -40,6 +40,11 @@ func (s *Server) Router() http.Handler {
 	raiz.HandleFunc("POST /api/auth/recuperar", s.pedirRecuperacion)
 	raiz.HandleFunc("POST /api/auth/restablecer", s.restablecerClave)
 
+	// Link de invitación a un equipo: cualquiera con el link puede
+	// ver el equipo y sumarse como invitado (sin cuenta).
+	raiz.HandleFunc("GET /api/invitacion/{token}", s.verLink)
+	raiz.HandleFunc("POST /api/invitacion/{token}", s.unirsePorLink)
+
 	// Config pública del front (clave de Google Maps para el
 	// autocompletado de ubicación; es una clave de navegador).
 	raiz.HandleFunc("GET /api/config", func(w http.ResponseWriter, r *http.Request) {
@@ -67,12 +72,16 @@ func (s *Server) Router() http.Handler {
 	protegido.HandleFunc("DELETE /api/partidos/{id}/inscripcion", s.desinscribirse)
 	protegido.HandleFunc("POST /api/partidos/{id}/equipos", s.sumarEquipo)
 	protegido.HandleFunc("DELETE /api/partidos/{id}/equipos/{equipo}", s.bajarEquipo)
+	protegido.HandleFunc("POST /api/partidos/{id}/equipos/{equipo}/aceptar", s.aceptarEquipo)
 
 	protegido.HandleFunc("GET /api/partidos/{id}/administracion", s.administrarPartido)
 	protegido.HandleFunc("POST /api/partidos/{id}/solicitudes/{usuario}/aceptar", s.aceptarSolicitud)
 	protegido.HandleFunc("DELETE /api/partidos/{id}/solicitudes/{usuario}", s.rechazarSolicitud)
 	protegido.HandleFunc("DELETE /api/partidos/{id}/participantes/{usuario}", s.quitarParticipante)
 	protegido.HandleFunc("POST /api/partidos/{id}/cancelar", s.cancelarPartido)
+
+	protegido.HandleFunc("GET /api/partidos/{id}/mensajes", s.listarMensajes)
+	protegido.HandleFunc("POST /api/partidos/{id}/mensajes", s.enviarMensaje)
 
 	protegido.HandleFunc("GET /api/mis-partidos", s.misPartidos)
 
@@ -87,7 +96,16 @@ func (s *Server) Router() http.Handler {
 	protegido.HandleFunc("GET /api/equipos/{id}", s.detalleEquipo)
 	protegido.HandleFunc("POST /api/equipos/{id}/integrantes", s.sumarIntegrante)
 	protegido.HandleFunc("DELETE /api/equipos/{id}/integrantes/{usuario}", s.quitarIntegrante)
+	protegido.HandleFunc("GET /api/equipos/{id}/invitaciones", s.invitacionesEquipo)
+	protegido.HandleFunc("DELETE /api/equipos/{id}/invitaciones/{usuario}", s.cancelarInvitacion)
+	protegido.HandleFunc("POST /api/equipos/{id}/link", s.generarLink)
+	protegido.HandleFunc("DELETE /api/equipos/{id}/link", s.revocarLink)
 
+	protegido.HandleFunc("GET /api/invitaciones", s.misInvitaciones)
+	protegido.HandleFunc("POST /api/invitaciones/{equipo}/aceptar", s.aceptarInvitacion)
+	protegido.HandleFunc("POST /api/invitaciones/{equipo}/rechazar", s.rechazarInvitacion)
+
+	protegido.HandleFunc("GET /api/usuarios", s.listarUsuarios)
 	protegido.HandleFunc("GET /api/usuarios/{id}", s.usuarioPublicoDetalle)
 
 	// Cualquier otra ruta /api/* sin sesión responde 401;
