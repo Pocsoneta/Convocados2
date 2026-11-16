@@ -259,6 +259,14 @@
 .jugador--libre { color: var(--text-muted); font-weight: 500; }
 .jugador--libre .persona__avatar { background: #0b2a1c; opacity: .55; }
 
+/* Cuántos jugadores aporta un equipo inscripto */
+.jugador__extra {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 /* ---------- Acción según el estado del usuario ---------- */
 .accion {
   padding-top: 16px;
@@ -271,12 +279,186 @@
   line-height: 1.5;
   color: var(--text-muted);
 }
+
+/* ---------- Sumar mi equipo ---------- */
+.accion__equipo {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.accion__equipo-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.selector {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--card-border, #22304a);
+  border-radius: 8px;
+  background: var(--card, #101a2b);
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  color-scheme: dark;
+}
+.selector:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+.selector option { color: var(--text); background: #101a2b; }
+.accion__equipo .btn--outline { width: 100%; }
+.accion__equipo .btn--outline:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.accion__hint {
+  margin-top: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.accion__hint a { color: var(--green); font-weight: 600; }
+.accion__hint:empty { display: none; }
 .error {
   margin-top: 10px;
   font-size: 13px;
   color: var(--red);
 }
 .error:empty { display: none; }
+
+/* ---------- Chat del partido ---------- */
+.chat {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 14px;
+  margin-top: 4px;
+  padding: 22px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+}
+.chat[hidden] { display: none; }
+
+.chat__estado {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--green);
+  white-space: nowrap;
+}
+
+.chat__mensajes {
+  display: grid;
+  gap: 10px;
+  max-height: 400px;
+  margin: 0;
+  padding: 4px 2px;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #22304a transparent;
+}
+
+.mensaje {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #1d2a40;
+  border-left: 3px solid transparent;
+  border-radius: 12px;
+  background: #0a1322;
+}
+.mensaje .persona__avatar { width: 36px; height: 36px; font-size: 12px; }
+
+/* Resaltado por rango */
+.mensaje--org {
+  border-left-color: var(--green);
+  background: rgba(0, 245, 109, 0.06);
+}
+.mensaje--capitan {
+  border-left-color: #f5b942;
+  background: rgba(245, 185, 66, 0.06);
+}
+.mensaje--mio { background: #0d1a2e; }
+.mensaje--mio.mensaje--org { background: rgba(0, 245, 109, 0.06); }
+.mensaje--mio.mensaje--capitan { background: rgba(245, 185, 66, 0.06); }
+
+.mensaje__cuerpo { display: grid; gap: 4px; min-width: 0; }
+
+.mensaje__fila {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mensaje__autor { font-size: 13.5px; }
+.mensaje__hora {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.mensaje__rango {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.mensaje__rango--org { background: var(--green); color: var(--accent-ink); }
+.mensaje__rango--capitan { background: #f5b942; color: #241a02; }
+
+.mensaje__texto {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.chat__composer { display: flex; gap: 10px; }
+
+.chat__input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #0a1322;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+}
+.chat__input::placeholder { color: var(--text-muted); }
+.chat__input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+
+.chat__enviar {
+  flex: none;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 10px;
+  background: var(--green);
+  color: var(--accent-ink);
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.chat__enviar:disabled {
+  background: #14301f;
+  color: #4f7a61;
+  cursor: not-allowed;
+}
+
+.chat .error { margin-top: 0; }
 
 /* ---------- Tablet / mobile ---------- */
 @media (max-width: 1180px) {

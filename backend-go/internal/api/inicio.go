@@ -48,7 +48,7 @@ func (s *Server) proximoPartido(w http.ResponseWriter, r *http.Request) {
 	lat := porDefectoFloat(r.URL.Query().Get("lat"), LatPorDefecto)
 	lng := porDefectoFloat(r.URL.Query().Get("lng"), LngPorDefecto)
 
-	const consulta = colsPartido + `
+	consulta := colsPartido + `
 		 WHERE p.estado = 'Publicado'
 		   AND p.fecha_hora >= NOW()
 		   AND (

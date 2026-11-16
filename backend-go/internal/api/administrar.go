@@ -109,10 +109,27 @@ func (s *Server) administrarPartido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Equipos inscriptos (ocupan cupos por integrante): los confirmados
+	// suman lugar y las solicitudes pendientes esperan al organizador.
+	equipos := []participante{}
+	solicitudesEquipos := []participante{}
+	for _, p := range s.listarParticipantes(id) {
+		if p.Tipo != "equipo" {
+			continue
+		}
+		if p.Estado == "Confirmado" {
+			equipos = append(equipos, p)
+		} else {
+			solicitudesEquipos = append(solicitudesEquipos, p)
+		}
+	}
+
 	JSON(w, http.StatusOK, map[string]any{
-		"partido":     p.aJSON(complejos, p.Lat, p.Lng),
-		"solicitudes": solicitudes,
-		"confirmados": confirmados,
+		"partido":            p.aJSON(complejos, p.Lat, p.Lng),
+		"solicitudes":        solicitudes,
+		"confirmados":        confirmados,
+		"equipos":            equipos,
+		"solicitudesEquipos": solicitudesEquipos,
 	})
 }
 
@@ -138,8 +155,9 @@ func (s *Server) aceptarSolicitud(w http.ResponseWriter, r *http.Request) {
 	// Bloquea el partido: dos aceptaciones seguidas no pueden pasarse del cupo.
 	var estado string
 	var cupo int
-	if err := tx.QueryRow("SELECT estado, cupo_total FROM PARTIDO WHERE id_partido = ? FOR UPDATE",
-		id).Scan(&estado, &cupo); err != nil {
+	var creador sql.NullInt64
+	if err := tx.QueryRow("SELECT estado, cupo_total, id_usuario_creador FROM PARTIDO WHERE id_partido = ? FOR UPDATE",
+		id).Scan(&estado, &cupo, &creador); err != nil {
 		respondeErrJSON(w, err)
 		return
 	}
@@ -149,11 +167,17 @@ func (s *Server) aceptarSolicitud(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ocupados int
-	if err := tx.QueryRow(sqlOcupados, id, id).Scan(&ocupados); err != nil {
+	if err := tx.QueryRow(sqlOcupados, id, creador, id).Scan(&ocupados); err != nil {
 		respondeErrJSON(w, err)
 		return
 	}
-	if ocupados >= cupo {
+	// Si ya cuenta por un equipo confirmado, confirmarlo no suma un lugar nuevo
+	_, enEquipo, err := equipoConfirmadoDe(tx, id, usuario)
+	if err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	if !enEquipo && ocupados >= cupo {
 		Error(w, http.StatusConflict, "No quedan cupos libres para ese partido.")
 		return
 	}

@@ -15,6 +15,7 @@ const APP = {
     buscar: "buscar.html",
     crearPartido: "crear-partido.html",
     misPartidos: "mis-partidos.html",
+    equipos: "equipos.html",
     perfil: "perfil-deportivo.html",
     detallePartido: "detalle-partido.html",
     administrarPartido: "administrar-partido.html",
