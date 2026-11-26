@@ -13,6 +13,7 @@
   display: grid;
   grid-template-columns: minmax(360px, 35.4%) minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ---------- Columna izquierda (oscura) ---------- */
@@ -253,11 +254,11 @@
 .registro__alt a:hover { text-decoration: underline; }
 
 /* ---------- Tablet / mobile ---------- */
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .registro__aside { padding: 40px 32px; }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .registro { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
 
   /* La columna oscura queda como cabecera con la marca */
@@ -268,6 +269,7 @@
   .registro__panel { padding: 32px 24px 40px; }
 }
 
-@media (max-width: 480px) {
+/* Nombre / Apellido se apilan solo en pantallas muy angostas */
+@media (max-width: 360px) {
   .form__grid { grid-template-columns: 1fr; gap: 22px; }
 }

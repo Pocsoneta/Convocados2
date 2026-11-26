@@ -645,7 +645,7 @@
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .mapa { height: 240px; }
 
   .mapa-card__head { flex-direction: column; }
@@ -657,4 +657,9 @@
   .btn--ver { flex: 1; max-width: 160px; }
 
   .resultados__head { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  /* Objetivo táctil para los botones del calendario */
+  .cal__day { height: 40px; font-size: 12.5px; }
+  .cal__btn { width: var(--tap); height: var(--tap); }
+  .cal__week, .cal__grid { gap: 4px; }
 }

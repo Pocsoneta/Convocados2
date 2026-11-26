@@ -293,6 +293,7 @@
   position: relative;
   width: min(560px, 100%);
   max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   overflow-y: auto;
   padding: 26px;
   background: var(--surface);
@@ -561,13 +562,13 @@ body.modal-abierto { overflow: hidden; }
   .eq__grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .page-head { flex-direction: column; }
   .page-head__title { font-size: 26px; }
   .btn--create { width: 100%; }
 
   .equipo { flex-wrap: wrap; }
-  .equipo__ver { width: 100%; height: 40px; }
+  .equipo__ver { width: 100%; height: var(--tap); }
 
   .invitacion__acciones { width: 100%; }
   .invitacion__acciones .invitacion__btn { flex: 1; }

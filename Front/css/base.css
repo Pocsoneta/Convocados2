@@ -10,7 +10,7 @@
   --border:        rgba(255, 255, 255, 0.08);
   --text:          #ffffff;
   --text-muted:    #8c97a9;
-  --accent:        #cccccc;
+  --accent:        #ffffff;
   --accent-ink:    #04130a;  
 
   /* Tipografías */
@@ -24,7 +24,19 @@
 
   /* Espaciado de página */
   --page-x: 64px;
+
+  /* Punto mínimo de toque táctil (móvil) */
+  --tap: 44px;
 }
+
+/* =========================================================
+   Escala de breakpoints unificada — úsela en todas las pantallas:
+     ≥1180px  desktop / laptop grande
+     ≤1180px  laptop angosta y tablet grande (grillas a 1 columna)
+     ≤900px   tablet y menú hamburguesa / layout vertical
+     ≤640px   móvil (tipografía, cabeceras centradas, targets)
+     ≤380px   móvil pequeño (últimos ajustes)
+   ========================================================= */
 
 *,
 *::before,
@@ -35,6 +47,7 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);

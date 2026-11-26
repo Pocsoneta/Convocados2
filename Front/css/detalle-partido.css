@@ -465,10 +465,14 @@
   .detalle__grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .page-head { flex-direction: column; }
   .page-head__title { font-size: 26px; }
   .btn--ghost { width: 100%; }
-  .datos { grid-template-columns: 1fr; }
+
+  /* Fecha y Horario lado a lado; el precio ocupa todo el ancho */
+  .datos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .datos .dato:last-child { grid-column: 1 / -1; }
+
   .cabecera__nombre { font-size: 26px; }
 }

@@ -14,6 +14,7 @@
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ---------- Barra lateral ---------- */
@@ -388,13 +389,13 @@
 .form__error { margin-top: 14px; text-align: right; }
 
 /* ---------- Tablet / mobile ---------- */
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .perfil__grid { grid-template-columns: 1fr; }
   .card--avatar { max-width: none; }
   .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .perfil { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
 
   /* La barra lateral se vuelve una cabecera compacta */
@@ -409,8 +410,12 @@
   .perfil__title { font-size: 26px; }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .perfil__actions { flex-direction: column-reverse; align-items: stretch; gap: 14px; text-align: center; }
   .perfil__actions .btn { width: 100%; }
   .form__error { text-align: center; }
+
+  /* El avatar queda centrado, como en el Figma móvil */
+  .card--avatar { text-align: center; }
+  .avatar { margin-inline: auto; }
 }
