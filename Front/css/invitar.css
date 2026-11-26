@@ -61,8 +61,8 @@
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(0, 245, 109, 0.1);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--neon) 10%, transparent);
+  color: var(--neon);
 }
 
 .invitar__equipo-info { display: grid; min-width: 0; gap: 2px; }
@@ -95,8 +95,8 @@
 .field__input::placeholder { color: var(--text-muted); }
 .field__input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0, 245, 109, 0.15);
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 15%, transparent);
 }
 
 .field__error {
@@ -127,7 +127,10 @@
   color: var(--text);
   font-size: 15px;
 }
-.btn--ghost:hover { border-color: rgba(0, 245, 109, 0.45); }
+.btn--ghost:hover {
+  border-color: color-mix(in srgb, var(--neon) 45%, transparent);
+  box-shadow: var(--glow);
+}
 
 .invitar__cuenta {
   margin: 0;
@@ -135,7 +138,7 @@
   line-height: 1.55;
   color: var(--text-muted);
 }
-.invitar__cuenta a { color: var(--accent); font-weight: 600; }
+.invitar__cuenta a { color: var(--neon); font-weight: 600; }
 
 .invitar__alt {
   margin: 0;
@@ -143,7 +146,7 @@
   font-size: 14px;
   color: var(--text-muted);
 }
-.invitar__alt a { color: var(--accent); font-weight: 600; }
+.invitar__alt a { color: var(--neon); font-weight: 600; }
 
 /* ---------- Estados (error / cargando / listo) ---------- */
 .invitar__estado { display: grid; gap: 14px; justify-items: start; }
@@ -158,8 +161,8 @@
   color: var(--red, #ff4d55);
 }
 .invitar__estado-icono--ok {
-  background: rgba(0, 245, 109, 0.12);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--neon) 12%, transparent);
+  color: var(--neon);
 }
 
 .invitar__acciones { display: flex; flex-wrap: wrap; gap: 12px; }

@@ -5,12 +5,6 @@
    ========================================================= */
 
 .app {
-  --aside:        #333333;
-  --card:         #000a1c;
-  --card-border:  #1b2638;
-  --chip:         #172134;
-  --soft:         #f6f6f6;
-
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
@@ -48,21 +42,22 @@
   height: 44px;
   padding: 0 14px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--soft);
   font-size: 14.5px;
   font-weight: 500;
-  transition: background .15s ease, color .15s ease;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--neon) 8%, transparent);
   color: var(--text);
 }
 .nav-link.is-active {
-  background: #09291d;
-  border-color: rgba(0, 245, 109, 0.45);
-  color: var(--accent);
+  background: var(--neon);
+  border-color: var(--neon);
+  color: var(--accent-ink);
   font-weight: 700;
+  box-shadow: var(--glow);
 }
 
 /* ---------- Usuario ---------- */
@@ -73,7 +68,7 @@
   margin-top: auto;
   padding: 10px;
   border-radius: 12px;
-  background: #101a2b;
+  background: var(--panel);
 }
 
 .user {
@@ -95,7 +90,7 @@
   overflow: hidden;
   border-radius: 50%;
   background: var(--chip);
-  color: var(--accent);
+  color: var(--neon);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 13px;
@@ -166,7 +161,7 @@
   position: relative;
   font-size: 13px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--neon);
 }
 /* Área de toque ampliada sin cambiar el aspecto visual */
 .link-green::after {
@@ -220,11 +215,11 @@
     margin-left: auto;
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    background: #101a2b;
+    background: var(--panel);
     color: var(--text);
     transition: background .15s ease, border-color .15s ease;
   }
-  .sidebar__toggle:hover { background: #16213a; }
+  .sidebar__toggle:hover { background: var(--line-2); }
   .sidebar__toggle .sidebar__icon-close { display: none; }
   .sidebar.is-open .sidebar__toggle .sidebar__icon-menu { display: none; }
   .sidebar.is-open .sidebar__toggle .sidebar__icon-close { display: block; }
@@ -262,7 +257,7 @@
     width: min(300px, 85vw);
     margin: 0;
     padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
-    background: #101a2b;
+    background: var(--panel);
     border-top: 1px solid var(--card-border);
     transform: translateX(-100%);
     visibility: hidden;
@@ -282,7 +277,7 @@
     position: fixed;
     inset: 0;
     z-index: 50;
-    background: rgba(3, 7, 13, 0.72);
+    background: rgba(4, 13, 9, 0.72);
   }
 
   body.nav-open { overflow: hidden; }

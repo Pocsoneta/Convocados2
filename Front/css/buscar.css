@@ -3,7 +3,6 @@
    ========================================================= */
 
 .buscar {
-  --field: #0a111e;
   --red:   #ff5a5f;
 
   max-width: 1240px;
@@ -34,8 +33,8 @@
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .searchbar:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0, 245, 109, 0.18);
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 18%, transparent);
 }
 
 .searchbar__field {
@@ -135,7 +134,7 @@
   color: var(--soft);
   transition: color .15s ease, border-color .15s ease;
 }
-.cal__btn:hover:not(:disabled) { color: var(--text); border-color: #2d3d57; }
+.cal__btn:hover:not(:disabled) { color: var(--text); border-color: var(--focus); }
 .cal__btn:disabled { opacity: .35; cursor: not-allowed; }
 
 .cal__week,
@@ -156,14 +155,14 @@
   height: 28px;
   padding: 0;
   border-radius: 8px;
-  background: #121b2c;
-  color: #c4cddc;
+  background: var(--surface);
+  color: #cfddd5;
   font-size: 11px;
   font-weight: 500;
   transition: background .12s ease, color .12s ease;
 }
-.cal__day:hover:not(:disabled):not(.is-edge) { background: #1c2940; color: var(--text); }
-.cal__day.is-out { color: #55637c; }
+.cal__day:hover:not(:disabled):not(.is-edge) { background: var(--line-2); color: var(--text); }
+.cal__day.is-out { color: #74907f; }
 .cal__day:disabled { opacity: .35; cursor: not-allowed; }
 
 .cal__day.is-range {
@@ -194,12 +193,12 @@
   font-size: 14px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.zona__input::placeholder { color: #55637c; }
-.zona__input:hover { border-color: #2a3850; }
+.zona__input::placeholder { color: #74907f; }
+.zona__input:hover { border-color: var(--focus); }
 .zona__input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0, 245, 109, 0.2);
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 20%, transparent);
 }
 .zona__icon {
   position: absolute;
@@ -301,13 +300,13 @@
   overflow: hidden;
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  background: #0a111d;
+  background: var(--map);
 }
 
 /* El contenedor es el mismo elemento .mapa (Leaflet le agrega la clase
    leaflet-container encima), por eso el selector es de clase doble. */
 .mapa.leaflet-container {
-  background: #0a111d;
+  background: var(--map);
   font-family: var(--font-body);
 }
 
@@ -350,14 +349,14 @@
 .mapa .mapa-ubicar__btn:hover { background: var(--surface-2); }
 .mapa .mapa-ubicar__btn svg { display: block; }
 .mapa .mapa-ubicar__btn.is-buscando {
-  color: #34d399;
+  color: var(--neon);
   animation: mapa-latir 1s ease-in-out infinite;
 }
 .mapa .mapa-ubicar__btn.is-fallo { color: #ff6b6b; }
 @keyframes mapa-latir { 50% { opacity: .35; } }
 
 .mapa .leaflet-control-attribution {
-  background: rgba(6, 11, 20, .78);
+  background: rgba(4, 13, 9, .78);
   color: var(--text-muted);
   font-size: 10px;
 }
@@ -378,9 +377,9 @@
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
-  border: 2px solid #060b14;
+  border: 2px solid var(--bg);
   border-radius: 50%;
-  background: #34d399;
+  background: var(--neon);
   box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
   transition: transform .15s ease;
 }
@@ -394,7 +393,7 @@
   width: 22px;
   height: 22px;
   margin: -11px 0 0 -11px;
-  border: 2px solid #060b14;
+  border: 2px solid var(--bg);
   border-radius: 50%;
   background: var(--accent);
   color: var(--accent-ink);
@@ -418,9 +417,9 @@
 .pin-agrupado {
   display: grid;
   place-items: center;
-  border: 2px solid #34d399;
+  border: 2px solid var(--neon);
   border-radius: 50%;
-  background: rgba(52, 211, 153, .16);
+  background: color-mix(in srgb, var(--neon) 16%, transparent);
   color: #e8fff6;
   font-family: var(--font-display);
   font-weight: 700;
@@ -471,7 +470,7 @@
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--neon);
 }
 .pop__lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
 .pop__lista li { font-size: 12.5px; }
@@ -497,14 +496,14 @@
   cursor: pointer;
 }
 .pop__btn:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--neon);
+  border-color: var(--neon);
   color: var(--accent-ink);
 }
 /* "Ir al partido" desde el popup del mapa */
 .pop__btn--ir {
-  border-color: rgba(52, 211, 153, .55);
-  color: #34d399;
+  border-color: color-mix(in srgb, var(--neon) 55%, transparent);
+  color: var(--neon);
 }
 
 /* Si no se pudieron bajar los scripts del mapa */
@@ -533,8 +532,11 @@
   border-radius: 12px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.result.is-active { border-color: rgba(0, 245, 109, 0.55); }
-.result.is-selected { box-shadow: 0 0 0 3px rgba(0, 245, 109, 0.22); }
+.result.is-active {
+  border-color: color-mix(in srgb, var(--neon) 55%, transparent);
+  box-shadow: var(--glow);
+}
+.result.is-selected { box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 22%, transparent); }
 
 .result__icon {
   display: grid;
@@ -544,7 +546,7 @@
   height: 48px;
   border: 1px solid var(--card-border);
   border-radius: 10px;
-  background: #111b2d;
+  background: var(--surface);
   color: var(--accent);
 }
 
@@ -568,14 +570,14 @@
   font-size: 12.5px;
   color: var(--text-muted);
 }
-.result__mod { font-weight: 700; color: var(--accent); }
+.result__mod { font-weight: 700; color: var(--neon); }
 .result__sep {
   display: inline-block;
   width: 3px;
   height: 3px;
   margin: 0 9px;
   border-radius: 50%;
-  background: #55637c;
+  background: #74907f;
 }
 
 .result__side {
@@ -587,7 +589,7 @@
 .result__cupos {
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--neon);
   white-space: nowrap;
 }
 .result__cupos--low { color: var(--red); }
@@ -597,12 +599,15 @@
   height: 48px;
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  background: #141e31;
+  background: var(--panel-2);
   color: var(--text);
   font-size: 14px;
   transition: border-color .15s ease;
 }
-.btn--ver:hover { border-color: rgba(0, 245, 109, 0.5); }
+.btn--ver:hover {
+  border-color: color-mix(in srgb, var(--neon) 50%, transparent);
+  box-shadow: var(--glow);
+}
 
 /* ---------- Estados vacío / error ---------- */
 .empty {
@@ -610,7 +615,7 @@
   justify-items: center;
   gap: 6px;
   padding: 40px 24px;
-  border: 1px dashed #26334b;
+  border: 1px dashed var(--line-dash);
   border-radius: 16px;
   text-align: center;
 }
@@ -622,7 +627,7 @@
   margin-bottom: 8px;
   border-radius: 50%;
   background: var(--chip);
-  color: var(--accent);
+  color: var(--neon);
 }
 .empty__title { font-size: 15px; font-weight: 700; }
 .empty__text {

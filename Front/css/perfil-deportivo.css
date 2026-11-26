@@ -3,11 +3,9 @@
    ========================================================= */
 
 .perfil {
-  --aside:        #0a1220;
-  --card:         #0d1626;
-  --card-border:  #1b2638;
-  --chip:         #172134;
-  --field:        #0a111e;
+  /* El panel propio de esta pantalla sigue la paleta activa. */
+  --aside:        var(--aside-2);
+  --card:         var(--card-2);
   --sel-bg:       #072a1c;
   --error:        #ff6b70;
 
@@ -143,10 +141,10 @@
   width: 112px;
   height: 112px;
   overflow: hidden;
-  border: 3px solid var(--accent);
+  border: 3px solid var(--neon);
   border-radius: 50%;
   background: var(--chip);
-  color: #4b5a74;
+  color: #7d968a;
 }
 
 .avatar__img {
@@ -201,13 +199,13 @@
   font-size: 14px;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.field__input::placeholder { color: #55637c; }
+.field__input::placeholder { color: #74907f; }
 .field__input--icon { padding-right: 44px; }
-.field__input:hover { border-color: #2a3850; }
+.field__input:hover { border-color: var(--focus); }
 .field__input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0, 245, 109, 0.2);
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 20%, transparent);
 }
 
 .field__icon {
@@ -283,7 +281,7 @@
 .chip:hover .chip__label { color: var(--text); }
 
 .chip__input:checked + .chip__label {
-  background: var(--accent);
+  background: var(--neon);
   color: var(--accent-ink);
 }
 .chip__input:focus-visible + .chip__label {
@@ -322,7 +320,7 @@
   background: var(--card);
   transition: border-color .15s ease, background .15s ease;
 }
-.level:hover .level__box { border-color: #2d3d57; }
+.level:hover .level__box { border-color: var(--focus); }
 
 .level__dot {
   width: 16px;
@@ -335,14 +333,14 @@
 
 .level__name { font-size: 14px; font-weight: 700; }
 
-.level__hint { font-size: 11px; color: #55637c; }
-.level__hint--on { display: none; color: var(--accent); }
+.level__hint { font-size: 11px; color: #74907f; }
+.level__hint--on { display: none; color: var(--neon); }
 
 .level__input:checked + .level__box {
-  border-color: var(--accent);
+  border-color: var(--neon);
   background: var(--sel-bg);
 }
-.level__input:checked + .level__box .level__dot { background: var(--accent); }
+.level__input:checked + .level__box .level__dot { background: var(--neon); }
 .level__input:checked + .level__box .level__hint--off { display: none; }
 .level__input:checked + .level__box .level__hint--on { display: block; }
 

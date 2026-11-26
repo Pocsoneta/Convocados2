@@ -2,25 +2,53 @@
    base.css — compartido por todas las pantallas
    ========================================================= */
 
+/* Paletas de fondo (TEMPORAL). Debe ir antes que :root para que las
+   variables existan, pero gana por especificidad html[data-tema]. */
+@import url("tema.css");
+
 :root {
-  /* Colores (tomados del Figma) */
-  --bg:            #060b14;
-  --surface:       #0e1623;
-  --surface-2:     #1a2332;
+  /* Colores (noche de estadio: negro verdoso + verde neón) */
+  --bg:            #08130c;
+  --surface:       #0d1a12;
+  --surface-2:     #152b1e;
+  /* Superficies y bordes derivados: los usan las pantallas y, al cambiar
+     de paleta, se redefinen todos juntos (ver css/tema.css). */
+  --card:          #0e1c14;
+  --card-2:        #101f16;
+  --card-border:   #1c3527;
+  --chip:          #12261b;
+  --aside:         #0b1610;
+  --aside-2:       #0a1710;
+  --soft:          #f6f6f6;
+  --field:         #0f1d15;
+  --panel:         #101f16;
+  --panel-2:       #14291d;
+  --well:          #0a1710;
+  --map:           #0a150e;
+  --line:          #1c3527;
+  --line-2:        #1a2f23;
+  --line-dash:     #234a32;
+  --focus:         var(--neon);
+  --nav-active:    #0e2a1b;
   --border:        rgba(255, 255, 255, 0.08);
-  --text:          #ffffff;
-  --text-muted:    #8c97a9;
+  --text:          #f2f7f4;
+  --text-muted:    #8ca697;
   --accent:        #ffffff;
-  --accent-ink:    #04130a;  
+  --accent-ink:    #04130a;
+
+  /* Verde neón del mockup: acentos, estados activos y resplandor sutil */
+  --neon:          #2fdd7c;
+  --neon-soft:     color-mix(in srgb, var(--neon) 10%, transparent);
+  --glow:          0 0 12px color-mix(in srgb, var(--neon) 25%, transparent);
 
   /* Tipografías */
-  --font-display:  "Outfit", system-ui, sans-serif;
+  --font-display:  "Archivo", "Outfit", system-ui, sans-serif;
   --font-body:     "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Radios */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 24px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
 
   /* Espaciado de página */
   --page-x: 64px;
@@ -90,7 +118,7 @@ button {
   border: 1.5px solid var(--accent);
   border-radius: 9px;
   color: var(--accent);
-  background: rgba(0, 245, 109, 0.08);
+  background: var(--neon-soft);
 }
 
 .brand__name {
@@ -120,7 +148,10 @@ button {
   background: var(--accent);
   color: var(--accent-ink);
 }
-.btn--primary:hover { filter: brightness(1.08); }
+.btn--primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.18);
+}
 
 .link-btn {
   font-size: 14px;
@@ -134,9 +165,9 @@ button {
 .eyebrow {
   font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--neon);
 }
 
 @media (prefers-reduced-motion: reduce) {

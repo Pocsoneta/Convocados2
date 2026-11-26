@@ -3,8 +3,8 @@
    ========================================================= */
 
 .detalle {
-  --green: #00f56d;
-  --green-soft: rgba(0, 245, 109, 0.12);
+  --green: var(--neon);
+  --green-soft: color-mix(in srgb, var(--neon) 12%, transparent);
   --red: #ff4d55;
   --red-soft: rgba(255, 77, 85, 0.08);
 
@@ -17,14 +17,17 @@
   gap: 10px;
   height: 44px;
   padding: 0 22px;
-  border: 1px solid #22304a;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #101a2b;
+  background: var(--panel);
   color: var(--text);
   font-size: 14px;
   transition: border-color .15s ease;
 }
-.btn--ghost:hover { border-color: rgba(0, 245, 109, 0.45); }
+.btn--ghost:hover {
+  border-color: color-mix(in srgb, var(--neon) 45%, transparent);
+  box-shadow: var(--glow);
+}
 
 .btn--outline {
   display: inline-flex;
@@ -53,7 +56,10 @@
   font-weight: 800;
   transition: filter .15s ease;
 }
-.btn--main:hover { filter: brightness(1.08); }
+.btn--main:hover {
+  filter: brightness(1.08);
+  box-shadow: var(--glow);
+}
 .btn--main:disabled { background: #14301f; color: #4f7a61; cursor: not-allowed; }
 .btn--main.btn--danger-outline {
   background: transparent;
@@ -249,9 +255,9 @@
   gap: 12px;
   min-height: 56px;
   padding: 8px 14px;
-  border: 1px solid #1d2a40;
+  border: 1px solid var(--line-2);
   border-radius: 12px;
-  background: #0a1322;
+  background: var(--well);
   font-size: 14.5px;
   font-weight: 700;
 }
@@ -294,9 +300,9 @@
 .selector {
   height: 40px;
   padding: 0 12px;
-  border: 1px solid var(--card-border, #22304a);
+  border: 1px solid var(--card-border, var(--line));
   border-radius: 8px;
-  background: var(--card, #101a2b);
+  background: var(--card, var(--panel));
   color: var(--text);
   font-size: 13.5px;
   font-family: var(--font-body);
@@ -310,7 +316,7 @@
   border-color: var(--green);
   box-shadow: 0 0 0 3px var(--green-soft);
 }
-.selector option { color: var(--text); background: #101a2b; }
+.selector option { color: var(--text); background: var(--panel); }
 .accion__equipo .btn--outline { width: 100%; }
 .accion__equipo .btn--outline:disabled {
   opacity: .5;
@@ -360,31 +366,31 @@
   overflow-y: auto;
   list-style: none;
   scrollbar-width: thin;
-  scrollbar-color: #22304a transparent;
+  scrollbar-color: var(--line) transparent;
 }
 
 .mensaje {
   display: flex;
   gap: 12px;
   padding: 10px 14px;
-  border: 1px solid #1d2a40;
+  border: 1px solid var(--line-2);
   border-left: 3px solid transparent;
   border-radius: 12px;
-  background: #0a1322;
+  background: var(--well);
 }
 .mensaje .persona__avatar { width: 36px; height: 36px; font-size: 12px; }
 
 /* Resaltado por rango */
 .mensaje--org {
   border-left-color: var(--green);
-  background: rgba(0, 245, 109, 0.06);
+  background: color-mix(in srgb, var(--neon) 6%, transparent);
 }
 .mensaje--capitan {
   border-left-color: #f5b942;
   background: rgba(245, 185, 66, 0.06);
 }
-.mensaje--mio { background: #0d1a2e; }
-.mensaje--mio.mensaje--org { background: rgba(0, 245, 109, 0.06); }
+.mensaje--mio { background: var(--well); }
+.mensaje--mio.mensaje--org { background: color-mix(in srgb, var(--neon) 6%, transparent); }
 .mensaje--mio.mensaje--capitan { background: rgba(245, 185, 66, 0.06); }
 
 .mensaje__cuerpo { display: grid; gap: 4px; min-width: 0; }
@@ -430,7 +436,7 @@
   padding: 0 14px;
   border: 1px solid var(--card-border);
   border-radius: 10px;
-  background: #0a1322;
+  background: var(--well);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 14.5px;
