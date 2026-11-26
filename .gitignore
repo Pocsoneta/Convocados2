@@ -6,6 +6,9 @@
 .env
 .env.local
 
+# Bases de datos locales sueltas (MySQL corre aparte; no se versionan)
+*.db
+
 # Copias de seguridad de los repos anteriores (Front y backend-go
 # eran repos aparte; sus historias ya están en GitHub)
 .respaldo-ramas-github/

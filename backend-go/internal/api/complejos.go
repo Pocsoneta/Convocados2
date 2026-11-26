@@ -1,10 +1,12 @@
 package api
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /* =========================================================
@@ -30,6 +32,18 @@ type cancha struct {
 	Direccion  string `json:"direccion"`
 	TipoCancha string `json:"tipoCancha"`
 	TipoSuelo  string `json:"tipoSuelo"`
+}
+
+// juntarComas une las partes no vacías con ", " para armar la consulta de
+// geocodificación sin dejar comas sueltas.
+func juntarComas(partes ...string) string {
+	limpias := make([]string, 0, len(partes))
+	for _, p := range partes {
+		if s := strings.TrimSpace(p); s != "" {
+			limpias = append(limpias, s)
+		}
+	}
+	return strings.Join(limpias, ", ")
 }
 
 const sqlComplejos = `
@@ -195,9 +209,14 @@ type complejoNuevo struct {
 
 // resolverComplejo devuelve el id de la cancha. Si ya existe (mismo nombre
 // y dirección, sin importar mayúsculas) la reutiliza; si no, la crea. Las
-// coordenadas llegan del selector de Google Maps y son opcionales: si el
-// registro existente no las tiene, se completan con las nuevas.
-func (s *Server) resolverComplejo(c *complejoNuevo) (int64, error) {
+// coordenadas llegan del selector de Google Maps (o del pin en el mapa) y
+// son opcionales: si el registro existente no las tiene, se completan.
+//
+// Si el front no manda coordenadas, intenta geocodificar la dirección
+// escrita a mano para que el partido no quede sin ubicación (sin esto
+// aparecía a miles de km, en el punto 0,0). La ciudad del complejo es la
+// del organizador (ej. "Mendoza"), no siempre CABA.
+func (s *Server) resolverComplejo(ctx context.Context, c *complejoNuevo, ciudad string) (int64, error) {
 	nombre := strings.TrimSpace(c.Nombre)
 	direccion := strings.TrimSpace(c.Direccion)
 	if nombre == "" {
@@ -206,10 +225,41 @@ func (s *Server) resolverComplejo(c *complejoNuevo) (int64, error) {
 	if direccion == "" {
 		direccion = nombre
 	}
+	ciudad = strings.TrimSpace(ciudad)
 
-	var lat, lng any
-	if c.Lat != nil && c.Lng != nil {
-		lat, lng = *c.Lat, *c.Lng
+	// Las consultas a Nominatim son best-effort y pueden tardar; con un
+	// tope total evitamos que el alta de un partido quede colgada cuando
+	// no vinieron coordenadas (peor caso: forward + forward + reverse).
+	geoctx, cancelar := context.WithTimeout(ctx, 4*time.Second)
+	defer cancelar()
+
+	// Coordenadas: primero las que mandó el front. Si no vinieron,
+	// probamos geocodificar "nombre, dirección[, ciudad]" y, si falla,
+	// "nombre[, ciudad]".
+	lat, lng, hay := 0.0, 0.0, false
+	if c.Lat != nil && c.Lng != nil && tieneUbicacion(*c.Lat, *c.Lng) {
+		lat, lng, hay = *c.Lat, *c.Lng, true
+	} else {
+		lat, lng, hay = coordenadasDeTexto(geoctx, juntarComas(nombre, direccion, ciudad))
+		if !hay {
+			lat, lng, hay = coordenadasDeTexto(geoctx, juntarComas(nombre, ciudad))
+		}
+	}
+
+	// La ciudad no se fuerza a "CABA": si no la mandaron (p. ej. el
+	// organizador no tiene localidad), se deriva del punto con el
+	// reverse de OpenStreetMap y, si tampoco, queda sin ciudad (NULL).
+	if ciudad == "" && hay {
+		ciudad = ciudadDeCoords(geoctx, lat, lng)
+	}
+
+	var latArg, lngArg any
+	if hay {
+		latArg, lngArg = lat, lng
+	}
+	var ciudadArg any
+	if ciudad != "" {
+		ciudadArg = ciudad
 	}
 
 	var id int64
@@ -217,7 +267,7 @@ func (s *Server) resolverComplejo(c *complejoNuevo) (int64, error) {
 	                       WHERE LOWER(nombre) = LOWER(?) AND LOWER(direccion) = LOWER(?)
 	                       LIMIT 1`, nombre, direccion).Scan(&id)
 	if err == nil {
-		if lat != nil {
+		if hay {
 			_, _ = s.DB.Exec(`UPDATE COMPLEJO
 			                     SET lat = COALESCE(lat, ?), lng = COALESCE(lng, ?)
 			                   WHERE id_complejo = ?`, lat, lng, id)
@@ -229,7 +279,7 @@ func (s *Server) resolverComplejo(c *complejoNuevo) (int64, error) {
 	}
 
 	res, err := s.DB.Exec(`INSERT INTO COMPLEJO (nombre, direccion, ciudad, lat, lng)
-	                        VALUES (?, ?, 'CABA', ?, ?)`, nombre, direccion, lat, lng)
+	                        VALUES (?, ?, ?, ?, ?)`, nombre, direccion, ciudadArg, latArg, lngArg)
 	if err != nil {
 		return 0, err
 	}
@@ -270,8 +320,13 @@ func (s *Server) crearComplejo(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusBadRequest, "Ingresá la dirección.")
 		return
 	}
-	if req.Ciudad == "" {
-		req.Ciudad = "CABA"
+	// La ciudad no se fuerza a "CABA": si no vino y hay coordenadas, se
+	// deriva del punto; si no, queda vacía (NULL en la base).
+	req.Ciudad = strings.TrimSpace(req.Ciudad)
+	if req.Ciudad == "" && tieneUbicacion(req.Lat, req.Lng) {
+		geoctx, cancelar := context.WithTimeout(r.Context(), 4*time.Second)
+		req.Ciudad = ciudadDeCoords(geoctx, req.Lat, req.Lng)
+		cancelar()
 	}
 
 	tx, err := s.DB.Begin()
@@ -281,9 +336,13 @@ func (s *Server) crearComplejo(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback()
 
+	var ciudadArg any
+	if req.Ciudad != "" {
+		ciudadArg = req.Ciudad
+	}
 	res, err := tx.Exec(`INSERT INTO COMPLEJO (nombre, direccion, barrio, ciudad, lat, lng)
 	                      VALUES (?, ?, ?, ?, ?, ?)`,
-		req.Nombre, req.Direccion, strings.TrimSpace(req.Barrio), req.Ciudad, req.Lat, req.Lng)
+		req.Nombre, req.Direccion, strings.TrimSpace(req.Barrio), ciudadArg, req.Lat, req.Lng)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return

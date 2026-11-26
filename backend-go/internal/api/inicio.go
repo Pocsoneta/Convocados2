@@ -76,19 +76,26 @@ func (s *Server) proximoPartido(w http.ResponseWriter, r *http.Request) {
 		direccion = p.Zona()
 	}
 
+	conUbicacion := tieneUbicacion(p.Lat, p.Lng)
+	distancia := 0.0
+	if conUbicacion {
+		distancia = km1(distKm(lat, lng, p.Lat, p.Lng))
+	}
+
 	JSON(w, http.StatusOK, map[string]any{
-		"id":          p.ID,
-		"nombre":      p.Nombre(),
-		"fecha":       p.FechaISO(),
-		"direccion":   direccion,
-		"modalidad":   p.Modalidad,
-		"nivel":       p.Nivel,
-		"cupos":       p.Disponibles(),
-		"zona":        p.Zona(),
-		"lat":         p.Lat,
-		"lng":         p.Lng,
-		"distanciaKm": km1(distKm(lat, lng, p.Lat, p.Lng)),
-		"item":        p.aJSON(complejos, lat, lng),
+		"id":           p.ID,
+		"nombre":       p.Nombre(),
+		"fecha":        p.FechaISO(),
+		"direccion":    direccion,
+		"modalidad":    p.Modalidad,
+		"nivel":        p.Nivel,
+		"cupos":        p.Disponibles(),
+		"zona":         p.Zona(),
+		"lat":          p.Lat,
+		"lng":          p.Lng,
+		"sinUbicacion": !conUbicacion,
+		"distanciaKm":  distancia,
+		"item":         p.aJSON(complejos, lat, lng),
 	})
 }
 

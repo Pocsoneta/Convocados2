@@ -1,0 +1,1225 @@
+{
+  "ubicacion": "Mendoza, Argentina",
+  "canchas_de_futbol": [
+    {
+      "nombre": "El Picadito",
+      "direccion": "Lavalle 1265, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.18771284457089,
+        "longitud": -68.4610091362876
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "El Templo",
+      "direccion": "Falucho, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.18006629512994,
+        "longitud": -68.48261648575291
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        },
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "El Olimpico",
+      "direccion": "Colón, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.19828874533486,
+        "longitud": -68.47987029588398
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas García (Fútbol y Paddle)",
+      "direccion": "Leandro N. Alem 1110, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.19744203922939,
+        "longitud": -68.45237741094367
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Casa D'Italia",
+      "direccion": "Mariano Moreno 76 (junto a El Cuyucho), M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.19621586917183,
+        "longitud": -68.46665599082922
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "baldosa_parquet_o_cemento",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "FUTSAL RIVADAVIA",
+      "direccion": "Almte. G. Brown S/N, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.20127778478955,
+        "longitud": -68.47429898243567
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "baldosa_parquet_o_cemento",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Espacio público, sujeto a disponibilidad"
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Camping Pennacchio",
+      "direccion": "M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.184441827067005,
+        "longitud": -68.44917828122712
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Cancha Pare",
+      "direccion": "Cabrera 5577, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.171069768234595,
+        "longitud": -68.44169056272929
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Central",
+      "direccion": "M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.18277062760427,
+        "longitud": -68.45384994962838
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Deportivo La Central",
+      "direccion": "Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.27395871174167,
+        "longitud": -68.31526910620859
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Cancha de fútbol Almafuerte",
+      "direccion": "Interior de Camping San Agustín, Calle Falucho, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.18193209366355,
+        "longitud": -68.4738358669201
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Centro Deportivo Rivadavia",
+      "direccion": "Dr Rúben Muzzino, M5577 Rivadavia, Mendoza",
+      "coordenadas": {
+        "latitud": -33.202938567280526,
+        "longitud": -68.47581189819928
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Complejo público y municipal, sujeto a disponibilidad"
+      },
+      "ubicacion": "Rivadavia, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Estadio Cubierto La Colonia",
+      "direccion": "Av. Mitre y Paso de los Andes, La Colonia, M5573 Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.092363145716625,
+        "longitud": -68.48037927584176
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "parquet",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Entrada a coordinar con el municipio"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Polideportivo Municipal Posta del Retamo",
+      "direccion": "Salvador González 485, M5573 Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.14972831226706,
+        "longitud": -68.48607123535977
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "parquet",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Entrada a coordinar con el municipio"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Escuela Deportiva Junín",
+      "direccion": "M5573 Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.14853745025194,
+        "longitud": -68.4853412558265
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": null,
+        "observaciones": "A coordinar con el club"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Estrella (La Colonia)",
+      "direccion": "La Colonia, M5573 Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.151504854000905,
+        "longitud": -68.40482038933153
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo La Amistad (Ingenio Giagnoni)",
+      "direccion": "Ingeniero Giagnoni, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.12607114630035,
+        "longitud": -68.40591346662332
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Rodríguez Peña",
+      "direccion": "Rodríguez Peña, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.12736221996081,
+        "longitud": -68.59795814885352
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Mundo Nuevo",
+      "direccion": "Mundo Nuevo, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.17210320818978,
+        "longitud": -68.42787310347944
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas Maturana",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.15765082796191,
+        "longitud": -68.44864896196106
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "La Posta Club",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.133095062480685,
+        "longitud": -68.47723422250789
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "FYMA Futbol Club",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.12461341616607,
+        "longitud": -68.48324237047484
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Campus La Cofradía",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.1158725994502,
+        "longitud": -68.49095663363637
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Nuevo Estadio Los Hornos",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.152916391163785,
+        "longitud": -68.47299681729501
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "LA 6 Futbol",
+      "direccion": "Junín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.11982559722063,
+        "longitud": -68.45840920206845
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Philipps",
+      "direccion": "Philipps, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Algarrobo Grande",
+      "direccion": "Algarrobo Grande, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Los Barriales",
+      "direccion": "Los Barriales, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Medrano",
+      "direccion": "Medrano, Junín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "Junín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Atlético Club San Martín (Estadio Libertador General San Martín)",
+      "direccion": "Lavalle y Ruta 50, M5570 San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.078571505415276,
+        "longitud": -68.48042752347536
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": null,
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Polideportivo Gustavo \"Torito\" Rodríguez",
+      "direccion": "Av. Eva Duarte de Perón y Av. Boulogne Sur Mer, M5570 San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.07260050432381,
+        "longitud": -68.48457648233536
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "parquet",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        },
+        {
+          "tipo_cancha": "baldosa_o_cemento",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Complejo público y municipal, entrada o turnos a coordinar con el municipio"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Polideportivo Municipal San Pedro (Duperial)",
+      "direccion": "Av. Eva Duarte de Perón, Palmira, M5584 San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.05296015621461,
+        "longitud": -68.56455294359586
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "baldosa_o_cemento",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": "gratis",
+        "observaciones": "Complejo público y municipal, entrada a coordinar con el municipio"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Atlético Palmira (Estadio José Castro)",
+      "direccion": "28 de Diciembre y Av. Alem, Palmira, M5584 San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.05358744042295,
+        "longitud": -68.55383937657524
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": false,
+        "tipo_pago": null,
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas de fútbol La Reserva",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.11371794233483,
+        "longitud": -68.40904486130121
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas del Felipe",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.09499310783657,
+        "longitud": -68.44791412620015
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "El Alargue - bar y futbol",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.08980248255812,
+        "longitud": -68.44656380271672
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "La Isla",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.08771558811151,
+        "longitud": -68.4558634168497
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Horacio futbol 5",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.08610327045266,
+        "longitud": -68.4543298212121
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas de fútbol Aruta",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.08818843495399,
+        "longitud": -68.43371955997446
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas de fútbol Lopez",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.06081310698073,
+        "longitud": -68.45967803605923
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Al ángulo futbol",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.06565146691705,
+        "longitud": -68.44082921817979
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Cancha Abdala",
+      "direccion": "San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.045180106322306,
+        "longitud": -68.44027739395109
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas de fútbol La Cantera",
+      "direccion": "Palmira / San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.06198202697305,
+        "longitud": -68.52533340727712
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Canchas El Chiqui",
+      "direccion": "Palmira / San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": -33.087298821661264,
+        "longitud": -68.57803344998234
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_sintetico",
+          "modalidad": [
+            "futbol_5",
+            "futbol_7",
+            "futbol_8"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Montecaseros",
+      "direccion": "Montecaseros, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Centro Deportivo y Social Tres Porteñas",
+      "direccion": "Tres Porteñas, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo El Ñango",
+      "direccion": "El Ñango, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Chapanay",
+      "direccion": "Chapanay, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo El Ramblón",
+      "direccion": "El Ramblón, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Alto Salvador",
+      "direccion": "Alto Salvador, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": true,
+        "tipo_pago": "pago",
+        "observaciones": "A coordinar con el club su ingreso"
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    },
+    {
+      "nombre": "Club Social y Deportivo Buen Orden",
+      "direccion": "Buen Orden, San Martín, Mendoza",
+      "coordenadas": {
+        "latitud": null,
+        "longitud": null
+      },
+      "canchas": [
+        {
+          "tipo_cancha": "cesped_natural",
+          "modalidad": [
+            "futbol_7",
+            "futbol_8",
+            "futbol_11"
+          ]
+        }
+      ],
+      "acceso": {
+        "es_alquilable": null,
+        "tipo_pago": null,
+        "observaciones": null
+      },
+      "ubicacion": "San Martín, Mendoza, Argentina"
+    }
+  ]
+}

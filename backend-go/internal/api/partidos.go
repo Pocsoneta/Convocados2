@@ -185,6 +185,10 @@ type partidoJSON struct {
 	Cupos         int      `json:"cupos"`
 	Lat           float64  `json:"lat"`
 	Lng           float64  `json:"lng"`
+	// SinUbicacion avisa que el complejo no tiene coordenadas (nunca
+	// se geolocalizó). El front evita mostrar una distancia falsa y
+	// no lo dibuja en el mapa.
+	SinUbicacion  bool     `json:"sinUbicacion"`
 	Nivel         string   `json:"nivel"`
 	Inscripciones int      `json:"inscripciones"`
 	CupoTotal     int      `json:"cupoTotal"`
@@ -198,17 +202,23 @@ type partidoJSON struct {
 }
 
 func (p *partido) aJSON(complejos map[int64]complejoGeo, latOrigen, lngOrigen float64) partidoJSON {
+	conUbicacion := tieneUbicacion(p.Lat, p.Lng)
+	distancia := 0.0
+	if conUbicacion {
+		distancia = km1(distKm(latOrigen, lngOrigen, p.Lat, p.Lng))
+	}
 	item := partidoJSON{
 		ID:            p.ID,
 		Nombre:        p.Nombre(),
 		Modalidad:     p.Modalidad,
 		Zona:          p.Zona(),
 		ZonasCercanas: []string{},
-		DistanciaKm:   km1(distKm(latOrigen, lngOrigen, p.Lat, p.Lng)),
+		DistanciaKm:   distancia,
 		Fecha:         p.FechaISO(),
 		Cupos:         p.Disponibles(),
 		Lat:           p.Lat,
 		Lng:           p.Lng,
+		SinUbicacion:  !conUbicacion,
 		Nivel:         p.Nivel,
 		Inscripciones: p.Inscriptos,
 		CupoTotal:     p.CupoTotal,
@@ -554,7 +564,13 @@ func (s *Server) crearPartido(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.IDComplejo == 0 && req.Complejo != nil {
-		id, err := s.resolverComplejo(req.Complejo)
+		// La ciudad del complejo es la del organizador, así un partido
+		// de Mendoza no queda guardado como si fuera de CABA.
+		ciudad := ""
+		if u, err := s.buscarPorID(claims.Sub); err == nil {
+			ciudad = aString(u.Localidad)
+		}
+		id, err := s.resolverComplejo(r.Context(), req.Complejo, ciudad)
 		if err != nil {
 			respondeErrJSON(w, err)
 			return

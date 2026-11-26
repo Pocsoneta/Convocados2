@@ -89,6 +89,7 @@ func (s *Server) Router() http.Handler {
 	protegido.HandleFunc("GET /api/complejos", s.listarComplejos)
 	protegido.HandleFunc("POST /api/complejos", s.crearComplejo)
 	protegido.HandleFunc("GET /api/complejos/{id}/canchas", s.canchasDeComplejo)
+	protegido.HandleFunc("GET /api/canchas", s.listarCanchas)
 
 	protegido.HandleFunc("GET /api/equipos", s.listarEquipos)
 	protegido.HandleFunc("GET /api/equipos/mis-equipos", s.misEquipos)

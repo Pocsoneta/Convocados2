@@ -18,6 +18,17 @@ const (
 	RadioZonas = 8.0
 )
 
+// tieneUbicacion dice si un par de coordenadas es real. La base usa
+// 0,0 (nada) cuando un complejo nunca se geolocalizó: ese punto cae
+// en el océano, así que no sirve ni para medir distancias ni para el
+// mapa. Sin esto, un partido sin ubicación aparecía a ~8.000 km.
+func tieneUbicacion(lat, lng float64) bool {
+	if lat == 0 && lng == 0 {
+		return false
+	}
+	return math.Abs(lat) <= 90 && math.Abs(lng) <= 180
+}
+
 // distKm calcula la distancia en línea recta entre dos puntos.
 func distKm(lat1, lng1, lat2, lng2 float64) float64 {
 	const R = 6371.0
