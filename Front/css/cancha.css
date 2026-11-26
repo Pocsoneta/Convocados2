@@ -1,0 +1,289 @@
+/* =========================================================
+   cancha.css — fondo de cancha de estadio, texturas y animaciones
+   Estética "Dashboard Futbolero Intenso (Estadio & Elementos)".
+
+   Lo cargan SOLO las 10 pantallas oscuras (base.css no lo importa,
+   así las pantallas claras quedan intactas). El fondo se arma con
+   las dos capas decorativas de <body> (::before y ::after), sin
+   agregar ni un nodo de HTML. Todos los colores derivan de los
+   tokens de css/base.css y css/tema.css, así siguen a cada paleta.
+
+   Paleta clara: el fondo de cancha se desactiva (ver el final).
+   ========================================================= */
+
+/* ---------- El contenido va por encima del fondo ---------- */
+.app,
+.invitar,
+.onb,
+.perfil {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   CAPA 1 — body::before: césped + red de arco + luces de estadio
+   (traducción de .pitch-stripes-bg + .net-pattern-overlay +
+    .stadium-lights del diseño). Tapa toda la ventana y no
+    intercepta el puntero.
+   ========================================================= */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    /* Malla de red de arco: 6 linear-gradients, tamaño 40x70 */
+    linear-gradient(30deg, var(--pitch-net) 12%, transparent 12.5%, transparent 87%, var(--pitch-net) 87.5%, var(--pitch-net)),
+    linear-gradient(150deg, var(--pitch-net) 12%, transparent 12.5%, transparent 87%, var(--pitch-net) 87.5%, var(--pitch-net)),
+    linear-gradient(30deg, var(--pitch-net) 12%, transparent 12.5%, transparent 87%, var(--pitch-net) 87.5%, var(--pitch-net)),
+    linear-gradient(150deg, var(--pitch-net) 12%, transparent 12.5%, transparent 87%, var(--pitch-net) 87.5%, var(--pitch-net)),
+    linear-gradient(60deg, var(--pitch-net-2) 25%, transparent 25.5%, transparent 75%, var(--pitch-net-2) 75%, var(--pitch-net-2)),
+    linear-gradient(60deg, var(--pitch-net-2) 25%, transparent 25.5%, transparent 75%, var(--pitch-net-2) 75%, var(--pitch-net-2)),
+    /* Rayas de corte de césped a -45°, período 90px */
+    repeating-linear-gradient(-45deg,
+      var(--pitch-stripe-a) 0 45px,
+      var(--pitch-stripe-b) 45px 90px),
+    /* Luces de estadio (3 reflectores) */
+    radial-gradient(circle at 10% 0%, var(--pitch-light-a) 0%, transparent 45%),
+    radial-gradient(circle at 90% 0%, var(--pitch-light-b) 0%, transparent 40%),
+    radial-gradient(circle at 50% 100%, var(--pitch-light-c) 0%, transparent 50%);
+  background-size:
+    40px 70px, 40px 70px, 40px 70px, 40px 70px, 40px 70px, 40px 70px,
+    auto, auto, auto, auto;
+  background-repeat:
+    repeat, repeat, repeat, repeat, repeat, repeat,
+    no-repeat, no-repeat, no-repeat, no-repeat;
+}
+
+/* =========================================================
+   CAPA 2 — body::after: marcas de cancha
+   (traducción del div `fixed inset-0` del diseño: línea de medio
+    campo, círculo central con punto, arco de córner, área grande y
+    pelota de fútbol gigante como marca de agua)
+   ========================================================= */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    /* Línea de medio campo */
+    linear-gradient(to bottom, transparent, var(--pitch-line), transparent),
+    /* Círculo central: aro de 520px */
+    radial-gradient(circle 260px at 50% 50%, transparent 258px, var(--pitch-line-soft) 259px, transparent 260px),
+    /* Punto central: halo + punto lima */
+    radial-gradient(circle 22px at 50% 50%, var(--pitch-dot-glow), transparent 22px),
+    radial-gradient(circle 8px at 50% 50%, var(--pitch-dot) 0 8px, transparent 8px),
+    /* Arco de córner, arriba-derecha (144px, salido del borde) */
+    radial-gradient(circle 72px at 50% 50%, transparent 69px, var(--pitch-line-faint) 70px, transparent 72px),
+    /* Área grande abajo-derecha (384x192): arista superior, izquierda y derecha */
+    linear-gradient(var(--pitch-line-soft), var(--pitch-line-soft)),
+    linear-gradient(var(--pitch-line-soft), var(--pitch-line-soft)),
+    linear-gradient(var(--pitch-line-soft), var(--pitch-line-soft)),
+    /* Pelota de fútbol gigante como marca de agua (blanca al 2,5%, rotada 45°) */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cg transform='rotate(45 256 256)' fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm-20.9 46.1c13.7-1.3 27.6-2.1 41.8-2.1 13.9 0 27.6.8 41.1 2.1l-18.7 85.5-43.5 0-18.7-85.5zm-81.2 24.3l37 68.6-35.2 25.6-70.1-41.5c19.9-20.9 43.6-38.6 68.3-52.7zM78.6 150.3l70.1 41.5-13.4 41.4-81.7-5c3.5-27.9 12-54.2 25-77.9zm-31 113.8l81.7 5 13.4 41.4-70.1 41.5c-13-23.7-21.5-50-25-77.9zm54.5 106.1l70.1-41.5 35.2 25.6-37 68.6c-24.7-14.1-48.4-31.8-68.3-52.7zm113.8 54.5l18.7-85.5 43.5 0 18.7 85.5c-13.5 1.3-27.2 2.1-41.1 2.1-14.2 0-28.1-.8-41.8-2.1zm122.9-24.3l-37-68.6 35.2-25.6 70.1 41.5c-19.9 20.9-43.6 38.6-68.3 52.7zm65.5-78.2l-70.1-41.5 13.4-41.4 81.7-5c3.5 27.9 12 54.2 25 77.9zm31-113.8l-81.7-5-13.4-41.4 70.1-41.5c13 23.7 21.5 50 25 77.9zm-54.5-106.1l-70.1 41.5-35.2-25.6 37-68.6c24.7 14.1 48.4 31.8 68.3 52.7zM256 160l58.8 42.7-22.5 69.1-72.6 0-22.5-69.1L256 160z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:
+    2px 100%,
+    520px 520px,
+    44px 44px,
+    16px 16px,
+    144px 144px,
+    384px 1px,
+    1px 192px,
+    1px 192px,
+    384px 384px;
+  background-position:
+    50% 0,
+    50% 50%,
+    50% 50%,
+    50% 50%,
+    right -48px top -48px,
+    right 80px bottom 152px,
+    right 464px bottom -40px,
+    right 80px bottom -40px,
+    right -80px top 96px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- Paleta clara: sin fondo de cancha ---------- */
+html[data-tema="claro"] body::before,
+html[data-tema="claro"] body::after { display: none; }
+
+/* =========================================================
+   TARJETAS — gradiente vertical, borde que se enciende y
+   scanlines horizontales sutiles (sin tapar el contenido)
+   ========================================================= */
+.match,
+.card {
+  position: relative;
+  background-image: linear-gradient(to bottom, var(--card-top), var(--card-bottom));
+  border: 2px solid color-mix(in srgb, var(--card-border) 80%, transparent);
+  border-radius: 16px;
+  transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+.match:hover,
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--neon);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--neon) 18%, transparent);
+}
+
+/* Scanlines: overlay del diseño (opacidad .15), al ras del radio */
+.match::after,
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: .15;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(0deg,
+    transparent 0 18px,
+    var(--scanline) 18px 36px);
+}
+.match > *,
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   ETIQUETAS Y VALORES (tarjetas de partido)
+   ========================================================= */
+.match__label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.match__value--accent {
+  color: var(--neon);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--neon) 60%, transparent);
+}
+
+/* =========================================================
+   BARRA DE PROGRESO (cupos / avance) — track hundido con
+   relleno en degradé neón y glow
+   ========================================================= */
+.progress {
+  height: 8px;
+  background: var(--well);
+  border: 1px solid color-mix(in srgb, var(--card-border) 60%, transparent);
+  /* El track recorta al relleno (overflow:hidden), asi que el resplandor
+     va aca: si no, el box-shadow del fill no se veria nunca. */
+  box-shadow: 0 0 8px color-mix(in srgb, var(--progress-b) 45%, transparent);
+}
+.progress__fill {
+  background: linear-gradient(to right, var(--progress-a), var(--progress-b), var(--progress-c));
+  box-shadow: 0 0 8px var(--progress-b);
+}
+
+/* =========================================================
+   BOTONES — transiciones a 200ms y micro-escala del diseño
+   ========================================================= */
+.btn {
+  transition: transform .2s ease, filter .2s ease, box-shadow .3s ease;
+}
+/* La micro-escala solo en botones sueltos: en los de ancho completo
+   (--block / --publish) el boton sobresaldria de su caja al hacer hover. */
+.btn:not(.btn--block):not(.btn--publish):hover { transform: scale(1.03); }
+.btn:active { transform: scale(.95); }
+
+/* Enlace activo del menú: filo lima + resplandor (del diseño) */
+.nav-link.is-active {
+  border-left: 4px solid var(--neon);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--neon) 18%, transparent);
+}
+
+/* =========================================================
+   UTILIDADES DE NEÓN (nuevas)
+   ========================================================= */
+.neon-border-glow {
+  box-shadow:
+    0 0 15px -2px color-mix(in srgb, var(--neon) 35%, transparent),
+    inset 0 0 15px -3px color-mix(in srgb, var(--neon) 15%, transparent);
+}
+.neon-text-glow {
+  text-shadow: 0 0 12px color-mix(in srgb, var(--neon) 60%, transparent);
+}
+
+/* =========================================================
+   ANIMACIONES — traducción de animate-ping / animate-pulse
+   Se enganchan SOLO a elementos que ya existen.
+   ========================================================= */
+@keyframes cancha-ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes cancha-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .45; }
+}
+
+/* Anillo que expande: badge de la foto de perfil (aviso/notificación) */
+.avatar__badge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--neon);
+  animation: cancha-ping 1.8s cubic-bezier(0, 0, .2, 1) infinite;
+}
+.avatar__badge > svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Punto lima que late: paso activo y nivel seleccionado */
+.dots .dot.is-active {
+  animation: cancha-pulse 2.2s ease-in-out infinite;
+}
+.level__input:checked + .level__box .level__dot {
+  animation: cancha-pulse 1.8s ease-in-out infinite;
+}
+
+/* =========================================================
+   SCROLLBAR (del diseño)
+   ========================================================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--bg) 92%, #000);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--neon) 28%, var(--bg));
+  border-radius: 9999px;
+  border: 1px solid var(--neon);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--neon); }
+
+/* Selección de texto con el acento de la paleta */
+::selection {
+  background: var(--neon);
+  color: var(--accent-ink);
+}
+
+/* =========================================================
+   Movimiento reducido: sin fondo animado ni transiciones
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .dots .dot.is-active,
+  .level__input:checked + .level__box .level__dot,
+  .avatar__badge::before {
+    animation: none !important;
+  }
+  .match,
+  .card,
+  .btn,
+  .progress__fill {
+    transition: none !important;
+  }
+  .match:hover,
+  .card:hover,
+  .btn:hover,
+  .btn:active {
+    transform: none !important;
+  }
+}

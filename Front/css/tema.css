@@ -32,6 +32,25 @@ html[data-tema="grafito"] {
   --neon: #9be8c1;
   --neon-soft: rgba(155, 232, 193, 0.10);
   --glow: 0 0 12px rgba(155, 232, 193, 0.25);
+  /* Fondo de cancha (css/cancha.css) */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }
 
 /* Césped */
@@ -59,6 +78,25 @@ html[data-tema="cesped"] {
   --neon: #2fdd7c;
   --neon-soft: rgba(47, 221, 124, 0.10);
   --glow: 0 0 12px rgba(47, 221, 124, 0.25);
+  /* Fondo de cancha (css/cancha.css) */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }
 
 /* Azul estadio */
@@ -86,6 +124,25 @@ html[data-tema="azul"] {
   --neon: #3fb9ff;
   --neon-soft: rgba(63, 185, 255, 0.10);
   --glow: 0 0 12px rgba(63, 185, 255, 0.25);
+  /* Fondo de cancha (css/cancha.css) */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }
 
 /* Bordó noche */
@@ -113,6 +170,25 @@ html[data-tema="bordo"] {
   --neon: #ff6b81;
   --neon-soft: rgba(255, 107, 129, 0.10);
   --glow: 0 0 12px rgba(255, 107, 129, 0.25);
+  /* Fondo de cancha (css/cancha.css) */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }
 
 /* Índigo eléctrico */
@@ -140,6 +216,25 @@ html[data-tema="indigo"] {
   --neon: #a78bfa;
   --neon-soft: rgba(167, 139, 250, 0.10);
   --glow: 0 0 12px rgba(167, 139, 250, 0.28);
+  /* Fondo de cancha (css/cancha.css) */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }
 
 /* Papel claro (tema claro) */
@@ -174,4 +269,24 @@ html[data-tema="claro"] {
   --neon: #0b7a44;
   --neon-soft: rgba(11, 122, 68, 0.10);
   --glow: 0 0 12px rgba(11, 122, 68, 0.30);
+  /* Fondo de cancha: la paleta clara lo desactiva (ver css/cancha.css),
+     pero los tokens se definen igual para que no falte ninguno. */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 96%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 92%, var(--neon));
+  --pitch-line:       rgba(10, 18, 32, 0.10);
+  --pitch-line-soft:  rgba(10, 18, 32, 0.08);
+  --pitch-line-faint: rgba(10, 18, 32, 0.07);
+  --pitch-net:        rgba(10, 18, 32, 0.020);
+  --pitch-net-2:      rgba(10, 18, 32, 0.012);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(10, 18, 32, 0.08);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 10%, transparent);
+  --scanline:         rgba(10, 18, 32, 0.05);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 96%, var(--neon));
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
 }

@@ -41,9 +41,31 @@
   --neon-soft:     color-mix(in srgb, var(--neon) 10%, transparent);
   --glow:          0 0 12px color-mix(in srgb, var(--neon) 25%, transparent);
 
+  /* Cancha de estadio: tokens del fondo decorativo de css/cancha.css.
+     Se derivan de --bg y --neon, así siguen a cada paleta; igual se
+     redefinen en los 6 bloques html[data-tema] de css/tema.css. */
+  --pitch-stripe-a:   color-mix(in srgb, var(--bg) 90%, #000);
+  --pitch-stripe-b:   color-mix(in srgb, var(--bg) 95%, var(--neon));
+  --pitch-line:       rgba(255, 255, 255, 0.10);
+  --pitch-line-soft:  rgba(255, 255, 255, 0.08);
+  --pitch-line-faint: rgba(255, 255, 255, 0.07);
+  --pitch-net:        rgba(255, 255, 255, 0.006);
+  --pitch-net-2:      rgba(255, 255, 255, 0.003);
+  --pitch-dot:        color-mix(in srgb, var(--neon) 30%, transparent);
+  --pitch-dot-glow:   color-mix(in srgb, var(--neon) 22%, transparent);
+  --pitch-light-a:    color-mix(in srgb, var(--neon) 12%, transparent);
+  --pitch-light-b:    rgba(255, 255, 255, 0.09);
+  --pitch-light-c:    color-mix(in srgb, var(--neon) 9%, transparent);
+  --scanline:         rgba(255, 255, 255, 0.06);
+  --card-top:         color-mix(in srgb, var(--card) 95%, transparent);
+  --card-bottom:      color-mix(in srgb, var(--bg) 92%, #000);
+  --progress-a:       color-mix(in srgb, var(--neon) 78%, #000000);
+  --progress-b:       var(--neon);
+  --progress-c:       color-mix(in srgb, var(--neon) 78%, #ffffff);
+
   /* Tipografías */
-  --font-display:  "Archivo", "Outfit", system-ui, sans-serif;
-  --font-body:     "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display:  "Outfit", "Archivo", system-ui, sans-serif;
+  --font-body:     "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Radios */
   --radius-sm: 8px;
