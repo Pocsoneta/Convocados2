@@ -31,12 +31,16 @@
   padding: 30px 22px 24px;
   background: var(--aside);
   border-right: 1px solid var(--card-border);
+  /* Sin esto, en móvil el nav horizontal estira la columna del grid
+     hasta su ancho de contenido (desborde horizontal en toda la app). */
+  min-width: 0;
 }
 
 .sidebar__nav {
   display: grid;
   gap: 7px;
   margin-top: 42px;
+  min-width: 0;
 }
 
 .nav-link {
@@ -201,6 +205,9 @@
     padding-bottom: 2px;
     overflow-x: auto;
     scrollbar-width: none;
+    /* Pista de que la barra se desplaza: se difumina el borde derecho. */
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent);
   }
   .sidebar__nav::-webkit-scrollbar { display: none; }
   .nav-link { flex: none; height: 40px; padding: 0 14px; white-space: nowrap; }

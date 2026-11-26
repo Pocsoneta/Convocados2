@@ -197,8 +197,8 @@
                 <button class="btn btn--primary btn--zone" type="button" id="btn-zona-mapa">Buscar en esta zona</button>
               </div>
 
-              <!-- Acá se montará Google Maps. Mientras tanto, js/mapa-zona.js dibuja una vista previa. -->
-              <div class="mapa" id="mapa" role="group" aria-label="Mapa con los partidos encontrados"></div>
+              <!-- Mapa real (Leaflet + OpenStreetMap): lo dibuja js/mapa-zona.js -->
+              <div class="mapa" id="mapa" role="region" aria-label="Mapa con los partidos y canchas encontrados"></div>
             </div>
 
             <ol class="lista" id="lista" aria-live="polite" aria-busy="false"></ol>
@@ -213,6 +213,7 @@
 
   <script src="js/core.js"></script>
   <script src="js/sidebar.js"></script>
+  <script src="js/mapa-base.js"></script>
   <script src="js/mapa-zona.js"></script>
   <script src="js/buscar.js"></script>
 </body>

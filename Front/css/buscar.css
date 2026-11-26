@@ -293,79 +293,230 @@
   font-size: 14px;
 }
 
-/* Vista previa del mapa (se reemplaza por Google Maps) */
+/* ---------- Mapa real (Leaflet + OpenStreetMap) ---------- */
 .mapa {
   position: relative;
-  height: 150px;
+  height: 320px;
   margin-top: 16px;
   overflow: hidden;
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  background-color: #0a111d;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 121px 52px;
-  background-position: 12px 8px;
-}
-.mapa::before,
-.mapa::after {
-  content: "";
-  position: absolute;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  pointer-events: none;
-}
-.mapa::before {
-  inset: 8px 56px 24px 44px;
-  border-radius: 10px;
-  background: rgba(120, 150, 200, 0.1);
-}
-.mapa::after {
-  inset: 24px 92px 8px 78px;
-  border-radius: 8px;
-  background: rgba(120, 150, 200, 0.06);
+  background: #0a111d;
 }
 
-.pin {
-  position: absolute;
-  z-index: 1;
-  width: 36px;
-  height: 28px;
+/* El contenedor es el mismo elemento .mapa (Leaflet le agrega la clase
+   leaflet-container encima), por eso el selector es de clase doble. */
+.mapa.leaflet-container {
+  background: #0a111d;
+  font-family: var(--font-body);
+}
+
+/* Los tiles de OpenStreetMap vienen claros; este filtro los pasa
+   al tema oscuro de la pantalla. Solo toca los tiles: los puntos,
+   los popups y los controles quedan afuera (están en otro pane). */
+.mapa .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(.86) contrast(1.06) saturate(.75);
+}
+
+/* Controles a tono con el resto de la pantalla */
+.mapa .leaflet-bar a,
+.mapa .leaflet-bar a:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-bottom-color: var(--card-border);
+}
+.mapa .leaflet-bar a:hover { background: var(--surface-2); }
+.mapa .leaflet-bar a.leaflet-disabled {
+  background: var(--surface);
+  color: var(--text-muted);
+  opacity: .45;
+}
+.mapa .leaflet-touch .leaflet-bar a { width: 30px; height: 30px; line-height: 30px; }
+
+/* Botón "mi ubicación": mismo look que los del zoom, más el icono */
+.mapa .mapa-ubicar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  transform: translate(-4px, -4px);
+  border: 0;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
 }
-.pin__dot {
+.mapa .mapa-ubicar__btn:hover { background: var(--surface-2); }
+.mapa .mapa-ubicar__btn svg { display: block; }
+.mapa .mapa-ubicar__btn.is-buscando {
+  color: #34d399;
+  animation: mapa-latir 1s ease-in-out infinite;
+}
+.mapa .mapa-ubicar__btn.is-fallo { color: #ff6b6b; }
+@keyframes mapa-latir { 50% { opacity: .35; } }
+
+.mapa .leaflet-control-attribution {
+  background: rgba(6, 11, 20, .78);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.mapa .leaflet-control-attribution a { color: var(--text-muted); }
+
+/* Punto de un lugar: número si hay partidos, punto verde si
+   el lugar todavía no tiene ninguno */
+.pin-lugar {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.pin-lugar__punto {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 8px;
-  height: 8px;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid #060b14;
   border-radius: 50%;
-  background: var(--accent);
+  background: #34d399;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
+  transition: transform .15s ease;
 }
-.pin__num {
+
+.pin-lugar__num {
   position: absolute;
-  left: 11px;
-  top: 5px;
+  left: 50%;
+  top: 50%;
   display: grid;
   place-items: center;
   width: 22px;
   height: 22px;
-  border: 2px solid #0a111d;
+  margin: -11px 0 0 -11px;
+  border: 2px solid #060b14;
   border-radius: 50%;
   background: var(--accent);
   color: var(--accent-ink);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 11px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
   transition: transform .15s ease, background .15s ease;
 }
-.pin:hover,
-.pin.is-active { z-index: 2; }
-.pin:hover .pin__num,
-.pin.is-active .pin__num {
+
+.pin-lugar:hover .pin-lugar__num,
+.pin-lugar.is-active .pin-lugar__num {
   background: #fff;
   transform: scale(1.18);
+}
+.pin-lugar:hover .pin-lugar__punto,
+.pin-lugar.is-active .pin-lugar__punto { transform: scale(1.25); }
+
+/* Varios lugares juntos: un solo punto con el conteo. Al tocarlo
+   el mapa acerca y los reparte (los abre en rueda si hace falta). */
+.pin-agrupado {
+  display: grid;
+  place-items: center;
+  border: 2px solid #34d399;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, .16);
+  color: #e8fff6;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  transition: transform .15s ease;
+}
+.pin-agrupado:hover { transform: scale(1.08); }
+
+/* ---------- Popup del punto ---------- */
+.mapa .leaflet-popup-content-wrapper {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .55);
+}
+.mapa .leaflet-popup-content {
+  margin: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.mapa .leaflet-popup-tip {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: none;
+}
+.mapa .leaflet-popup-close-button { color: var(--text-muted) !important; }
+.mapa .leaflet-popup { margin-bottom: 20px; }
+
+.pop { display: grid; gap: 6px; min-width: 200px; }
+/* Leaflet trae `.leaflet-popup-content p { margin: 17px 0 }`, que gana por
+   especificidad a nuestras clases y dejaba un hueco grande: lo reseteamos. */
+.leaflet-popup-content .pop p { margin: 0; }
+.pop__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+}
+.pop__pie { margin: 0; font-size: 12px; color: var(--text-muted); }
+.pop__bloque { display: grid; gap: 4px; margin-top: 4px; }
+.pop__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.pop__lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.pop__lista li { font-size: 12.5px; }
+.pop__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pop__btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pop__btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+/* "Ir al partido" desde el popup del mapa */
+.pop__btn--ir {
+  border-color: rgba(52, 211, 153, .55);
+  color: #34d399;
+}
+
+/* Si no se pudieron bajar los scripts del mapa */
+.mapa-fallo {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 /* ---------- Lista ---------- */
@@ -495,6 +646,8 @@
 }
 
 @media (max-width: 700px) {
+  .mapa { height: 240px; }
+
   .mapa-card__head { flex-direction: column; }
   .btn--zone { width: 100%; }
 

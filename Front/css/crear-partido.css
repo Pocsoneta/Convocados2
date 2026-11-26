@@ -65,7 +65,7 @@
 .input--icon { padding-right: 44px; }
 .input--tall { height: 48px; }
 
-.input--date { color-scheme: dark; }
+.input--date { color-scheme: dark; padding-right: 0; }
 .input--date::-webkit-calendar-picker-indicator { display: none; -webkit-appearance: none; }
 
 .input--select {
@@ -97,7 +97,9 @@
   color: var(--text-muted);
 }
 .control__icon { pointer-events: none; }
-.control__btn { border-radius: 8px; transition: color .15s ease; }
+/* Firefox dibuja su propio icono de calendario dentro del input y no se
+   puede ocultar por CSS: este botón, con el fondo del campo, lo tapa. */
+.control__btn { border-radius: 8px; background: var(--field); transition: color .15s ease; }
 .control__btn:hover { color: var(--text); }
 
 /* ---------- Filas ---------- */
@@ -262,6 +264,263 @@
   color: var(--text-muted);
 }
 
+/* Fila de título de la sugerencia: nombre + etiqueta "Guardada" */
+.sugerencias .sug-cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sugerencias .sug-tag {
+  flex: none;
+  margin-left: auto;
+  padding: 1px 7px;
+  border: 1px solid rgba(52, 211, 153, .5);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: #34d399;
+  white-space: nowrap;
+}
+
+/* ---------- Mapa para marcar la ubicación exacta ---------- */
+.mapa-ubicacion {
+  height: 220px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #0a111d;
+}
+
+/* El contenedor es el mismo elemento .mapa-ubicacion (Leaflet le agrega
+   la clase leaflet-container encima): selector de clase doble. */
+.mapa-ubicacion.leaflet-container {
+  background: #0a111d;
+  font-family: var(--font-body);
+}
+
+/* Tiles de OpenStreetMap pasados al tema oscuro (ver buscar.css) */
+.mapa-ubicacion .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(.86) contrast(1.06) saturate(.75);
+}
+
+.mapa-ubicacion__ayuda {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Vista previa en Google Maps (sin API key) ---------- */
+.mapa-google {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--field);
+}
+.mapa-google[hidden] { display: none; }
+
+.mapa-google__nota {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.mapa-google__marco {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: 200px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: #0a111d;
+}
+
+.mapa-google__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.mapa-google__link {
+  justify-self: start;
+  font-size: 12.5px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.mapa-google__link:hover { text-decoration: underline; }
+
+.mapa-google__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.mapa-google__cta {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 245, 109, 0.5);
+  border-radius: 8px;
+  background: rgba(0, 245, 109, 0.1);
+  color: var(--accent);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.mapa-google__cta:hover { background: rgba(0, 245, 109, 0.18); border-color: var(--accent); }
+.mapa-google__cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Botón que despliega el mapa con el pin ---------- */
+.mapa-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px dashed var(--card-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.mapa-toggle:hover {
+  color: var(--text);
+  border-color: #2a3850;
+  background: var(--field);
+}
+.mapa-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.mapa-toggle > span { flex: 1; min-width: 0; }
+.mapa-toggle > svg { flex: none; }
+.mapa-toggle__chevron { transition: transform .2s ease; }
+.mapa-toggle[aria-expanded="true"] .mapa-toggle__chevron { transform: rotate(180deg); }
+
+.mapa-ubicacion__caja { display: grid; }
+.mapa-ubicacion__caja[hidden] { display: none; }
+
+/* Si no se pudieron bajar los scripts del mapa */
+.mapa-ubicacion--fallo {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* Controles a tono con el resto de la pantalla */
+.mapa-ubicacion .leaflet-bar a,
+.mapa-ubicacion .leaflet-bar a:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-bottom-color: var(--card-border);
+}
+.mapa-ubicacion .leaflet-bar a:hover { background: var(--surface-2); }
+.mapa-ubicacion .leaflet-bar a.leaflet-disabled {
+  background: var(--surface);
+  color: var(--text-muted);
+  opacity: .45;
+}
+.mapa-ubicacion .leaflet-touch .leaflet-bar a { width: 30px; height: 30px; line-height: 30px; }
+
+/* Botón "mi ubicación": mismo look que los del zoom, más el icono */
+.mapa-ubicacion .mapa-ubicar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.mapa-ubicacion .mapa-ubicar__btn:hover { background: var(--surface-2); }
+.mapa-ubicacion .mapa-ubicar__btn svg { display: block; }
+.mapa-ubicacion .mapa-ubicar__btn.is-buscando {
+  color: #34d399;
+  animation: mapa-latir 1s ease-in-out infinite;
+}
+.mapa-ubicacion .mapa-ubicar__btn.is-fallo { color: #ff6b6b; }
+@keyframes mapa-latir { 50% { opacity: .35; } }
+.mapa-ubicacion .leaflet-control-attribution {
+  background: rgba(6, 11, 20, .78);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.mapa-ubicacion .leaflet-control-attribution a { color: var(--text-muted); }
+
+/* El punto que dejó el usuario (se puede arrastrar) */
+.pin-elegido {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+.pin-elegido__punto {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 3px solid #060b14;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .6);
+}
+
+/* Canchas ya guardadas: punto verde que se puede tocar para elegirla */
+.pin-cancha {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.pin-cancha__punto {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #060b14;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .55);
+  transition: transform .15s ease;
+}
+.pin-cancha:hover .pin-cancha__punto { transform: scale(1.3); }
+
+/* Varias canchas guardadas juntas: un punto con el conteo */
+.pin-cancha-grupo {
+  display: grid;
+  place-items: center;
+  border: 2px solid #34d399;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, .18);
+  color: #e8fff6;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+}
+
 /* El desplegable de Google Places respeta los colores del tema */
 .pac-container {
   background: var(--card);
@@ -405,7 +664,9 @@ body.modal-abierto { overflow: hidden; }
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  /* Por encima de Leaflet: sus panes/controles llegan hasta z-index 1000
+     y, si no, el mapa del pin tapa los botones de la ventana. */
+  z-index: 1200;
   display: grid;
   place-items: center;
   padding: 16px;

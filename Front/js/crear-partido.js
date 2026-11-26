@@ -217,7 +217,7 @@
       Boolean(v.hora),
       v.jugadores >= 1,
       v.precio !== null && v.precio > 0,
-      v.ubicacion.length > 0
+      tieneCoords()
     ];
     return Math.round((completos.filter(Boolean).length / completos.length) * 100);
   }
@@ -231,17 +231,122 @@
   /* =======================================================
      Ubicación de la cancha
 
-     Hay dos caminos, y el back decide cuál:
+     Hay dos caminos de autocompletado, y el back decide cuál:
        - Si hay MAPS_API_KEY, se carga Google Places y el
          campo se autocompleta con su API.
        - Si no hay (o el script no carga), se usa el buscador
          gratuito de OpenStreetMap vía GET /api/geocode, sin
          clave ni tarjeta.
-     En los dos casos se guardan lat/lng al publicar. Si
-     ninguna vía está disponible, la dirección se escribe a
-     mano.
+     En los dos casos se guardan lat/lng al publicar. Y si el
+     lugar no figura en ninguno (cancha de barrio), el mapa de
+     abajo deja marcar el punto a mano. Si ninguna vía está
+     disponible, la dirección se escribe a mano.
      ======================================================= */
-  const mapa = { elegida: null, conGoogle: false, cargandoGoogle: false };
+  const mapa = {
+    elegida: null,
+    conGoogle: false,
+    cargandoGoogle: false,
+    pinAbierto: false,     // ¿está desplegado el mapa con el pin?
+    googleAbierto: false,  // ¿se ve la vista previa de Google?
+    googleTexto: ""        // texto del último iframe mostrado
+  };
+
+  // Canchas ya guardadas en la app (GET /api/canchas). Cumplen dos
+  // funciones: sugerirlas mientras se escribe y dibujarlas en el mapa
+  // del pin, para que el usuario elija una en vez de marcarla a mano.
+  const canchas = { guardadas: [], cargadas: false, capa: null };
+
+  // Sin acentos ni mayúsculas, para comparar "PICADITO" con "Picadito".
+  const normalizar = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  // Leaflet mete los strings como HTML (innerHTML). Los nombres vienen de
+  // la base y los escribió otro usuario, así que para mostrarlos usamos un
+  // nodo de texto: queda escapado y no se puede inyectar nada.
+  const nombreNodo = (texto) => {
+    const span = document.createElement("span");
+    span.textContent = String(texto || "");
+    return span;
+  };
+
+  // ¿Es un par de coordenadas real (ni 0,0 ni fuera de rango)? Mismo
+  // criterio que el back (tieneUbicacion) y el mapa de Buscar.
+  const ubicable = (lat, lng) =>
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    !(lat === 0 && lng === 0) &&
+    Math.abs(lat) <= 90 &&
+    Math.abs(lng) <= 180;
+
+  // Une partes de una ubicación sin repetir lo que ya está contenido en
+  // otra ("Palmira / San Martín, Mendoza" + "San Martín, Mendoza").
+  function unirUbicacion(...partes) {
+    const salida = [];
+    const vistos = [];
+    for (const p of partes) {
+      const t = String(p || "").trim();
+      if (!t) continue;
+      const n = normalizar(t);
+      if (vistos.some((v) => v.includes(n) || n.includes(v))) continue;
+      salida.push(t);
+      vistos.push(n);
+    }
+    return salida.join(" · ");
+  }
+
+  // Convierte una cancha guardada en una sugerencia del buscador.
+  const itemDeCancha = (c) => ({
+    titulo: c.complejo || c.nombre || "Cancha",
+    subtitulo: unirUbicacion(c.direccion, c.zona),
+    lat: c.lat,
+    lng: c.lng,
+    idComplejo: c.idComplejo,
+    guardada: true
+  });
+
+  // Canchas guardadas cuyo nombre/dirección/zona contienen todo lo que
+  // el usuario escribió (sin importar mayúsculas ni acentos). Un complejo
+  // con varias canchas aparece una sola vez (dedup por idComplejo).
+  function canchasQueCoinciden(texto) {
+    const palabras = normalizar(texto).split(/\s+/).filter(Boolean);
+    if (!palabras.length) return [];
+    const vistos = new Set();
+    return canchas.guardadas
+      .filter((c) => {
+        const heno = normalizar(
+          [c.complejo, c.nombre, c.direccion, c.zona].filter(Boolean).join(" ")
+        );
+        if (!palabras.every((p) => heno.includes(p))) return false;
+        const idComplejo = c.idComplejo || c.id;
+        if (vistos.has(idComplejo)) return false;
+        vistos.add(idComplejo);
+        return true;
+      })
+      .slice(0, 6);
+  }
+
+  // Se piden una sola vez al abrir la pantalla (el back devuelve las que
+  // tienen coordenadas, más cercanas primero).
+  async function cargarCanchasGuardadas() {
+    try {
+      const lista = await API.get("/api/canchas?limit=1000");
+      canchas.guardadas = Array.isArray(lista) ? lista : [];
+    } catch {
+      canchas.guardadas = [];
+    }
+    canchas.cargadas = true;
+    pintarCanchasEnMapa();
+    // Si el usuario ya venía escribiendo, repetimos la búsqueda para que
+    // aparezcan las canchas guardadas que coincidan.
+    if (el.ubicacion.value.trim().length >= 4) programarBusqueda();
+  }
+
+  // ¿Hay coordenadas válidas para publicar? Salen de una sugerencia
+  // elegida en el buscador o del pin que el usuario suelta en el mapa.
+  const tieneCoords = () => Boolean(mapa.elegida && ubicable(mapa.elegida.lat, mapa.elegida.lng));
 
   function pintarAyuda(texto) {
     const hint = $("hint-ubicacion");
@@ -256,6 +361,8 @@
     el.ubicacion.value = [lugar.nombre, lugar.direccion].filter(Boolean).join(", ");
     mapa.elegida = lugar;
     setError("ubicacion", "");
+    ocultarVistaGoogle(); // ya la encontramos: la vista previa no hace falta
+    ubicarMarcador(lugar.lat, lugar.lng); // el punto viaja con la sugerencia
     renderResumen();
   }
 
@@ -321,6 +428,7 @@
 
   function cerrarSugerencias() {
     const lista = listaSugerencias();
+    geo.pedido++; // invalida cualquier respuesta que esté en vuelo
     geo.items = [];
     geo.activo = -1;
     geo.vacio = false;
@@ -329,6 +437,7 @@
       lista.replaceChildren();
     }
     el.ubicacion.setAttribute("aria-expanded", "false");
+    el.ubicacion.removeAttribute("aria-activedescendant");
   }
 
   function pintarSugerencias() {
@@ -343,11 +452,13 @@
       }
       const aviso = document.createElement("li");
       aviso.className = "sug-vacio";
-      aviso.setAttribute("role", "presentation");
-      aviso.textContent = "No encontramos esa ubicación. Escribí la dirección a mano.";
+      aviso.setAttribute("role", "option");
+      aviso.setAttribute("aria-disabled", "true");
+      aviso.textContent = "No la encontramos. Mirá la vista previa o marcala con el pin.";
       lista.replaceChildren(aviso);
       lista.hidden = false;
-      el.ubicacion.setAttribute("aria-expanded", "false");
+      el.ubicacion.setAttribute("aria-expanded", "true");
+      el.ubicacion.removeAttribute("aria-activedescendant");
       return;
     }
 
@@ -357,10 +468,23 @@
       li.setAttribute("role", "option");
       li.setAttribute("aria-selected", String(i === geo.activo));
 
+      const cab = document.createElement("span");
+      cab.className = "sug-cab";
+
       const titulo = document.createElement("span");
       titulo.className = "sug-titulo";
       titulo.textContent = it.titulo;
-      li.appendChild(titulo);
+      cab.appendChild(titulo);
+
+      // Las que ya están guardadas en la app se distinguen de las que
+      // resuelve OpenStreetMap: son las que no necesitan marcar el pin.
+      if (it.guardada) {
+        const tag = document.createElement("span");
+        tag.className = "sug-tag";
+        tag.textContent = "Guardada";
+        cab.appendChild(tag);
+      }
+      li.appendChild(cab);
 
       if (it.subtitulo) {
         const sub = document.createElement("span");
@@ -380,11 +504,18 @@
     const pie = document.createElement("li");
     pie.className = "sugerencias__pie";
     pie.setAttribute("role", "presentation");
-    pie.textContent = "Ubicaciones de OpenStreetMap";
+    pie.textContent = geo.items.some((i) => i.guardada)
+      ? "Canchas guardadas y OpenStreetMap"
+      : "Ubicaciones de OpenStreetMap";
 
     lista.replaceChildren(...opciones, pie);
     lista.hidden = false;
     el.ubicacion.setAttribute("aria-expanded", "true");
+    if (geo.activo >= 0) {
+      el.ubicacion.setAttribute("aria-activedescendant", `sugerencia-${geo.activo}`);
+    } else {
+      el.ubicacion.removeAttribute("aria-activedescendant");
+    }
 
     const activo = geo.activo >= 0 && lista.querySelector(`#sugerencia-${geo.activo}`);
     if (activo) activo.scrollIntoView({ block: "nearest" });
@@ -393,7 +524,13 @@
   function elegirSugerencia(i) {
     const it = geo.items[i];
     if (!it) return;
-    ubicacionElegida({ nombre: it.titulo, direccion: it.subtitulo, lat: it.lat, lng: it.lng });
+    ubicacionElegida({
+      nombre: it.titulo,
+      direccion: it.subtitulo,
+      lat: it.lat,
+      lng: it.lng,
+      idComplejo: it.idComplejo // si es una cancha guardada, se reutiliza
+    });
     cerrarSugerencias();
     el.ubicacion.focus();
   }
@@ -411,20 +548,39 @@
     const texto = el.ubicacion.value.trim();
     if (texto.length < 4) {
       cerrarSugerencias();
+      ocultarVistaGoogle();
       return;
     }
     geo.ultimo = Date.now();
     const pedido = ++geo.pedido;
-    try {
-      const items = await API.get(`/api/geocode?q=${encodeURIComponent(texto)}`);
+
+    // Las canchas guardadas aparecen al instante: no dependen de la red.
+    const locales = canchasQueCoinciden(texto).map(itemDeCancha);
+
+    const pintarCon = (osm) => {
       if (pedido !== geo.pedido) return; // respuesta que ya no sirve
-      geo.items = Array.isArray(items) ? items : [];
+      if (el.ubicacion.value.trim() !== texto) return; // el texto cambió mientras tanto
+      geo.items = [...locales, ...osm];
       geo.vacio = geo.items.length === 0;
       geo.activo = geo.items.length ? 0 : -1;
       pintarSugerencias();
+      // Nada en el buscador ni guardado: ofrecemos la vista previa de Google.
+      if (geo.vacio) mostrarVistaGoogle(texto);
+      else ocultarVistaGoogle();
+    };
+
+    // Resultado inmediato con lo que ya conocemos (si hay).
+    if (locales.length) pintarCon([]);
+
+    // Después se suman los resultados de OpenStreetMap, cuando llegan.
+    let osm = [];
+    try {
+      const items = await API.get(`/api/geocode?q=${encodeURIComponent(texto)}`);
+      osm = Array.isArray(items) ? items : [];
     } catch {
-      if (pedido === geo.pedido) cerrarSugerencias();
+      osm = []; // sin OpenStreetMap seguimos con las canchas guardadas
     }
+    pintarCon(osm);
   }
 
   function manejarTeclasSugerencias(e) {
@@ -446,6 +602,339 @@
       e.preventDefault();
       elegirSugerencia(geo.activo);
     }
+  }
+
+  /* =======================================================
+     Vista previa en Google Maps (sin API key)
+
+     Cuando el buscador de OpenStreetMap no encuentra la cancha,
+     mostramos el embed público de Google Maps con lo que escribió
+     el usuario, para que la reconozca. Es SOLO una vista previa:
+     las coordenadas que se publican salen de la sugerencia elegida
+     o del pin que el usuario suelta en el mapa.
+     ======================================================= */
+  const embedGoogle = (q) =>
+    `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed`;
+  const enlaceGoogle = (q) =>
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
+  function mostrarVistaGoogle(texto) {
+    const caja = $("mapa-google");
+    const iframe = $("mapa-google-iframe");
+    if (!caja || !iframe) return;
+
+    const q = String(texto || "").trim();
+    if (q.length < 4) {
+      ocultarVistaGoogle();
+      return;
+    }
+    if (mapa.googleAbierto && mapa.googleTexto === q) return; // ya está a la vista
+
+    mapa.googleAbierto = true;
+    mapa.googleTexto = q;
+    iframe.src = embedGoogle(q);
+    iframe.title = `Vista previa en Google Maps de ${q}`;
+
+    const enlace = $("mapa-google-link");
+    if (enlace) enlace.href = enlaceGoogle(q);
+
+    caja.hidden = false;
+  }
+
+  function ocultarVistaGoogle() {
+    const caja = $("mapa-google");
+    const iframe = $("mapa-google-iframe");
+    if (!caja || !iframe || !mapa.googleAbierto) return;
+
+    mapa.googleAbierto = false;
+    mapa.googleTexto = "";
+    caja.hidden = true;
+    iframe.removeAttribute("src"); // cortamos la carga de Google
+  }
+
+  /* =======================================================
+     Mapa para fijar la ubicación exacta (Leaflet + OpenStreetMap)
+
+     Muchas canchas de barrio no figuran en ningún buscador: con
+     esto el usuario toca el mapa (o arrastra el punto) y las
+     coordenadas quedan en mapa.elegida, que es lo mismo que
+     manda el POST /api/partidos cuando salió de las sugerencias.
+     ======================================================= */
+  const punto = { mapa: null, marcador: null, listo: false, pedido: 0 };
+
+  // Crea el mapa la primera vez que hace falta: nace oculto y se
+  // muestra con el botón "Marcar con pin". Devuelve una promesa para
+  // poder recalcular el tamaño cuando el contenedor se hace visible.
+  let promesaMapa = null;
+  function iniciarMapaUbicacion() {
+    if (promesaMapa) return promesaMapa;
+
+    const cont = $("mapa-ubicacion");
+    if (!cont) return Promise.resolve();
+
+    promesaMapa = new Promise((resolver) => {
+      // La ciudad del perfil sirve de respaldo si el navegador no da la
+      // ubicación (así el mapa abre en Mendoza y no en CABA).
+      const arrancarMapa = (respaldo) =>
+        MapaBase.cargar({ cluster: true })
+          .then(() => {
+            if (punto.listo) return; // ya estaba creado
+            punto.mapa = MapaBase.crear(cont, { zoom: 13 });
+            punto.listo = true;
+            punto.mapa.on("click", (e) => marcarEn(e.latlng.lat, e.latlng.lng));
+
+            // Botón para volver a pedir la ubicación y recentrar (sin
+            // soltar el punto que el usuario ya haya marcado).
+            MapaBase.controlUbicacion(punto.mapa, (p) => {
+              if (!punto.marcador) punto.mapa.setView([p.lat, p.lng], 15);
+            });
+
+            // Las canchas guardadas, para elegirlas sin marcar el pin.
+            pintarCanchasEnMapa();
+
+            // Si ya hay un punto elegido (sugerencia o pin), lo mostramos;
+            // si no, arranca donde está el usuario, o en su ciudad, o en CABA.
+            if (mapa.elegida && Number.isFinite(mapa.elegida.lat)) {
+              ubicarMarcador(mapa.elegida.lat, mapa.elegida.lng);
+            } else {
+              MapaBase.puntoInicial(respaldo).then((d) => {
+                if (!punto.marcador) {
+                  punto.mapa.setView([d.lat, d.lng], d.origen === "gps" ? 15 : 12);
+                }
+              });
+            }
+          })
+          .catch(() => {
+            // Sin mapa se sigue pudiendo publicar: la dirección se
+            // escribe a mano, como antes.
+            cont.classList.add("mapa-ubicacion--fallo");
+            cont.textContent = "No pudimos cargar el mapa. Escribí la dirección a mano.";
+          })
+          .then(() => resolver());
+
+      Auth.usuario()
+        .then((u) => arrancarMapa(u?.localidad || ""))
+        .catch(() => arrancarMapa(""));
+    });
+
+    return promesaMapa;
+  }
+
+  // Dibuja o mueve el punto. No toca la dirección escrita.
+  function pintarMarcador(lat, lng, centrar) {
+    if (!punto.mapa || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    if (!punto.marcador) {
+      punto.marcador = L.marker([lat, lng], {
+        draggable: true,
+        keyboard: true,
+        icon: L.divIcon({
+          className: "pin-elegido",
+          html: '<span class="pin-elegido__punto"></span>',
+          iconSize: [34, 34],
+          iconAnchor: [17, 17]
+        })
+      })
+        .addTo(punto.mapa)
+        .bindTooltip("Arrastrame para ajustar el punto", {
+          direction: "top",
+          offset: [0, -16]
+        });
+      punto.marcador.on("dragend", () => {
+        const p = punto.marcador.getLatLng();
+        ubicacionMarcada(p.lat, p.lng);
+      });
+    } else {
+      punto.marcador.setLatLng([lat, lng]);
+    }
+
+    if (centrar) {
+      punto.mapa.flyTo([lat, lng], Math.max(punto.mapa.getZoom(), 16), { duration: 0.6 });
+    }
+  }
+
+  // Tocó el mapa (o arrastró el punto): las coordenadas quedan en
+  // mapa.elegida. Si no había dirección escrita, la buscamos en el
+  // punto elegido con GET /api/geocode?lat=&lng= (ubicación inversa).
+  async function ubicacionMarcada(lat, lng) {
+    const escrito = el.ubicacion.value.trim();
+
+    // Fijamos las coordenadas YA (con lo que tengamos) para que el partido
+    // se pueda publicar aunque el geocoder inverso tarde o falle.
+    let nombre = "";
+    let direccion = "";
+    if (escrito) {
+      // Ya hay una dirección: se respeta y solo cambian las coordenadas.
+      ({ nombre, direccion } = partirUbicacion(escrito));
+    } else {
+      nombre = "Punto en el mapa";
+    }
+
+    mapa.elegida = { nombre, direccion, lat, lng };
+    setError("ubicacion", "");
+    ocultarVistaGoogle(); // ya la fijamos con el pin
+    renderResumen();
+
+    // Sin dirección escrita: la buscamos por el punto para completar el texto.
+    if (!escrito) {
+      const pedido = ++punto.pedido;
+      let items = null;
+      try {
+        items = await API.get(`/api/geocode?lat=${lat}&lng=${lng}`);
+      } catch {
+        /* sin dirección: queda "Punto en el mapa" */
+      }
+      if (pedido !== punto.pedido) return; // ya hubo otro movimiento
+      // Si el usuario ya escribió algo, su texto manda: no lo pisamos.
+      if (el.ubicacion.value.trim() !== "") return;
+
+      if (Array.isArray(items) && items.length) {
+        nombre = items[0].titulo || nombre;
+        direccion = items[0].subtitulo || "";
+        mapa.elegida = { nombre, direccion, lat, lng };
+      }
+      el.ubicacion.value = [nombre, direccion].filter(Boolean).join(", ");
+      renderResumen();
+    }
+  }
+
+  function marcarEn(lat, lng) {
+    pintarMarcador(lat, lng, false);
+    ubicacionMarcada(lat, lng);
+  }
+
+  // Elegido en el buscador (o en Google): el punto viaja con él.
+  function ubicarMarcador(lat, lng) {
+    if (!punto.listo || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    pintarMarcador(lat, lng, true);
+  }
+
+  // Si el usuario vuelve a escribir a mano, el punto anterior ya
+  // no corresponde: se borra y se guardan las coordenadas nuevas.
+  function quitarMarcador() {
+    if (!punto.marcador) return;
+    punto.marcador.remove();
+    punto.marcador = null;
+  }
+
+  /* =======================================================
+     Canchas ya guardadas en el mapa
+
+     Ya no hace falta marcar el pin cuando la cancha existe: se
+     dibujan las que hay en la app (GET /api/canchas) y se elige
+     una con un clic. El pin queda para canchas nuevas o para
+     ajustar un punto que no sea exacto.
+     ======================================================= */
+  function iconoCancha() {
+    return L.divIcon({
+      className: "pin-cancha",
+      html: '<span class="pin-cancha__punto"></span>',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+  }
+
+  function pintarCanchasEnMapa() {
+    if (!punto.mapa || typeof L === "undefined") return;
+    if (!canchas.capa) {
+      // Con clustering: si hay muchas canchas, se agrupan y no se llena
+      // el mapa de nodos DOM ni se encima los puntos del mismo complejo.
+      canchas.capa = (L.markerClusterGroup
+        ? L.markerClusterGroup({
+            maxClusterRadius: 46,
+            showCoverageOnHover: false,
+            spiderfyOnMaxZoom: true,
+            iconCreateFunction: (cluster) =>
+              L.divIcon({
+                html: `<span>${cluster.getChildCount()}</span>`,
+                className: "pin-cancha-grupo",
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+              })
+          })
+        : L.layerGroup()
+      ).addTo(punto.mapa);
+    }
+    canchas.capa.clearLayers();
+
+    // Un punto por complejo (no por cancha): varias canchas del mismo
+    // predio comparten coordenada y no aportan nada repetidas.
+    const vistos = new Set();
+    canchas.guardadas.forEach((c) => {
+      if (!ubicable(c.lat, c.lng)) return;
+      const idComplejo = c.idComplejo || c.id;
+      if (vistos.has(idComplejo)) return;
+      vistos.add(idComplejo);
+
+      const nombre = c.complejo || c.nombre || "Cancha";
+      const m = L.marker([c.lat, c.lng], {
+        icon: iconoCancha(),
+        title: nombre,
+        keyboard: true,
+        // Que elegir una cancha no dispare también el "marcar acá" del mapa.
+        bubblingMouseEvents: false
+      });
+      m.bindTooltip(nombreNodo(nombre), { direction: "top", offset: [0, -12] });
+      m.on("click", () => elegirCanchaGuardada(c));
+      m.addTo(canchas.capa);
+    });
+  }
+
+  // El usuario tocó una cancha guardada: queda elegida con sus datos,
+  // igual que si la hubiera sacado del buscador (no hace falta el pin).
+  function elegirCanchaGuardada(c) {
+    const nombre = c.complejo || c.nombre || "Cancha";
+    ubicacionElegida({
+      nombre,
+      direccion: unirUbicacion(c.direccion, c.zona),
+      lat: c.lat,
+      lng: c.lng,
+      idComplejo: c.idComplejo
+    });
+    cerrarSugerencias(); // si el buscador estaba abierto, se cierra
+    pintarAyuda(`Elegiste "${nombre}". Si el punto no es exacto, arrastralo.`);
+  }
+
+  /* =======================================================
+     Desplegar el mapa con el pin
+
+     El mapa de Leaflet queda oculto por defecto: se muestra con
+     el botón "Marcar con pin". Al abrirlo hay que recalcular su
+     tamaño, porque Leaflet no lo mide bien si el contenedor nace
+     oculto.
+     ======================================================= */
+  function abrirMapaPin() {
+    const caja = $("mapa-ubicacion-caja");
+    const btn = $("btn-marcar-pin");
+    if (!caja) return;
+
+    caja.hidden = false;
+    mapa.pinAbierto = true;
+    if (btn) btn.setAttribute("aria-expanded", "true");
+    // Que quede a la vista cuando lo abren la validación o el botón de la vista previa.
+    caja.scrollIntoView({ block: "nearest", behavior: "smooth" });
+
+    iniciarMapaUbicacion().then(() => {
+      if (!punto.mapa) return;
+      punto.mapa.invalidateSize(); // el contenedor recién ahora se ve
+      if (mapa.elegida && Number.isFinite(mapa.elegida.lat)) {
+        ubicarMarcador(mapa.elegida.lat, mapa.elegida.lng);
+      }
+    });
+  }
+
+  function alternarMapaPin() {
+    const caja = $("mapa-ubicacion-caja");
+    if (!caja) return;
+
+    if (caja.hidden) {
+      abrirMapaPin();
+      return;
+    }
+    caja.hidden = true;
+    mapa.pinAbierto = false;
+    const btn = $("btn-marcar-pin");
+    if (btn) btn.setAttribute("aria-expanded", "false");
   }
 
   function renderResumen() {
@@ -530,8 +1019,14 @@
     marcar("precio", v.precio !== null && v.precio > 0 ? "" : "Ingresá el precio de la cancha.", el.precio);
 
     msg = "";
-    if (!v.ubicacion) msg = "Ingresá la cancha y su dirección.";
-    else if (v.ubicacion.length < 5) msg = "Es muy corto. Sumá el nombre y la dirección.";
+    if (!tieneCoords()) {
+      // Las coordenadas son obligatorias, pero se consiguen de dos formas:
+      // eligiendo una sugerencia del buscador o marcando el pin en el mapa.
+      msg = v.ubicacion
+        ? "Todavía no fijaste el punto: elegí una sugerencia de la lista o marcalo con el pin en el mapa."
+        : "Fijá la ubicación exacta con el pin en el mapa.";
+      abrirMapaPin(); // le abrimos el mapa para que la marque
+    }
     marcar("ubicacion", msg, el.ubicacion);
 
     // El equipo tiene que entrar en el cupo que estás publicando
@@ -554,9 +1049,20 @@
     const id = e.target.id || e.target.name;
     if (campos[id]) setError(id, "");
     // Si el usuario vuelve a editar la dirección a mano, las
-    // coordenadas del lugar elegido ya no corresponden.
+    // coordenadas del lugar elegido ya no corresponden. Se conservan
+    // solo si el texto sigue nombrando la misma cancha (así no se pierde
+    // el idComplejo por corregir la dirección).
     if (id === "ubicacion") {
-      mapa.elegida = null;
+      const elegida = mapa.elegida;
+      const texto = el.ubicacion.value.trim();
+      const sigueIgual =
+        Boolean(elegida && elegida.nombre) &&
+        normalizar(texto).includes(normalizar(elegida.nombre));
+      if (!sigueIgual) {
+        mapa.elegida = null;
+        quitarMarcador();
+      }
+      punto.pedido++; // invalida el geocoder inverso en vuelo
       programarBusqueda();
     }
     el.errorGeneral.classList.remove("is-visible");
@@ -583,17 +1089,8 @@
     // Si el lugar salió del buscador, usamos sus datos tal cual
     // (no hay que partir el texto, que puede tener comas).
     const lugar = mapa.elegida;
-    const complejo = {
-      nombre: (lugar && lugar.nombre) || nombre,
-      direccion: (lugar && lugar.direccion) || direccion || nombre
-    };
-    if (lugar) {
-      complejo.lat = lugar.lat;
-      complejo.lng = lugar.lng;
-    }
 
-    const creado = await API.post("/api/partidos", {
-      complejo,
+    const cuerpo = {
       fechaHora: `${datos.fecha}T${datos.hora}`,
       cupoTotal: datos.jugadores,
       jugadoresFaltantes: datos.jugadores,
@@ -603,7 +1100,25 @@
       nivel: "Amateur",
       // Equipo elegido (si lo hay): queda inscripto en el partido
       idEquipo: datos.equipo && datos.equipo.id ? datos.equipo.id : 0
-    });
+    };
+
+    // Cancha ya existente (elegida del buscador o de los puntos del mapa):
+    // mandamos su idComplejo y el back la reutiliza tal cual, sin duplicar.
+    if (lugar && lugar.idComplejo) {
+      cuerpo.idComplejo = lugar.idComplejo;
+    } else {
+      const complejo = {
+        nombre: (lugar && lugar.nombre) || nombre,
+        direccion: (lugar && lugar.direccion) || direccion || nombre
+      };
+      if (lugar) {
+        complejo.lat = lugar.lat;
+        complejo.lng = lugar.lng;
+      }
+      cuerpo.complejo = complejo;
+    }
+
+    const creado = await API.post("/api/partidos", cuerpo);
 
     return {
       id: creado.id,
@@ -622,6 +1137,14 @@
     jugadores = 1;
     mapa.elegida = null;
     cerrarSugerencias();
+    ocultarVistaGoogle();
+    quitarMarcador();
+    // Cerramos el mapa de pin para arrancar de cero.
+    const caja = $("mapa-ubicacion-caja");
+    if (caja) caja.hidden = true;
+    const btn = $("btn-marcar-pin");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    mapa.pinAbierto = false;
     Object.keys(campos).forEach((n) => setError(n, ""));
     el.errorGeneral.classList.remove("is-visible");
     pintarEquipos(); // vuelve a marcar "Sin equipo"
@@ -667,6 +1190,15 @@
   function abrirModal(partido, datos) {
     const { nombre, direccion } = partirUbicacion(datos.ubicacion);
     const cuando = `${formatoFechaCorta(datos.fecha)} · ${datos.hora} hs`;
+
+    // El mapa del pin y la vista previa ya cumplieron: los ocultamos para
+    // que no queden ni asomando detrás de la ventana.
+    const cajaMapa = $("mapa-ubicacion-caja");
+    if (cajaMapa) cajaMapa.hidden = true;
+    const btnPin = $("btn-marcar-pin");
+    if (btnPin) btnPin.setAttribute("aria-expanded", "false");
+    mapa.pinAbierto = false;
+    ocultarVistaGoogle();
 
     // Cuentas: seña del 30 % (simulada) y saldo restante
     const total = datos.precio;
@@ -744,8 +1276,12 @@
   /* ---------- Inicio ---------- */
   el.ubicacion.addEventListener("keydown", manejarTeclasSugerencias);
   el.ubicacion.addEventListener("blur", () => setTimeout(cerrarSugerencias, 120));
+  $("btn-marcar-pin")?.addEventListener("click", alternarMapaPin);
+  $("btn-google-pin")?.addEventListener("click", abrirMapaPin);
   pintarJugadores();
   renderResumen();
   cargarEquipos(); // chips con mis equipos (si no hay, queda "Sin equipo")
   cargarMaps(); // autocompletado: Google si hay clave, si no OpenStreetMap
+  cargarCanchasGuardadas(); // canchas ya cargadas: sugerencias + puntos del mapa
+  // El mapa con el pin se crea recién cuando el usuario lo abre.
 })();

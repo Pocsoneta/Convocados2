@@ -14,14 +14,15 @@
   const $ = (id) => document.getElementById(id);
 
   /* ---------- Ubicación (para "cerca tuyo") ---------- */
-  // Si el navegador da la posición, la mandamos; si no (o si el
-  // permiso se rechaza), usamos el centro de CABA como respaldo.
+  // Si el navegador da la posición, la usamos; si no (permiso denegado,
+  // sin GPS o timeout), caemos a la ciudad del perfil del usuario y,
+  // recién si tampoco hay, al centro de CABA.
   const UBICACION_POR_DEFECTO = { lat: -34.6037, lng: -58.3816 };
 
-  function coordenadas() {
+  function gps() {
     return new Promise((resolver) => {
-      if (!navigator.geolocation) return resolver(UBICACION_POR_DEFECTO);
-      const alTiempo = setTimeout(() => resolver(UBICACION_POR_DEFECTO), 4000);
+      if (!navigator.geolocation) return resolver(null);
+      const alTiempo = setTimeout(() => resolver(null), 4000);
       navigator.geolocation.getCurrentPosition(
         (p) => {
           clearTimeout(alTiempo);
@@ -29,11 +30,27 @@
         },
         () => {
           clearTimeout(alTiempo);
-          resolver(UBICACION_POR_DEFECTO);
+          resolver(null);
         },
         { timeout: 4000, maximumAge: 600000 }
       );
     });
+  }
+
+  async function coordenadas() {
+    const propia = await gps();
+    if (propia) return propia;
+
+    try {
+      const u = await Auth.usuario();
+      if (u?.localidad) {
+        const ciudad = await Geo.localidad(u.localidad);
+        if (ciudad) return ciudad;
+      }
+    } catch {
+      /* sin respaldo: usamos el centro por defecto */
+    }
+    return UBICACION_POR_DEFECTO;
   }
 
   const conCoords = async (ruta) => {
@@ -81,6 +98,10 @@
   const formatoKm = (km) =>
     km.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " km";
 
+  // Un partido sin coordenadas no tiene distancia real: mostramos un
+  // texto en vez de un número inventado (ej. 8.000 km por el punto 0,0).
+  const distanciaTexto = (p) => (p.sinUbicacion ? "Sin ubicación" : formatoKm(p.distanciaKm));
+
   const formatoCupos = (n) => (n <= 0 ? "Completo" : n === 1 ? "1 cupo" : `${n} cupos`);
 
   function formatoFecha(iso) {
@@ -107,7 +128,7 @@
     link.href = `${APP.rutas.detallePartido}?id=${encodeURIComponent(p.id)}`;
 
     const top = el("div", "match__top");
-    top.append(el("span", "badge", p.modalidad), el("span", "match__dist", formatoKm(p.distanciaKm)));
+    top.append(el("span", "badge", p.modalidad), el("span", "match__dist", distanciaTexto(p)));
 
     const pie = el("div", "match__foot");
     const nivel = el("div");

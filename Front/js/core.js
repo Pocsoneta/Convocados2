@@ -152,3 +152,36 @@ const Auth = {
     }
   }
 };
+
+/* =========================================================
+   Geo — ayuda para ubicaciones (usa GET /api/geocode)
+   ========================================================= */
+
+const Geo = {
+  // Tipos de OpenStreetMap que representan una ciudad o pueblo. Sirve
+  // para centrar el mapa en la localidad del perfil y no en un
+  // centroide (que suele ser la provincia, no la ciudad).
+  CIUDADES: ["city", "town", "village", "municipality", "hamlet"],
+
+  // De una lista de resultados, devuelve el que mejor representa una
+  // ciudad; si ninguno lo es, el primero.
+  ciudad(items) {
+    if (!Array.isArray(items) || !items.length) return null;
+    const tipos = this.CIUDADES;
+    return items.find((it) => tipos.includes(String(it.tipo || "").toLowerCase())) || items[0];
+  },
+
+  // Coordenadas de una localidad escrita (ej. "Mendoza"). Devuelve
+  // { lat, lng } o null si no se pudo resolver.
+  async localidad(texto) {
+    const t = String(texto || "").trim();
+    if (t.length < 3) return null;
+    try {
+      const items = await API.get(`/api/geocode?q=${encodeURIComponent(t)}`);
+      const elegido = this.ciudad(items);
+      return elegido ? { lat: elegido.lat, lng: elegido.lng } : null;
+    } catch {
+      return null;
+    }
+  }
+};

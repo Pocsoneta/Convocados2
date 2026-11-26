@@ -179,7 +179,7 @@
               <div class="field" id="field-jugadores">
                 <span class="field__label" id="lbl-jugadores">Jugadores que buscás</span>
                 <div class="stepper" role="group" aria-labelledby="lbl-jugadores">
-                  <span class="stepper__hint">Sin contarte a vos, hasta completar la modalidad</span>
+                  <span class="stepper__hint" title="Sin contarte a vos, hasta completar la modalidad">Sin contarte a vos</span>
                   <button class="stepper__btn" type="button" id="jug-menos" aria-label="Quitar un jugador">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>
                   </button>
@@ -229,7 +229,7 @@
                 <input class="input input--icon" id="ubicacion" name="ubicacion" type="text"
                        autocomplete="off" placeholder="Ej: Club Palermo Soho, Honduras 5050"
                        role="combobox" aria-expanded="false" aria-controls="sugerencias-ubicacion"
-                       aria-autocomplete="list" aria-describedby="error-ubicacion">
+                       aria-autocomplete="list" aria-describedby="error-ubicacion hint-ubicacion">
                 <span class="control__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/>
@@ -238,6 +238,50 @@
                 </span>
                 <ul class="sugerencias" id="sugerencias-ubicacion" role="listbox" hidden></ul>
               </div>
+
+              <!-- Vista previa en Google Maps (solo si el buscador no la
+                   encuentra). Es el embed público: sin API key ni tarjeta. -->
+              <div class="mapa-google" id="mapa-google" hidden>
+                <p class="mapa-google__nota">
+                  No está en el buscador de calles. Comprobá que sea esta y fijá el
+                  punto exacto con el pin de abajo.
+                </p>
+                <div class="mapa-google__marco">
+                  <iframe class="mapa-google__iframe" id="mapa-google-iframe"
+                          title="Vista previa en Google Maps" loading="lazy"
+                          referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                </div>
+                <div class="mapa-google__acciones">
+                  <button class="mapa-google__cta" type="button" id="btn-google-pin">
+                    Fijar el punto exacto con el pin
+                  </button>
+                  <a class="mapa-google__link" id="mapa-google-link"
+                     href="#" target="_blank" rel="noopener">Abrir en Google Maps</a>
+                </div>
+              </div>
+
+              <!-- Despliega el mapa con el pin soltable (Leaflet) -->
+              <button class="mapa-toggle" type="button" id="btn-marcar-pin"
+                      aria-expanded="false" aria-controls="mapa-ubicacion-caja">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/>
+                  <circle cx="12" cy="9.5" r="2.5"/>
+                </svg>
+                <span>¿No aparece? Elegí una cancha guardada en el mapa o marcala con el pin</span>
+                <svg class="mapa-toggle__chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+
+              <!-- Mapa para fijar la ubicación exacta: muchas canchas
+                   de barrio no aparecen en el buscador -->
+              <div class="mapa-ubicacion__caja" id="mapa-ubicacion-caja" hidden>
+                <p class="mapa-ubicacion__ayuda">
+                  Tocá una cancha guardada (punto verde) para elegirla, o tocá el
+                  mapa para marcar un punto nuevo; después podés arrastrarlo.
+                </p>
+                <div class="mapa-ubicacion" id="mapa-ubicacion" role="region"
+                     aria-label="Mapa para marcar la ubicación exacta de la cancha"></div>
+              </div>
+
               <p class="field__hint" id="hint-ubicacion" hidden></p>
               <p class="field__error" id="error-ubicacion" role="alert"></p>
             </div>
@@ -347,6 +391,7 @@
 
   <script src="js/core.js"></script>
   <script src="js/sidebar.js"></script>
+  <script src="js/mapa-base.js"></script>
   <script src="js/crear-partido.js"></script>
 </body>
 </html>

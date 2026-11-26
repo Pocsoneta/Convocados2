@@ -6,8 +6,9 @@
    - La lista y el mapa muestran los mismos resultados, en
      el mismo orden (fecha más próxima primero).
 
-   Los resultados vienen de GET /api/partidos (ver obtenerPartidos).
-   Para conectar Google Maps, reemplazá js/mapa-zona.js.
+   Los resultados vienen de GET /api/partidos (ver obtenerPartidos)
+   y las canchas del mapa de GET /api/canchas. El mapa en sí vive
+   en js/mapa-zona.js (Leaflet + OpenStreetMap).
    ========================================================= */
 
 (() => {
@@ -44,7 +45,8 @@
     mes: new Date(hoy.getFullYear(), hoy.getMonth(), 1),
     resultados: [],
     buscado: false,                  // el aviso de "sin resultados" aparece recién tras una búsqueda
-    pedido: 0                        // evita que una respuesta lenta pise a una más nueva
+    pedido: 0,                       // evita que una respuesta lenta pise a una más nueva
+    donde: { ...MapaBase.CENTRO }    // punto desde el que se mide la distancia
   };
 
   /* ---------- Elementos ---------- */
@@ -80,6 +82,10 @@
     if (filtros.texto) q.set("q", filtros.texto);
     if (filtros.zona.trim()) q.set("zona", filtros.zona.trim());
     if (filtros.modalidad) q.set("modalidad", MODALIDADES[filtros.modalidad]);
+    // La distancia se mide desde el usuario (o desde CABA si no
+    // dio permiso), no siempre desde el centro por defecto.
+    q.set("lat", estado.donde.lat);
+    q.set("lng", estado.donde.lng);
     if (filtros.desde) q.set("desde", `${clave(filtros.desde)}T00:00:00`);
     if (filtros.hasta) q.set("hasta", `${clave(filtros.hasta)}T23:59:59`);
     return API.get(`/api/partidos?${q.toString()}`);
@@ -224,7 +230,7 @@
     meta.append(
       nodo("span", "result__mod", p.modalidad),
       nodo("span", "result__sep"),
-      nodo("span", null, formatoKm(p.distanciaKm)),
+      nodo("span", null, p.sinUbicacion ? "Sin ubicación" : formatoKm(p.distanciaKm)),
       nodo("span", "result__sep"),
       nodo("span", null, formatoFechaPartido(p.fecha))
     );
@@ -357,8 +363,15 @@
     }, 350);
   });
 
-  // Con Google Maps, esto buscará según el área visible del mapa
-  el.btnZonaMapa.addEventListener("click", () => ejecutar());
+  // "Buscar en esta zona" pide lo que se está viendo en el mapa:
+  // la distancia se recalcula desde ahí y las canchas se recortan
+  // al área visible.
+  el.btnZonaMapa.addEventListener("click", () => {
+    const z = MapaZona.zona();
+    estado.donde = { lat: z.lat, lng: z.lng };
+    cargarCanchas(z.radio);
+    ejecutar();
+  });
 
   el.tagQuitar.addEventListener("click", () => {
     estado.modalidad = "";
@@ -383,16 +396,70 @@
   });
 
   /* ---------- Inicio ---------- */
-  MapaZona.iniciar($("mapa"), { alSeleccionar: seleccionar, alResaltar: resaltar });
-
   renderCalendario();
   renderModalidad();
-  Auth.usuario()
-    .then((u) => {
+
+  // Pide las canchas del mapa. Sin radio se piden todas (las que
+  // no tienen coordenadas no se dibujan); con radio, solo las que
+  // entran en el área visible.
+  async function cargarCanchas(radio = 0) {
+    const { lat, lng } = estado.donde;
+    const q = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+    if (radio > 0) q.set("radio", radio.toFixed(1));
+    try {
+      MapaZona.canchas(await API.get(`/api/canchas?${q.toString()}`));
+    } catch {
+      /* sin canchas el mapa sigue mostrando los partidos */
+    }
+  }
+
+  // El mapa se ubica solo: ubicación real del usuario, o su ciudad de
+  // perfil (Mendoza, etc.), o CABA. Con esa coordenada pedimos las
+  // canchas cercanas y, si nos movió respecto del centro por defecto,
+  // repetimos la búsqueda para que las distancias salgan desde ahí.
+  async function arrancar() {
+    const donde = await MapaZona.ubicacion();
+    const movio = donde.lat !== estado.donde.lat || donde.lng !== estado.donde.lng;
+    estado.donde = { lat: donde.lat, lng: donde.lng };
+
+    await cargarCanchas();
+
+    if (movio) ejecutar(false);
+  }
+
+  // Arranque: primero la ficha del usuario (para su ciudad y el filtro
+  // por defecto) y recién ahí el mapa, que usa esa ciudad como respaldo
+  // si el navegador no da la ubicación.
+  (async () => {
+    let ciudad = "";
+    try {
+      const u = await Auth.usuario();
       if (u?.localidad) {
         estado.zona = u.localidad;
         el.zona.value = u.localidad;
+        ciudad = u.localidad;
       }
-    })
-    .finally(() => ejecutar(Boolean(estado.modalidad)));
+    } catch {
+      /* sin perfil: seguimos con el centro por defecto */
+    }
+
+    MapaZona.iniciar($("mapa"), {
+      alSeleccionar: seleccionar,
+      alResaltar: resaltar,
+      // "Ir al partido" desde el popup de un punto con partido.
+      alIrAlPartido: (id) => {
+        window.location.href = `${APP.rutas.detallePartido}?id=${encodeURIComponent(id)}`;
+      },
+      respaldo: ciudad,
+      // El botón "mi ubicación" recentra el mapa y recalcula distancias.
+      alUbicar: (p) => {
+        estado.donde = { lat: p.lat, lng: p.lng };
+        cargarCanchas();
+        ejecutar(false);
+      }
+    });
+
+    await arrancar();
+    ejecutar(Boolean(estado.modalidad));
+  })();
 })();
