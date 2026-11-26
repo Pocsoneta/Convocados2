@@ -1,0 +1,177 @@
+/* =========================================================
+   tema.css — paletas de fondo (TEMPORAL, para probar diseños)
+
+   Se activan con  <html data-tema="nombre">.  La paleta por
+   defecto (Medianoche) es la de :root en base.css: si no hay
+   data-tema, no cambia nada.  Especificidad html[data-tema] >
+   :root, así que gana siempre.
+   ========================================================= */
+
+/* Grafito */
+html[data-tema="grafito"] {
+  --bg: #0c0d0e;
+  --surface: #181819;
+  --surface-2: #252627;
+  --card: #0d0e0f;
+  --card-border: #28292b;
+  --chip: #242527;
+  --aside: #333333;
+  --soft: #f6f6f6;
+  --field: #131415;
+  --panel: #1c1d1f;
+  --panel-2: #212224;
+  --well: #151617;
+  --map: #131314;
+  --line: #343538;
+  --line-2: #2d2e30;
+  --line-dash: #37383a;
+  --focus: #9be8c1;
+  --nav-active: #18191a;
+  --aside-2: #141516;
+  --card-2: #18191b;
+  --neon: #9be8c1;
+  --neon-soft: rgba(155, 232, 193, 0.10);
+  --glow: 0 0 12px rgba(155, 232, 193, 0.25);
+}
+
+/* Césped */
+html[data-tema="cesped"] {
+  --bg: #06140c;
+  --surface: #0e2317;
+  --surface-2: #163623;
+  --card: #001c0c;
+  --card-border: #183b27;
+  --chip: #163523;
+  --aside: #1e482f;
+  --soft: #f2faf5;
+  --field: #0a1e12;
+  --panel: #102b1b;
+  --panel-2: #143120;
+  --well: #0a2214;
+  --map: #0a1d12;
+  --line: #1f4d32;
+  --line-2: #1b422b;
+  --line-dash: #215035;
+  --focus: #2fdd7c;
+  --nav-active: #092916;
+  --aside-2: #0a2013;
+  --card-2: #0d2617;
+  --neon: #2fdd7c;
+  --neon-soft: rgba(47, 221, 124, 0.10);
+  --glow: 0 0 12px rgba(47, 221, 124, 0.25);
+}
+
+/* Azul estadio */
+html[data-tema="azul"] {
+  --bg: #060c14;
+  --surface: #0d1724;
+  --surface-2: #152437;
+  --card: #000c1c;
+  --card-border: #17273c;
+  --chip: #152336;
+  --aside: #1c304a;
+  --soft: #f2f5fa;
+  --field: #0a131e;
+  --panel: #101c2b;
+  --panel-2: #132032;
+  --well: #0a1422;
+  --map: #0a121d;
+  --line: #1e334e;
+  --line-2: #1a2c43;
+  --line-dash: #1f3552;
+  --focus: #3fb9ff;
+  --nav-active: #091729;
+  --aside-2: #0a1420;
+  --card-2: #0d1826;
+  --neon: #3fb9ff;
+  --neon-soft: rgba(63, 185, 255, 0.10);
+  --glow: 0 0 12px rgba(63, 185, 255, 0.25);
+}
+
+/* Bordó noche */
+html[data-tema="bordo"] {
+  --bg: #140608;
+  --surface: #240d10;
+  --surface-2: #371519;
+  --card: #1c0004;
+  --card-border: #3c171c;
+  --chip: #361519;
+  --aside: #4a1c22;
+  --soft: #faf2f3;
+  --field: #1e0a0d;
+  --panel: #2b1014;
+  --panel-2: #321317;
+  --well: #220a0d;
+  --map: #1d0a0d;
+  --line: #4e1e24;
+  --line-2: #431a1f;
+  --line-dash: #521f26;
+  --focus: #ff6b81;
+  --nav-active: #29090d;
+  --aside-2: #200a0d;
+  --card-2: #260d10;
+  --neon: #ff6b81;
+  --neon-soft: rgba(255, 107, 129, 0.10);
+  --glow: 0 0 12px rgba(255, 107, 129, 0.25);
+}
+
+/* Índigo eléctrico */
+html[data-tema="indigo"] {
+  --bg: #0a0614;
+  --surface: #140d24;
+  --surface-2: #1f1537;
+  --card: #08001c;
+  --card-border: #22173c;
+  --chip: #1f1536;
+  --aside: #2a1c4a;
+  --soft: #f4f2fa;
+  --field: #100a1e;
+  --panel: #18102b;
+  --panel-2: #1c1332;
+  --well: #110a22;
+  --map: #100a1d;
+  --line: #2c1e4e;
+  --line-2: #261a43;
+  --line-dash: #2e1f52;
+  --focus: #a78bfa;
+  --nav-active: #130929;
+  --aside-2: #110a20;
+  --card-2: #150d26;
+  --neon: #a78bfa;
+  --neon-soft: rgba(167, 139, 250, 0.10);
+  --glow: 0 0 12px rgba(167, 139, 250, 0.28);
+}
+
+/* Papel claro (tema claro) */
+html[data-tema="claro"] {
+  --bg: #f5f7fc;
+  --surface: #ffffff;
+  --surface-2: #eef2f9;
+  --card: #ffffff;
+  --card-border: #d9e0ec;
+  --chip: #e6ebf4;
+  --aside: #ffffff;
+  --soft: #0b1220;
+  --field: #eef2f9;
+  --panel: #ffffff;
+  --panel-2: #f2f5fa;
+  --well: #eef2f9;
+  --map: #e6ebf4;
+  --line: #d9e0ec;
+  --line-2: #e2e8f2;
+  --line-dash: #cfd8e6;
+  --focus: #0b7a44;
+  --nav-active: #e4f6ec;
+  --aside-2: #eef2f9;
+  --card-2: #ffffff;
+  --text: #0b1220;
+  --text-muted: #5b6472;
+  /* Borde oscuro: el --border heredado es blanco al 8% y desaparece acá. */
+  --border: rgba(10, 18, 32, 0.12);
+  /* Verde más oscuro: #0f9d58 con texto blanco queda en 3.51:1 (bajo AA). */
+  --accent: #0b7a44;
+  --accent-ink: #ffffff;
+  --neon: #0b7a44;
+  --neon-soft: rgba(11, 122, 68, 0.10);
+  --glow: 0 0 12px rgba(11, 122, 68, 0.30);
+}

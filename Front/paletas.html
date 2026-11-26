@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paletas de fondo — Convocados</title>
+<style>
+  :root {
+    --chrome-bg: #0b0e13;
+    --chrome-card: #141924;
+    --chrome-line: #232b3a;
+    --chrome-text: #eef2f8;
+    --chrome-muted: #98a3b6;
+    --green: #34d399;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px clamp(16px, 4vw, 48px) 64px;
+    background: var(--chrome-bg);
+    color: var(--chrome-text);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header.top { max-width: 900px; margin-bottom: 28px; }
+  header.top h1 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; }
+  header.top p { margin: 0; color: var(--chrome-muted); line-height: 1.55; font-size: 14.5px; }
+  header.top strong { color: var(--green); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  /* ---------- Tarjeta de paleta ---------- */
+  .pal {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--chrome-line);
+    border-radius: 16px;
+    background: var(--chrome-card);
+  }
+  .pal.is-picked { border-color: var(--green); box-shadow: 0 0 0 1px var(--green) inset; }
+
+  /* Mini app con los colores de la paleta */
+  .mock {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    height: 170px;
+    border: 1px solid var(--chrome-line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--p-bg);
+  }
+  .mock__aside {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 14px 12px;
+    background: var(--p-aside);
+  }
+  .mock__dot {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: rgba(255, 255, 255, .16);
+  }
+  .mock__pill {
+    height: 9px; border-radius: 999px;
+    background: var(--p-text-muted, rgba(255, 255, 255, .22));
+    opacity: .5;
+  }
+  .mock__pill:nth-child(2) { width: 80%; }
+  .mock__pill:nth-child(3) { width: 62%; }
+  .mock__pill:nth-child(4) { width: 70%; }
+
+  .mock__body { display: grid; align-content: start; gap: 10px; padding: 14px; }
+  .mock__h { margin: 0; font-size: 13px; font-weight: 700; color: var(--p-text); }
+  .mock__card {
+    display: grid;
+    gap: 6px;
+    padding: 12px;
+    border: 1px solid var(--chrome-line);
+    border-radius: 10px;
+    background: var(--p-card);
+  }
+  .mock__badge {
+    justify-self: start;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--p-surface2);
+    color: var(--p-text);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .mock__t { margin: 0; font-size: 13px; font-weight: 700; color: var(--p-text); }
+  .mock__m { margin: 0; font-size: 11px; color: var(--p-text-muted); }
+  .mock__chips { display: flex; gap: 6px; margin-top: 2px; }
+  .mock__chips span {
+    width: 34px; height: 16px; border-radius: 6px; background: var(--p-surface2);
+  }
+
+  /* ---------- Encabezado y datos ---------- */
+  .pal__head { display: flex; align-items: center; gap: 8px; }
+  .pal__head h2 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+  .pal__tag {
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--chrome-line);
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--chrome-muted);
+  }
+  .pal__tag--now { border-color: rgba(52, 211, 153, .5); color: var(--green); }
+
+  .tokens { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 11.5px; }
+  .tokens li { display: flex; align-items: center; gap: 8px; color: var(--chrome-muted); }
+  .tokens i {
+    width: 14px; height: 14px; border-radius: 4px; flex: none;
+    border: 1px solid rgba(255, 255, 255, .14);
+  }
+  .tokens code { color: var(--chrome-text); font-size: 11px; }
+  .tokens .k { min-width: 66px; }
+
+  .pal__aa { margin: 0; font-size: 11.5px; color: var(--chrome-muted); }
+  .pal__aa b { color: var(--green); font-weight: 800; margin-left: 4px; }
+
+  .pal__btn {
+    justify-self: start;
+    padding: 8px 14px;
+    border: 1px solid var(--chrome-line);
+    border-radius: 9px;
+    background: #1b2230;
+    color: var(--chrome-text);
+    font: inherit; font-size: 12.5px; font-weight: 700;
+    cursor: pointer;
+  }
+  .pal__btn:hover { border-color: var(--green); color: var(--green); }
+  .pal.is-picked .pal__btn { background: var(--green); color: #04130a; border-color: var(--green); }
+
+  footer.note {
+    max-width: 900px; margin-top: 28px;
+    padding: 14px 16px; border: 1px dashed var(--chrome-line); border-radius: 12px;
+    color: var(--chrome-muted); font-size: 13px; line-height: 1.55;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Paletas de fondo</h1>
+  <p>
+    Estas son las combinaciones de <strong>fondo</strong> (fondo + barra lateral + tarjetas + superficies).
+    Cada tarjeta muestra cómo se vería la app. Todas cumplen <strong>contraste WCAG AA</strong>.
+    Decime el nombre de la que te gusta y la aplico a toda la app.
+  </p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<footer class="note">
+  Elegí una y anotá el nombre (o tocá «Usar esta»). Al aplicarla, el cambio alcanza a todas las
+  pantallas internas (inicio, buscar, crear partido, mis partidos, equipo, perfil).
+  El acento verde y los botones claros se mantienen.
+</footer>
+
+<script>
+  // bg / surface / surface-2 / card / aside / texto / texto secundario / ratio
+  const PALETAS = [
+    { nombre: "Medianoche", actual: true,
+      bg: "#060b14", surface: "#0e1623", surface2: "#1a2332", card: "#000a1c", aside: "#333333",
+      text: "#ffffff", muted: "#97a3b6", ratio: "12.6:1 · 5.0:1" },
+    { nombre: "Grafito",
+      bg: "#0f1114", surface: "#191d22", surface2: "#242a32", card: "#0a0c0f", aside: "#2b3038",
+      text: "#ffffff", muted: "#97a3b6", ratio: "13.3:1 · 5.2:1" },
+    { nombre: "Césped",
+      bg: "#07120d", surface: "#0f2018", surface2: "#1a3327", card: "#04100a", aside: "#143024",
+      text: "#ffffff", muted: "#97a3b6", ratio: "14.2:1 · 5.6:1" },
+    { nombre: "Azul estadio",
+      bg: "#050d1c", surface: "#0d1a30", surface2: "#16294a", card: "#040a17", aside: "#0b2a5b",
+      text: "#ffffff", muted: "#97a3b6", ratio: "14.0:1 · 5.5:1" },
+    { nombre: "Bordó noche",
+      bg: "#140709", surface: "#241014", surface2: "#3a1a20", card: "#100506", aside: "#3a141b",
+      text: "#ffffff", muted: "#97a3b6", ratio: "16.2:1 · 6.4:1" },
+    { nombre: "Índigo eléctrico",
+      bg: "#0a0716", surface: "#171130", surface2: "#251a4a", card: "#070512", aside: "#1e1746",
+      text: "#ffffff", muted: "#97a3b6", ratio: "16.6:1 · 6.5:1" },
+    { nombre: "Papel claro", claro: true,
+      bg: "#f5f7fc", surface: "#ffffff", surface2: "#eef2f9", card: "#ffffff", aside: "#ffffff",
+      text: "#0b1220", muted: "#5b6472", ratio: "17.5:1 · 5.6:1" },
+  ];
+
+  const grid = document.getElementById("grid");
+  const elegida = localStorage.getItem("convocados:tema");
+
+  const fila = (k, hex) =>
+    `<li><i style="background:${hex}"></i><span class="k">${k}</span><code>${hex}</code></li>`;
+
+  PALETAS.forEach((p) => {
+    const art = document.createElement("article");
+    art.className = "pal";
+    art.dataset.nombre = p.nombre;
+    if (elegida === p.nombre) art.classList.add("is-picked");
+    art.style.cssText =
+      `--p-bg:${p.bg};--p-surface:${p.surface};--p-surface2:${p.surface2};` +
+      `--p-card:${p.card};--p-aside:${p.aside};--p-text:${p.text};--p-text-muted:${p.muted};`;
+    art.innerHTML = `
+      <div class="mock">
+        <div class="mock__aside">
+          <span class="mock__dot"></span>
+          <span class="mock__pill"></span>
+          <span class="mock__pill"></span>
+          <span class="mock__pill"></span>
+        </div>
+        <div class="mock__body">
+          <p class="mock__h">Publicar partido</p>
+          <div class="mock__card">
+            <span class="mock__badge">Fútbol 5</span>
+            <p class="mock__t">El Picadito</p>
+            <p class="mock__m">Rivadavia, Mendoza</p>
+            <div class="mock__chips"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="pal__head">
+        <h2>${p.nombre}</h2>
+        ${p.actual ? '<span class="pal__tag pal__tag--now">Actual</span>' : ""}
+        ${p.claro ? '<span class="pal__tag">Clara</span>' : ""}
+      </div>
+      <ul class="tokens">
+        ${fila("bg", p.bg)}
+        ${fila("surface", p.surface)}
+        ${fila("surface-2", p.surface2)}
+        ${fila("card", p.card)}
+        ${fila("aside", p.aside)}
+      </ul>
+      <p class="pal__aa">Texto ${p.ratio} <b>AA</b></p>
+      <button class="pal__btn" type="button">Usar esta</button>
+    `;
+    art.querySelector(".pal__btn").addEventListener("click", () => {
+      localStorage.setItem("convocados:tema", p.nombre);
+      document.querySelectorAll(".pal").forEach((n) => n.classList.remove("is-picked"));
+      art.classList.add("is-picked");
+    });
+    grid.appendChild(art);
+  });
+</script>
+</body>
+</html>
