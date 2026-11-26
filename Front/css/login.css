@@ -10,6 +10,7 @@
   display: grid;
   grid-template-columns: minmax(520px, 45%) minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ---------- Columna izquierda ---------- */
@@ -230,12 +231,16 @@
 }
 
 /* ---------- Tablet / mobile ---------- */
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .login__panel { padding-inline: 48px; }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .login { grid-template-columns: 1fr; }
   .login__visual { display: none; }
-  .login__panel { padding: 28px 24px; min-height: 100vh; }
+  .login__panel { padding: 28px 24px; min-height: 100vh; min-height: 100dvh; }
+
+  /* La marca queda centrada, como en el Figma móvil */
+  .login__header { display: flex; justify-content: center; }
+  .login__title { font-size: clamp(28px, 8vw, 36px); }
 }

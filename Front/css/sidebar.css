@@ -14,6 +14,7 @@
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .app__main {
@@ -28,6 +29,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   padding: 30px 22px 24px;
   background: var(--aside);
   border-right: 1px solid var(--card-border);
@@ -150,7 +152,7 @@
 .page-head__title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 30px;
+  font-size: clamp(26px, 3vw, 30px);
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
@@ -161,49 +163,135 @@
 }
 
 .link-green {
+  position: relative;
   font-size: 13px;
   font-weight: 700;
   color: var(--accent);
 }
+/* Área de toque ampliada sin cambiar el aspecto visual */
+.link-green::after {
+  content: "";
+  position: absolute;
+  inset: -12px -6px;
+}
 .link-green:hover { text-decoration: underline; }
 
-/* ---------- Tablet / mobile: la barra pasa arriba ---------- */
+/* ---------- Botón hamburguesa (oculto en desktop) ---------- */
+.sidebar__toggle { display: none; }
+
+/* ---------- Títulos de página centrados en mobile ---------- */
+@media (max-width: 640px) {
+  .page-head {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+  }
+  .page-head__lead { text-align: center; }
+}
+
+/* ---------- Tablet / mobile: barra superior + menú lateral ---------- */
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
 
+  /* Barra superior fija: marca a la izquierda, hamburguesa a la derecha */
   .sidebar {
-    position: static;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
     height: auto;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border-right: 0;
     border-bottom: 1px solid var(--card-border);
   }
 
-  .sidebar > .brand { order: 1; }
-
-  .sidebar__user {
-    order: 2;
-    margin: 0 0 0 auto;
-    padding: 0;
-    background: none;
+  .sidebar__toggle {
+    display: grid;
+    place-items: center;
+    position: relative;
+    z-index: 3;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: #101a2b;
+    color: var(--text);
+    transition: background .15s ease, border-color .15s ease;
   }
-  .user__info { display: none; }
+  .sidebar__toggle:hover { background: #16213a; }
+  .sidebar__toggle .sidebar__icon-close { display: none; }
+  .sidebar.is-open .sidebar__toggle .sidebar__icon-menu { display: none; }
+  .sidebar.is-open .sidebar__toggle .sidebar__icon-close { display: block; }
 
+  /* La marca queda visible por encima del panel abierto */
+  .sidebar > .brand { position: relative; z-index: 3; }
+
+  /* Panel lateral: navegación */
   .sidebar__nav {
-    order: 3;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
     display: flex;
-    gap: 6px;
-    width: 100%;
-    margin-top: 12px;
-    padding-bottom: 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
+    flex-direction: column;
+    gap: 7px;
+    width: min(300px, 85vw);
+    margin-top: 0;
+    padding: 80px 22px 104px;
+    background: var(--aside);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .25s ease, visibility 0s linear .25s;
   }
-  .sidebar__nav::-webkit-scrollbar { display: none; }
-  .nav-link { flex: none; height: 40px; padding: 0 14px; white-space: nowrap; }
 
-  .app__main { padding: 28px 20px 48px; }
+  /* Panel lateral: usuario (al fondo del panel) */
+  .sidebar__user {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    width: min(300px, 85vw);
+    margin: 0;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    background: #101a2b;
+    border-top: 1px solid var(--card-border);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .25s ease, visibility 0s linear .25s;
+  }
+
+  .sidebar.is-open .sidebar__nav,
+  .sidebar.is-open .sidebar__user {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .25s ease;
+  }
+
+  /* Fondo oscurecido detrás del menú (cubre el contenido, no la barra) */
+  body.nav-open .app::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(3, 7, 13, 0.72);
+  }
+
+  body.nav-open { overflow: hidden; }
+
+  .nav-link { height: 46px; padding: 0 14px; font-size: 15px; }
+
+  /* Objetivo táctil para cerrar sesión */
+  .user__logout { width: var(--tap); height: var(--tap); }
+
+  /* El contenido baja debajo de la barra fija (~68px + espacio) */
+  .app__main { padding: 92px 20px calc(48px + env(safe-area-inset-bottom, 0px)); }
 }

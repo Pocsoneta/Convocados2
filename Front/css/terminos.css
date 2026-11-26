@@ -175,7 +175,7 @@ body.legal-page {
 }
 
 /* ---------- Tablet / mobile ---------- */
-@media (max-width: 1280px) {
+@media (max-width: 1180px) {
   .legal { padding-inline: 24px; }
 }
 
@@ -187,7 +187,7 @@ body.legal-page {
   .legal__layout { grid-template-columns: 1fr; gap: 20px; }
 
   /* El índice pasa arriba como una fila deslizable */
-  .toc { position: static; }
+  .toc { position: static; min-width: 0; }
   .toc__list {
     display: flex;
     gap: 6px;
@@ -204,7 +204,7 @@ body.legal-page {
   .doc__section h2 { font-size: 20px; }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .legal-header .btn__texto { display: none; }
   .legal-header .btn--back { padding: 0 14px; }
   .btn--volver { width: 100%; }

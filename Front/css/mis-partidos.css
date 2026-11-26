@@ -233,13 +233,17 @@
 /* ---------- Tablet / mobile ---------- */
 @media (max-width: 1180px) {
   .mis__grid { grid-template-columns: 1fr; }
-  .resumen { order: -1; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .page-head { flex-direction: column; }
   .page-head__title { font-size: 26px; }
   .btn--create { width: 100%; }
+
+  /* Pestañas a tamaño táctil, repartidas en el ancho */
+  .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 1; justify-content: center; height: 44px; padding: 0 14px; font-size: 13px; }
 
   .partido { grid-template-columns: 1fr; }
   .partido__media { min-height: 130px; }
