@@ -82,7 +82,7 @@
     panel.className = "tema-panel";
     panel.hidden = true;
     panel.innerHTML =
-      '<p class="tema-panel__t">Diseño (temporal)</p>' +
+      '<p class="tema-panel__t">Diseño</p>' +
       '<p class="tema-panel__s">Probá los fondos y quedate con uno.</p>';
 
     const swatch = { "": "#060b14", grafito: "#0f1114", cesped: "#07120d",
