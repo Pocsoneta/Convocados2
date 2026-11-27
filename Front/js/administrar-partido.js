@@ -328,9 +328,15 @@
     return accion(() => API.del(`/api/partidos/${ID}/equipos/${id}`));
   }
 
+  // Cancelar el partido lo ELIMINA (ya no queda como 'Cancelado' en el
+  // historial). Releer la administración daría 404: se navega al listado
+  // de mis partidos.
   function cancelar() {
-    if (!window.confirm("¿Cancelar el partido?")) return;
-    return accion(() => API.post(`/api/partidos/${ID}/cancelar`));
+    if (!window.confirm(
+      "¿Cancelar el partido? Se elimina y desaparece del historial.")) return;
+    return API.post(`/api/partidos/${ID}/cancelar`)
+      .then(() => { window.location.href = APP.rutas.misPartidos; })
+      .catch((err) => window.alert(err.message));
   }
 
   /* ---------- Invitar gente (siempre disponible) ---------- */

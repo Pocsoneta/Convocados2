@@ -246,12 +246,18 @@ func (s *Server) quitarParticipante(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST /api/partidos/{id}/cancelar
+//
+// Cancelar un partido lo ELIMINA: no queda en el historial con estado
+// 'Cancelado' ni deja filas residuales. Los hijos (USUARIO_PARTIDO,
+// EQUIPO_PARTIDO, MENSAJE_PARTIDO) caen solos por ON DELETE CASCADE;
+// los equipos de los usuarios y sus links de invitación no dependen del
+// partido, así que no se tocan.
 func (s *Server) cancelarPartido(w http.ResponseWriter, r *http.Request) {
 	id, ok := s.partidoDelOrganizador(w, r)
 	if !ok {
 		return
 	}
-	res, err := s.DB.Exec(`UPDATE PARTIDO SET estado = 'Cancelado'
+	res, err := s.DB.Exec(`DELETE FROM PARTIDO
 	                        WHERE id_partido = ? AND estado = 'Publicado'`, id)
 	if err != nil {
 		respondeErrJSON(w, err)
@@ -261,5 +267,5 @@ func (s *Server) cancelarPartido(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusConflict, "El partido ya no está publicado.")
 		return
 	}
-	JSON(w, http.StatusOK, map[string]any{"ok": "partido cancelado"})
+	JSON(w, http.StatusOK, map[string]any{"ok": "partido eliminado"})
 }
