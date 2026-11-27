@@ -15,7 +15,7 @@
         "Perfiles por nivel de juego",
         "Convocatorias simples y rápidas"
       ],
-      imagen: "img/onboarding-1.png",
+      imagen: "img/Imagen%20Convocado.jpeg",
       capTitulo: "Fútbol amateur, mejor conectado.",
       capSub: "CABA · +120 convocatorias esta semana"
     },
@@ -28,7 +28,7 @@
         "Definí el nivel que buscás",
         "Compartí el link con tu grupo"
       ],
-      imagen: "img/onboarding-2.png",
+      imagen: "img/Imagen%20Convocado.jpeg",
       capTitulo: "Convocatorias en un minuto.",
       capSub: "Publicá y recibí postulaciones"
     },
@@ -41,7 +41,7 @@
         "Confirmación de cupo al instante",
         "Historial de tus partidos"
       ],
-      imagen: "img/onboarding-3.png",
+      imagen: "img/Imagen%20Convocado.jpeg",
       capTitulo: "Siempre hay un lugar para vos.",
       capSub: "Partidos abiertos cerca tuyo"
     }

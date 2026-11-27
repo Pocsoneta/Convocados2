@@ -149,7 +149,9 @@
 .onb__slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* contain: la ilustración entra completa (cover la recortaba arriba y
+     abajo); el gradiente del slide se ve apenas en los laterales */
+  object-fit: contain;
 }
 
 /* Tarjeta de texto sobre la imagen */
