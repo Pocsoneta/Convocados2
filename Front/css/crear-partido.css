@@ -701,20 +701,6 @@ body.modal-abierto { overflow: hidden; }
   to   { opacity: 1; transform: none; }
 }
 
-.pill {
-  position: absolute;
-  top: 30px;
-  left: 28px;
-  display: inline-flex;
-  align-items: center;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-.pill--ok { background: #0f3b2a; color: #5df0a1; }
-
 .modal__close {
   position: absolute;
   top: 24px;

@@ -5,9 +5,6 @@
      va completando.
    - "Publicar partido" valida, lo envía al backend (POST
      /api/partidos) y abre la ventana de "Partido confirmado".
-
-   La seña (30 %) y su aprobación están SIMULADAS: no hay
-   integración de pago todavía.
    ========================================================= */
 
 (() => {
@@ -15,7 +12,6 @@
 
   const $ = (id) => document.getElementById(id);
 
-  const PORCENTAJE_SENA = 0.3;
   const MAX_JUGADORES_GENERAL = 21;
 
   // jugadoresTotales: todos los jugadores de la modalidad, organizador incluido.
@@ -1200,17 +1196,13 @@
     mapa.pinAbierto = false;
     ocultarVistaGoogle();
 
-    // Cuentas: seña del 30 % (simulada) y saldo restante
+    // Costo total de la cancha
     const total = datos.precio;
-    const sena = Math.round(total * PORCENTAJE_SENA);
-    const saldo = total - sena;
 
     $("mc-modalidad").textContent = partido.modalidad;
     $("mc-nombre").textContent = nombre;
     $("mc-cuando").textContent = cuando;
     $("mc-total").textContent = `${formatoPesos(total)} ARS`;
-    $("mc-sena").textContent = formatoPesos(sena);
-    $("mc-saldo").textContent = formatoPesos(saldo);
 
     const pEquipo = $("mc-equipo");
     pEquipo.textContent = partido.equipo ? `Con el equipo ${partido.equipo}` : "";
