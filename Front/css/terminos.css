@@ -28,7 +28,9 @@ body.legal-page {
 }
 
 .legal-header .brand__name { color: var(--lt-ink); }
-.legal-header .brand__name span { color: var(--accent); }
+/* El --accent global es blanco y el "dos" desaparecía sobre el fondo claro:
+   usa el verde propio de esta página. */
+.legal-header .brand__name span { color: var(--lt-green); }
 
 .brand__mark--solid {
   background: #07130f;

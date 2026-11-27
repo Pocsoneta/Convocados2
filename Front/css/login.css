@@ -26,7 +26,9 @@
 .login__header { height: 34px; }
 
 .login .brand__name { color: var(--lt-ink); }
-.login .brand__name span { color: var(--accent); }
+/* El --accent global es blanco (color de botones) y el "dos" desaparecía
+   sobre el fondo claro: usa el verde de los links de esta página. */
+.login .brand__name span { color: var(--lt-link); }
 
 .brand__mark--solid {
   background: #07130f;
