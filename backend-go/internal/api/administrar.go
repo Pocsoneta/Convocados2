@@ -124,12 +124,21 @@ func (s *Server) administrarPartido(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Invitación del equipo del organizador: mismas claves que en el
+	// detalle, armadas por el mismo helper. Esta ruta solo la alcanza
+	// el organizador (partidoDelOrganizador corta con 403), pero el
+	// helper vuelve a chequearlo y devuelve null si no lo es.
+	equipoOrganizador, linkInvitacion := s.invitacionDelOrganizador(r, id)
+
 	JSON(w, http.StatusOK, map[string]any{
 		"partido":            p.aJSON(complejos, p.Lat, p.Lng),
 		"solicitudes":        solicitudes,
 		"confirmados":        confirmados,
 		"equipos":            equipos,
 		"solicitudesEquipos": solicitudesEquipos,
+		"esOrganizador":      true,
+		"equipoOrganizador":  equipoOrganizador,
+		"linkInvitacion":     linkInvitacion,
 	})
 }
 

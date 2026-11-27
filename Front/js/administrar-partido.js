@@ -13,6 +13,13 @@
      POST   /api/partidos/{id}/equipos/{equipo}/aceptar
      DELETE /api/partidos/{id}/equipos/{equipo}   (rechaza o quita un equipo)
      POST   /api/partidos/{id}/cancelar
+
+   Invitar gente (bloque solo del organizador): usa el link de
+   invitación del equipo con el que se publicó el partido. La
+   administración lo trae en linkInvitacion (o null si el equipo no
+   tiene link activo) y para generarlo o regenerarlo se usa el
+   endpoint de siempre de equipos:
+     POST /api/equipos/{id}/link               (genera o regenera el link)
    ========================================================= */
 
 (() => {
@@ -30,7 +37,10 @@
     solicitudes: [],
     solicitudesEquipos: [],
     confirmados: [],
-    equipos: []
+    equipos: [],
+    esOrganizador: false,
+    equipoOrganizador: null,
+    linkInvitacion: null
   };
 
   const el = {
@@ -46,7 +56,21 @@
     avisoTitulo: $("aviso-titulo"),
     avisoTexto: $("aviso-texto"),
     btnCancelar: $("btn-cancelar"),
-    admin: $("admin")
+    admin: $("admin"),
+    bloqueInvitar: $("bloque-invitar"),
+    invitarEquipo: $("invitar-equipo"),
+    invitarEquipoCaja: $("invitar-equipo-caja"),
+    invitarSinEquipo: $("invitar-sin-equipo"),
+    invitarLink: $("invitar-activo"),
+    linkUrl: $("link-url"),
+    btnCopiar: $("btn-copiar"),
+    btnWhatsapp: $("btn-whatsapp"),
+    btnRegenerar: $("btn-regenerar"),
+    btnGenerarLink: $("btn-generar-link"),
+    linkPartidoUrl: $("link-partido-url"),
+    btnCopiarPartido: $("btn-copiar-partido"),
+    btnWhatsappPartido: $("btn-whatsapp-partido"),
+    invitarError: $("invitar-error")
   };
 
   /* ---------- Helpers ---------- */
@@ -230,6 +254,7 @@
     renderSolicitudes();
     renderConfirmados();
     renderFaltan();
+    renderInvitar();
     if (estado.partido.estado === "Cancelado") bloquear();
   }
 
@@ -251,6 +276,11 @@
     estado.solicitudesEquipos = datos.solicitudesEquipos || [];
     estado.confirmados = datos.confirmados;
     estado.equipos = datos.equipos || [];
+    // Invitación del equipo del organizador (mismo contrato que el
+    // detalle): el backend solo manda el token si esOrganizador es true.
+    estado.esOrganizador = Boolean(datos.esOrganizador);
+    estado.equipoOrganizador = datos.equipoOrganizador || null;
+    estado.linkInvitacion = datos.linkInvitacion || null;
   }
 
   // Ejecuta una acción contra el backend y vuelve a leer el partido
@@ -302,6 +332,129 @@
     if (!window.confirm("¿Cancelar el partido?")) return;
     return accion(() => API.post(`/api/partidos/${ID}/cancelar`));
   }
+
+  /* ---------- Invitar gente (siempre disponible) ---------- */
+  // Dos links:
+  //  - El del PARTIDO, permanente: es el mismo que comparte la ventana
+  //    de confirmación al crear el partido. Quien lo abre ve el detalle
+  //    y se puede anotar solo mientras haya lugares.
+  //  - El del EQUIPO, solo si hay equipo inscripto y el partido no está
+  //    cancelado: quien lo abra se suma al equipo como invitado y, con
+  //    el equipo, ocupa lugar en este partido. El backend solo manda el
+  //    token si el que pide es el organizador.
+  function renderInvitar() {
+    el.bloqueInvitar.hidden = false;
+
+    // Link del partido (permanente)
+    el.linkPartidoUrl.value = new URL(
+      `/detalle-partido.html?id=${encodeURIComponent(ID)}`, location.href).href;
+    el.btnWhatsappPartido.href =
+      `https://wa.me/?text=${encodeURIComponent(mensajeWhatsAppPartido())}`;
+
+    // Link del equipo (solo con equipo inscripto)
+    const eq = estado.esOrganizador && estado.partido.estado !== "Cancelado"
+      ? estado.equipoOrganizador
+      : null;
+    el.invitarEquipoCaja.hidden = !eq;
+    el.invitarSinEquipo.hidden = Boolean(eq);
+    if (!eq) {
+      el.invitarEquipo.textContent = "";
+      return;
+    }
+
+    el.invitarEquipo.textContent = eq.nombre || "";
+    const link = estado.linkInvitacion;
+    const activo = Boolean(link && link.url);
+    el.invitarLink.hidden = !activo;
+    el.btnGenerarLink.hidden = activo;
+    el.btnCopiar.textContent = "Copiar link";
+    if (activo) {
+      el.linkUrl.value = link.url;
+      el.btnWhatsapp.href =
+        `https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp(link.url))}`;
+    }
+  }
+
+  // Texto que acompaña al link del partido, igual al de la ventana de
+  // confirmación de crear-partido
+  function mensajeWhatsAppPartido() {
+    const p = estado.partido;
+    const url = el.linkPartidoUrl.value;
+    const lugar = p.direccion ? `${p.nombre}, ${p.direccion}` : p.nombre;
+    const modalidad = p.modalidad ? `${p.modalidad} en` : "en";
+    return `¡Sumate a mi partido en Convocados! ${modalidad} ${lugar} · ${formatoFecha(p.fecha)}. ` +
+      `Mirá los detalles: ${url}`;
+  }
+
+  // Texto que acompaña al link cuando se comparte por WhatsApp
+  function mensajeWhatsApp(url) {
+    const eq = estado.equipoOrganizador;
+    const equipo = eq && eq.nombre ? ` al equipo ${eq.nombre}` : "";
+    return `¡Sumate${equipo} para jugar mi partido en Convocados! ` +
+      `Con este link entrás como invitado: ${url}`;
+  }
+
+  function mostrarErrorInvitar(mensaje) {
+    el.invitarError.textContent = mensaje || "";
+  }
+
+  // Genera (o regenera) el link del equipo y vuelve a leer la
+  // administración para mostrar el link nuevo.
+  async function generarLink() {
+    const eq = estado.esOrganizador && estado.partido.estado !== "Cancelado"
+      ? estado.equipoOrganizador
+      : null;
+    if (!eq) return;
+    mostrarErrorInvitar("");
+    el.btnGenerarLink.disabled = true;
+    el.btnRegenerar.disabled = true;
+    try {
+      await API.post(`/api/equipos/${eq.id}/link`);
+      await cargar();
+      renderTodo();
+    } catch (err) {
+      mostrarErrorInvitar(err.message);
+    } finally {
+      el.btnGenerarLink.disabled = false;
+      el.btnRegenerar.disabled = false;
+    }
+  }
+
+  el.btnGenerarLink.addEventListener("click", generarLink);
+
+  el.btnRegenerar.addEventListener("click", () => {
+    if (!window.confirm(
+      "¿Regenerar el link? El anterior va a dejar de funcionar de inmediato.")) return;
+    generarLink();
+  });
+
+  el.btnCopiar.addEventListener("click", async () => {
+    const url = el.linkUrl.value;
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      el.btnCopiar.textContent = "Copiado";
+      setTimeout(() => { el.btnCopiar.textContent = "Copiar link"; }, 2000);
+    } catch {
+      // Sin permiso de portapapeles: selecciono el link para copiar a mano
+      el.linkUrl.select();
+      el.btnCopiar.textContent = "Seleccionado";
+    }
+  });
+
+  el.btnCopiarPartido.addEventListener("click", async () => {
+    const url = el.linkPartidoUrl.value;
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      el.btnCopiarPartido.textContent = "Copiado";
+      setTimeout(() => { el.btnCopiarPartido.textContent = "Copiar link"; }, 2000);
+    } catch {
+      // Sin permiso de portapapeles: selecciono el link para copiar a mano
+      el.linkPartidoUrl.select();
+      el.btnCopiarPartido.textContent = "Seleccionado";
+    }
+  });
 
   el.admin.addEventListener("click", (e) => {
     const boton = e.target.closest("button[data-accion]");

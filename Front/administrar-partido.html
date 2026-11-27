@@ -170,6 +170,75 @@
             </div>
           </section>
 
+          <!-- Invitar y compartir (siempre disponible para el organizador):
+               el link del PARTIDO es permanente — es el mismo que comparte
+               la ventana de confirmación al crear el partido — y el link
+               del EQUIPO aparece cuando hay un equipo inscripto -->
+          <section class="panel invitar" id="bloque-invitar" hidden aria-labelledby="titulo-invitar">
+            <header class="panel__head">
+              <h2 class="panel__title" id="titulo-invitar">Invitar gente</h2>
+              <span class="invitar__equipo" id="invitar-equipo"></span>
+            </header>
+
+            <p class="invitar__hint">
+              Compartí el link del partido: quien lo abre ve los detalles y
+              puede <strong>anotarse</strong> mientras haya lugares.
+            </p>
+
+            <div class="invitar__link">
+              <input class="invitar__url" id="link-partido-url" type="text" readonly
+                     aria-label="Link del partido para compartir">
+              <div class="invitar__acciones">
+                <button class="btn btn--outline invitar__btn" type="button" id="btn-copiar-partido">Copiar link</button>
+                <a class="btn btn--outline invitar__btn" id="btn-whatsapp-partido" href="https://wa.me/" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>
+                  </svg>
+                  Compartir por WhatsApp
+                </a>
+              </div>
+            </div>
+
+            <div class="invitar__equipo-caja" id="invitar-equipo-caja" hidden>
+              <p class="invitar__hint invitar__hint--equipo">
+                Link de tu equipo: quien lo abra se suma como
+                <strong>invitado</strong>, sin cuenta, y juega este partido con vos.
+              </p>
+
+              <div class="invitar__link" id="invitar-activo" hidden>
+                <input class="invitar__url" id="link-url" type="text" readonly
+                       aria-label="Link de invitación al equipo">
+                <div class="invitar__acciones">
+                  <button class="btn btn--outline invitar__btn" type="button" id="btn-copiar">Copiar link</button>
+                  <a class="btn btn--outline invitar__btn" id="btn-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="18" cy="5" r="3"/>
+                      <circle cx="6" cy="12" r="3"/>
+                      <circle cx="18" cy="19" r="3"/>
+                      <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>
+                    </svg>
+                    Compartir por WhatsApp
+                  </a>
+                  <button class="btn btn--ghost invitar__btn" type="button" id="btn-regenerar">Regenerar link</button>
+                </div>
+              </div>
+
+              <button class="btn btn--outline invitar__generar" type="button" id="btn-generar-link" hidden>
+                Generar link
+              </button>
+            </div>
+
+            <p class="invitar__sin-equipo" id="invitar-sin-equipo" hidden>
+              Este partido no tiene equipo inscripto: con el link de arriba,
+              quien quiera jugar se anota como jugador individual.
+            </p>
+
+            <p class="invitar__error" id="invitar-error" role="alert"></p>
+          </section>
+
         </div>
       </div>
     </main>
