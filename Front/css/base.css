@@ -111,6 +111,11 @@ ul { padding: 0; list-style: none; }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 
+/* El atributo hidden oculta SIEMPRE, aunque una regla de pantalla le ponga
+   display: grid/flex al elemento (asi se rompia invitar.html, donde se veian
+   todos los estados a la vez). */
+[hidden] { display: none !important; }
+
 button {
   font: inherit;
   color: inherit;

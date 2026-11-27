@@ -151,6 +151,12 @@
 /* ---------- Estados (error / cargando / listo) ---------- */
 .invitar__estado { display: grid; gap: 14px; justify-items: start; }
 
+/* Cinturon de seguridad: estos bloques arrancan con hidden y el JS los va
+   mostrando de a uno. Si algun dia se quita la regla global [hidden] de
+   base.css, que esta pantalla siga mostrando un solo estado. */
+.invitar__estado[hidden],
+.form[hidden] { display: none; }
+
 .invitar__estado-icono {
   display: grid;
   place-items: center;
