@@ -1093,7 +1093,6 @@
       descripcion: datos.detalle,
       costoTotal: datos.precio,
       modalidad: modalidad.nombre,
-      nivel: "Amateur",
       // Equipo elegido (si lo hay): queda inscripto en el partido
       idEquipo: datos.equipo && datos.equipo.id ? datos.equipo.id : 0
     };

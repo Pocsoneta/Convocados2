@@ -26,24 +26,51 @@ import (
 
    Sumar gente a un equipo no es a la fuerza: se le envía una
    invitación y el jugador la acepta o rechaza.
+
+   Quien administra el equipo es solo su dueño (el rol 'Dueno',
+   que nace con el que lo crea): invita, quitar integrantes,
+   cancela invitaciones y maneja el link. Los demás integrantes
+   ven el equipo y pueden irse, nada más.
    ========================================================= */
+
+const (
+	rolDueno   = "Dueno"
+	rolMiembro = "Miembro"
+)
+
+// rolEnEquipo devuelve el rol del usuario en ese equipo
+// ('Dueno', 'Miembro' o vacío si no es integrante).
+func (s *Server) rolEnEquipo(idEquipo, idUsuario int64) string {
+	var rol string
+	err := s.DB.QueryRow(
+		"SELECT rol FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
+		idEquipo, idUsuario).Scan(&rol)
+	if err != nil {
+		return ""
+	}
+	return rol
+}
+
+func (s *Server) soyDueno(idEquipo, idUsuario int64) bool {
+	return s.rolEnEquipo(idEquipo, idUsuario) == rolDueno
+}
 
 type equipoJSON struct {
 	ID          int64  `json:"id"`
 	Nombre      string `json:"nombre"`
 	Integrantes int    `json:"integrantes"`
-	EsMio       bool   `json:"esMio"`
+	EsDueno     bool   `json:"esDueno"`
 }
 
 func (s *Server) equiposDelUsuario(idUsuario int64) ([]equipoJSON, error) {
 	filas, err := s.DB.Query(`
 		SELECT e.id_equipo, e.nombre,
 		       (SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = e.id_equipo),
-		       (SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = e.id_equipo AND id_usuario = ?)
+		       ue.rol
 		  FROM EQUIPO e
 		  JOIN USUARIO_EQUIPO ue ON ue.id_equipo = e.id_equipo
 		 WHERE ue.id_usuario = ?
-		 ORDER BY e.nombre`, idUsuario, idUsuario)
+		 ORDER BY e.nombre`, idUsuario)
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +79,11 @@ func (s *Server) equiposDelUsuario(idUsuario int64) ([]equipoJSON, error) {
 	lista := []equipoJSON{}
 	for filas.Next() {
 		var eq equipoJSON
-		var esMio int
-		if err := filas.Scan(&eq.ID, &eq.Nombre, &eq.Integrantes, &esMio); err != nil {
+		var rol string
+		if err := filas.Scan(&eq.ID, &eq.Nombre, &eq.Integrantes, &rol); err != nil {
 			return nil, err
 		}
-		eq.EsMio = esMio > 0
+		eq.EsDueno = rol == rolDueno
 		lista = append(lista, eq)
 	}
 	return lista, filas.Err()
@@ -81,7 +108,8 @@ func (s *Server) listarEquipos(w http.ResponseWriter, r *http.Request) {
 	query := `
 		SELECT e.id_equipo, e.nombre,
 		       (SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = e.id_equipo),
-		       (SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = e.id_equipo AND id_usuario = ?)
+		       COALESCE((SELECT rol FROM USUARIO_EQUIPO
+		                  WHERE id_equipo = e.id_equipo AND id_usuario = ?), '')
 		  FROM EQUIPO e`
 	args := []any{claims.Sub}
 	if q != "" {
@@ -100,12 +128,12 @@ func (s *Server) listarEquipos(w http.ResponseWriter, r *http.Request) {
 	lista := []equipoJSON{}
 	for filas.Next() {
 		var eq equipoJSON
-		var esMio int
-		if err := filas.Scan(&eq.ID, &eq.Nombre, &eq.Integrantes, &esMio); err != nil {
+		var rol string
+		if err := filas.Scan(&eq.ID, &eq.Nombre, &eq.Integrantes, &rol); err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
-		eq.EsMio = esMio > 0
+		eq.EsDueno = rol == rolDueno
 		lista = append(lista, eq)
 	}
 	JSON(w, http.StatusOK, lista)
@@ -143,8 +171,9 @@ func (s *Server) crearEquipo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, _ := res.LastInsertId()
-	if _, err := tx.Exec("INSERT INTO USUARIO_EQUIPO (id_usuario, id_equipo) VALUES (?, ?)",
-		claims.Sub, id); err != nil {
+	// El que lo crea queda como dueño del equipo.
+	if _, err := tx.Exec("INSERT INTO USUARIO_EQUIPO (id_usuario, id_equipo, rol) VALUES (?, ?, ?)",
+		claims.Sub, id, rolDueno); err != nil {
 		respondeErrJSON(w, err)
 		return
 	}
@@ -152,7 +181,7 @@ func (s *Server) crearEquipo(w http.ResponseWriter, r *http.Request) {
 		respondeErrJSON(w, err)
 		return
 	}
-	JSON(w, http.StatusCreated, equipoJSON{ID: id, Nombre: req.Nombre, Integrantes: 1, EsMio: true})
+	JSON(w, http.StatusCreated, equipoJSON{ID: id, Nombre: req.Nombre, Integrantes: 1, EsDueno: true})
 }
 
 // GET /api/equipos/{id}
@@ -173,10 +202,11 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filas, err := s.DB.Query(`
-		SELECT u.id_usuario, u.nombre, u.apellido, COALESCE(u.foto, ''), u.es_invitado
+		SELECT u.id_usuario, u.nombre, u.apellido, COALESCE(u.foto, ''), u.es_invitado, ue.rol
 		  FROM USUARIO_EQUIPO ue
 		  JOIN USUARIO u ON u.id_usuario = ue.id_usuario
-		 WHERE ue.id_equipo = ? ORDER BY u.nombre`, id)
+		 WHERE ue.id_equipo = ?
+		 ORDER BY CASE WHEN ue.rol = ? THEN 0 ELSE 1 END, u.nombre`, id, rolDueno)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return
@@ -188,30 +218,31 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 		var idU int64
 		var nombreU, apellido, foto string
 		var esInvitado int
-		if err := filas.Scan(&idU, &nombreU, &apellido, &foto, &esInvitado); err != nil {
+		var rol string
+		if err := filas.Scan(&idU, &nombreU, &apellido, &foto, &esInvitado, &rol); err != nil {
 			respondeErrJSON(w, err)
 			return
 		}
 		integrantes = append(integrantes, map[string]any{
 			"id": idU, "nombre": capitalizar(nombreU), "apellido": capitalizar(apellido),
 			"foto": foto, "esInvitado": esInvitado > 0,
+			"rol": rol, "esDueno": rol == rolDueno,
 		})
 	}
 
 	claims := auth.ConClaims(r)
-	var esMio int
-	s.DB.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
-		id, claims.Sub).Scan(&esMio)
+	soyIntegrante := s.soyIntegrante(id, claims.Sub)
+	puedeAdministrar := soyIntegrante && s.soyDueno(id, claims.Sub)
 
-	// Las invitaciones pendientes solo las ve quien integra el equipo
+	// Las invitaciones pendientes y el link son del dueño del equipo:
+	// al resto de los integrantes no los interesan ni los competen.
 	invitaciones := []invitacionJugador{}
-	if esMio > 0 {
+	if puedeAdministrar {
 		invitaciones, _ = s.invitacionesPendientes(id)
 	}
 
-	// El link de invitación también es solo para integrantes
 	link, urlLink := "", ""
-	if esMio > 0 {
+	if puedeAdministrar {
 		link = s.linkDelEquipo(id)
 		if link != "" {
 			urlLink = s.urlDelLink(r, link)
@@ -219,13 +250,14 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, http.StatusOK, map[string]any{
-		"id":           id,
-		"nombre":       nombre,
-		"esMio":        esMio > 0,
-		"integrantes":  integrantes,
-		"invitaciones": invitaciones,
-		"link":         link,
-		"linkUrl":      urlLink,
+		"id":                 id,
+		"nombre":             nombre,
+		"esMio":              soyIntegrante,
+		"puedeAdministrar":   puedeAdministrar,
+		"integrantes":        integrantes,
+		"invitaciones":       invitaciones,
+		"link":               link,
+		"linkUrl":            urlLink,
 	})
 }
 
@@ -260,15 +292,20 @@ func (s *Server) sumarIntegrante(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback()
 
-	// Solo quien ya integra el equipo puede invitar gente
-	var yo int
-	if err := tx.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
-		id, claims.Sub).Scan(&yo); err != nil {
+	// Solo el dueño del equipo invita gente.
+	var rol string
+	err = tx.QueryRow("SELECT rol FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
+		id, claims.Sub).Scan(&rol)
+	if err == sql.ErrNoRows {
+		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+		return
+	}
+	if err != nil {
 		respondeErrJSON(w, err)
 		return
 	}
-	if yo == 0 {
-		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+	if rol != rolDueno {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede invitar integrantes.")
 		return
 	}
 
@@ -385,11 +422,12 @@ func (s *Server) invitacionesEquipo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var yo int
-	s.DB.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
-		id, claims.Sub).Scan(&yo)
-	if yo == 0 {
+	if !s.soyIntegrante(id, claims.Sub) {
 		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+		return
+	}
+	if !s.soyDueno(id, claims.Sub) {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede ver las invitaciones enviadas.")
 		return
 	}
 
@@ -412,11 +450,12 @@ func (s *Server) cancelarInvitacion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var yo int
-	s.DB.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
-		id, claims.Sub).Scan(&yo)
-	if yo == 0 {
+	if !s.soyIntegrante(id, claims.Sub) {
 		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+		return
+	}
+	if !s.soyDueno(id, claims.Sub) {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede cancelar invitaciones.")
 		return
 	}
 
@@ -553,27 +592,107 @@ func (s *Server) rechazarInvitacion(w http.ResponseWriter, r *http.Request) {
 }
 
 // DELETE /api/equipos/{id}/integrantes/{usuario}
+// Cualquiera puede irse de un equipo; sacar a otro es exclusivo del
+// dueño. Si el dueño se va, el cargo pasa al integrante más antiguo
+// que quede (y si es el último, no se puede ir: el equipo quedaría
+// sin nadie que lo administre).
 func (s *Server) quitarIntegrante(w http.ResponseWriter, r *http.Request) {
 	claims := auth.ConClaims(r)
-	id, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	quien, _ := strconv.ParseInt(r.PathValue("usuario"), 10, 64)
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		Error(w, http.StatusBadRequest, "Identificador de equipo inválido.")
+		return
+	}
+	quien, err := strconv.ParseInt(r.PathValue("usuario"), 10, 64)
+	if err != nil {
+		Error(w, http.StatusBadRequest, "Identificador de jugador inválido.")
+		return
+	}
 
-	// Se puede ir uno mismo, o sacar a otro si ya es integrante
-	var yo, objetivo int
-	s.DB.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?", id, claims.Sub).Scan(&yo)
-	s.DB.QueryRow("SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?", id, quien).Scan(&objetivo)
-	if yo == 0 {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	defer tx.Rollback()
+
+	// Bloquea ambas filas: dos acciones simultáneas no pueden dejar
+	// al equipo con dos dueños o con ninguno.
+	var rolYo, rolObjetivo string
+	err = tx.QueryRow(`SELECT rol FROM USUARIO_EQUIPO
+	                   WHERE id_equipo = ? AND id_usuario = ? FOR UPDATE`,
+		id, claims.Sub).Scan(&rolYo)
+	if err == sql.ErrNoRows {
 		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
 		return
 	}
-	if objetivo == 0 {
+	if err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	err = tx.QueryRow(`SELECT rol FROM USUARIO_EQUIPO
+	                   WHERE id_equipo = ? AND id_usuario = ? FOR UPDATE`,
+		id, quien).Scan(&rolObjetivo)
+	if err == sql.ErrNoRows {
 		Error(w, http.StatusNotFound, "Ese jugador no está en el equipo.")
 		return
 	}
+	if err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
 
-	if _, err := s.DB.Exec("DELETE FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
+	irse := quien == claims.Sub
+	if !irse && rolYo != rolDueno {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede quitar integrantes.")
+		return
+	}
+
+	// El dueño no se puede ir si no queda nadie a quien dejarle el cargo.
+	soyDuenoQueSeVa := irse && rolObjetivo == rolDueno
+	if soyDuenoQueSeVa {
+		var quedan int
+		if err := tx.QueryRow(
+			"SELECT COUNT(*) FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario <> ?",
+			id, claims.Sub).Scan(&quedan); err != nil {
+			respondeErrJSON(w, err)
+			return
+		}
+		if quedan == 0 {
+			Error(w, http.StatusConflict,
+				"Sos el único integrante y el dueño: sumá a alguien antes de irte.")
+			return
+		}
+	}
+
+	if _, err := tx.Exec("DELETE FROM USUARIO_EQUIPO WHERE id_equipo = ? AND id_usuario = ?",
 		id, quien); err != nil {
 		respondeErrJSON(w, err)
+		return
+	}
+
+	// El cargo de dueño queda en el integrante más antiguo.
+	if soyDuenoQueSeVa {
+		var heredero int64
+		if err := tx.QueryRow(
+			"SELECT id_usuario FROM USUARIO_EQUIPO WHERE id_equipo = ? ORDER BY id_usuario_equipo ASC LIMIT 1",
+			id).Scan(&heredero); err != nil {
+			respondeErrJSON(w, err)
+			return
+		}
+		if _, err := tx.Exec("UPDATE USUARIO_EQUIPO SET rol = ? WHERE id_equipo = ? AND id_usuario = ?",
+			rolDueno, id, heredero); err != nil {
+			respondeErrJSON(w, err)
+			return
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		respondeErrJSON(w, err)
+		return
+	}
+	if irse {
+		JSON(w, http.StatusOK, map[string]any{"ok": "saliste del equipo"})
 		return
 	}
 	JSON(w, http.StatusOK, map[string]any{"ok": "jugador quitado del equipo"})

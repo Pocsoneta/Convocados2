@@ -35,18 +35,18 @@
       </header>
 
       <div class="perfil__steps">
-        <p class="eyebrow">Paso 2 de 2</p>
-        <h2 class="perfil__steps-title">Armá tu ficha deportiva</h2>
-        <p class="perfil__steps-text">
-          Estos datos ayudan a los equipos a encontrarte por posición, nivel y barrio.
+        <p class="eyebrow" id="steps-eyebrow">Paso 2 de 2</p>
+        <h2 class="perfil__steps-title" id="steps-title">Armá tu ficha deportiva</h2>
+        <p class="perfil__steps-text" id="steps-text">
+          Estos datos ayudan a los equipos a encontrarte por nombre, barrio y foto.
         </p>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-label="Paso 2 de 2">
+        <div class="progress" id="steps-progress" role="progressbar" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-label="Paso 2 de 2">
           <span class="progress__fill"></span>
         </div>
       </div>
 
-      <footer class="perfil__note">
-        Tu información deportiva será visible para organizadores y jugadores.
+      <footer class="perfil__note" id="perfil-note">
+        Tu información será visible para organizadores y jugadores.
       </footer>
 
     </aside>
@@ -55,8 +55,8 @@
     <main class="perfil__main">
 
       <header class="perfil__head">
-        <h1 class="perfil__title">Ficha Deportiva</h1>
-        <p class="perfil__lead">Completá tus datos para que los equipos te conozcan.</p>
+        <h1 class="perfil__title" id="perfil-title">Ficha Deportiva</h1>
+        <p class="perfil__lead" id="perfil-lead">Completá tus datos para que los equipos te conozcan.</p>
       </header>
 
       <form class="perfil__form" id="form-perfil" novalidate>
@@ -107,62 +107,57 @@
 
           </section>
 
-          <!-- Tarjeta: nivel -->
+          <!-- Tarjeta: nombre y apellido -->
           <section class="card card--datos">
 
-            <fieldset class="group">
-              <legend class="group__title">Tu nivel de juego</legend>
-              <div class="levels">
-                <label class="level">
-                  <input class="level__input" type="radio" name="nivel" value="principiante">
-                  <span class="level__box">
-                    <span class="level__dot" aria-hidden="true"></span>
-                    <span class="level__name">Principiante</span>
-                    <span class="level__hint level__hint--off">Seleccionar</span>
-                    <span class="level__hint level__hint--on">Seleccionado</span>
-                  </span>
-                </label>
-                <label class="level">
-                  <input class="level__input" type="radio" name="nivel" value="amateur">
-                  <span class="level__box">
-                    <span class="level__dot" aria-hidden="true"></span>
-                    <span class="level__name">Amateur</span>
-                    <span class="level__hint level__hint--off">Seleccionar</span>
-                    <span class="level__hint level__hint--on">Seleccionado</span>
-                  </span>
-                </label>
-                <label class="level">
-                  <input class="level__input" type="radio" name="nivel" value="intermedio" checked>
-                  <span class="level__box">
-                    <span class="level__dot" aria-hidden="true"></span>
-                    <span class="level__name">Intermedio</span>
-                    <span class="level__hint level__hint--off">Seleccionar</span>
-                    <span class="level__hint level__hint--on">Recomendado</span>
-                  </span>
-                </label>
-                <label class="level">
-                  <input class="level__input" type="radio" name="nivel" value="avanzado">
-                  <span class="level__box">
-                    <span class="level__dot" aria-hidden="true"></span>
-                    <span class="level__name">Avanzado</span>
-                    <span class="level__hint level__hint--off">Seleccionar</span>
-                    <span class="level__hint level__hint--on">Seleccionado</span>
-                  </span>
-                </label>
-              </div>
-            </fieldset>
+            <div>
+              <h2 class="card__name">Tus datos</h2>
+              <p class="card__hint">Es el nombre con el que te ven en los equipos y los partidos.</p>
+            </div>
 
+            <div class="field" id="field-nombre">
+              <label class="field__label" for="nombre">Nombre</label>
+              <div class="field__control">
+                <input class="field__input field__input--icon" id="nombre" name="nombre"
+                       type="text" autocomplete="given-name" placeholder="Ej: Martín"
+                       aria-describedby="error-nombre" required>
+                <span class="field__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8.5" r="3.8"/>
+                    <path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/>
+                  </svg>
+                </span>
+              </div>
+              <p class="field__error" id="error-nombre" role="alert"></p>
+            </div>
+
+            <div class="field" id="field-apellido">
+              <label class="field__label" for="apellido">Apellido</label>
+              <div class="field__control">
+                <input class="field__input field__input--icon" id="apellido" name="apellido"
+                       type="text" autocomplete="family-name" placeholder="Ej: García"
+                       aria-describedby="error-apellido" required>
+                <span class="field__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8.5" r="3.8"/>
+                    <path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/>
+                  </svg>
+                </span>
+              </div>
+              <p class="field__error" id="error-apellido" role="alert"></p>
+            </div>
 
           </section>
         </div>
 
         <div class="perfil__actions">
-          <p class="perfil__edit-note">Podés editar estos datos más adelante.</p>
+          <p class="perfil__edit-note" id="edit-note">Podés editar estos datos más adelante.</p>
           <button class="btn btn--primary" type="submit" id="btn-submit">
-            <span class="btn__label">Guardar perfil</span>
+            <span class="btn__label" id="btn-label">Guardar perfil</span>
           </button>
         </div>
 
+        <p class="form__ok" id="aviso-exito" role="status" aria-live="polite"></p>
         <p class="form__error" id="error-general" role="alert"></p>
 
       </form>

@@ -228,126 +228,25 @@
 }
 .field__error--center { text-align: center; }
 .field.has-error .field__error,
-.group.has-error .field__error,
 .field__error.is-visible,
 .form__error.is-visible { display: block; }
 
 .field.has-error .field__input { border-color: var(--error); }
 
-/* ---------- Grupos (posiciones y nivel) ---------- */
-.group {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.group__title {
-  float: left;           /* evita el comportamiento especial de <legend> */
-  width: 100%;
-  padding: 0;
-  margin-bottom: 14px;
-  font-size: 14.5px;
-  font-weight: 700;
-}
-.group__title + * { clear: both; }
-
-/* ---------- Chips ---------- */
-.chips { display: flex; flex-wrap: wrap; gap: 10px; }
-
-.chip { position: relative; cursor: pointer; }
-
-.chip__input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.chip__label {
-  display: inline-flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--chip);
-  color: var(--text-muted);
-  font-size: 12.5px;
-  font-weight: 700;
-  transition: background .15s ease, color .15s ease;
-}
-
-.chip:hover .chip__label { color: var(--text); }
-
-.chip__input:checked + .chip__label {
-  background: var(--neon);
-  color: var(--accent-ink);
-}
-.chip__input:focus-visible + .chip__label {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.group.has-error .chip__label { box-shadow: inset 0 0 0 1px var(--error); }
-.group .field__error { margin-top: 10px; }
-
-/* ---------- Nivel de juego ---------- */
-.levels {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.level { position: relative; display: block; cursor: pointer; }
-
-.level__input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.level__box {
-  display: grid;
-  gap: 4px;
-  height: 106px;
-  padding: 14px;
-  align-content: start;
-  border: 1px solid var(--card-border);
+/* Aviso de éxito (verde neón, a diferencia del error) */
+.form__ok {
+  display: none;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
   border-radius: 10px;
-  background: var(--card);
-  transition: border-color .15s ease, background .15s ease;
+  background: color-mix(in srgb, var(--neon) 12%, transparent);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: right;
 }
-.level:hover .level__box { border-color: var(--focus); }
-
-.level__dot {
-  width: 16px;
-  height: 16px;
-  margin-bottom: 14px;
-  border-radius: 50%;
-  background: var(--chip);
-  transition: background .15s ease, box-shadow .15s ease;
-}
-
-.level__name { font-size: 14px; font-weight: 700; }
-
-.level__hint { font-size: 11px; color: #74907f; }
-.level__hint--on { display: none; color: var(--neon); }
-
-.level__input:checked + .level__box {
-  border-color: var(--neon);
-  background: var(--sel-bg);
-}
-.level__input:checked + .level__box .level__dot { background: var(--neon); }
-.level__input:checked + .level__box .level__hint--off { display: none; }
-.level__input:checked + .level__box .level__hint--on { display: block; }
-
-.level__input:focus-visible + .level__box {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
+.form__ok.is-visible { display: block; }
 
 /* ---------- Acciones ---------- */
 .perfil__actions {
@@ -390,7 +289,6 @@
 @media (max-width: 1180px) {
   .perfil__grid { grid-template-columns: 1fr; }
   .card--avatar { max-width: none; }
-  .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
@@ -411,7 +309,8 @@
 @media (max-width: 640px) {
   .perfil__actions { flex-direction: column-reverse; align-items: stretch; gap: 14px; text-align: center; }
   .perfil__actions .btn { width: 100%; }
-  .form__error { text-align: center; }
+  .form__error,
+  .form__ok { text-align: center; }
 
   /* El avatar queda centrado, como en el Figma móvil */
   .card--avatar { text-align: center; }

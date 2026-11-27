@@ -143,7 +143,6 @@ const Auth = {
         apellido: u.apellido || "",
         localidad: u.localidad || "",
         foto: u.foto || null,
-        nivel: u.nivel || "",
         telefono: u.telefono || "",
         promedio: u.promedio || 0
       };

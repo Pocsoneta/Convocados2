@@ -88,7 +88,6 @@ func (s *Server) proximoPartido(w http.ResponseWriter, r *http.Request) {
 		"fecha":        p.FechaISO(),
 		"direccion":    direccion,
 		"modalidad":    p.Modalidad,
-		"nivel":        p.Nivel,
 		"cupos":        p.Disponibles(),
 		"zona":         p.Zona(),
 		"lat":          p.Lat,

@@ -237,12 +237,9 @@ html[data-tema="claro"] body::after { display: none; }
   z-index: 1;
 }
 
-/* Punto lima que late: paso activo y nivel seleccionado */
+/* Punto lima que late: paso activo del onboarding */
 .dots .dot.is-active {
   animation: cancha-pulse 2.2s ease-in-out infinite;
-}
-.level__input:checked + .level__box .level__dot {
-  animation: cancha-pulse 1.8s ease-in-out infinite;
 }
 
 /* =========================================================
@@ -270,7 +267,6 @@ html[data-tema="claro"] body::after { display: none; }
    ========================================================= */
 @media (prefers-reduced-motion: reduce) {
   .dots .dot.is-active,
-  .level__input:checked + .level__box .level__dot,
   .avatar__badge::before {
     animation: none !important;
   }

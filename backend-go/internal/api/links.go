@@ -13,8 +13,8 @@ import (
 
 /* =========================================================
    Link de invitación (gente sin cuenta)
-     POST   /api/equipos/{id}/link      genera o regenera (miembros)
-     DELETE /api/equipos/{id}/link      lo revoca (miembros)
+     POST   /api/equipos/{id}/link      genera o regenera (dueño)
+     DELETE /api/equipos/{id}/link      lo revoca (dueño)
      GET    /api/invitacion/{token}     público: qué equipo es
      POST   /api/invitacion/{token}     público: me sumo como invitado
 
@@ -106,8 +106,8 @@ func (s *Server) generarLink(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusBadRequest, "Identificador de equipo inválido.")
 		return
 	}
-	if !s.soyIntegrante(id, claims.Sub) {
-		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+	if !s.soyDueno(id, claims.Sub) {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede manejar el link de invitación.")
 		return
 	}
 
@@ -136,8 +136,8 @@ func (s *Server) revocarLink(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusBadRequest, "Identificador de equipo inválido.")
 		return
 	}
-	if !s.soyIntegrante(id, claims.Sub) {
-		Error(w, http.StatusForbidden, "No formas parte de ese equipo.")
+	if !s.soyDueno(id, claims.Sub) {
+		Error(w, http.StatusForbidden, "Solo el dueño del equipo puede manejar el link de invitación.")
 		return
 	}
 

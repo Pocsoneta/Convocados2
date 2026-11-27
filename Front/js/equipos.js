@@ -70,7 +70,7 @@
     const meta = nodo("div", "equipo__meta");
     meta.appendChild(nodo("span", "equipo__meta-item",
       `${eq.integrantes} ${eq.integrantes === 1 ? "integrante" : "integrantes"}`));
-    if (eq.esMio) meta.appendChild(nodo("span", "equipo__tag", "Es tuyo"));
+    if (eq.esDueno) meta.appendChild(nodo("span", "equipo__tag", "Es tuyo"));
     body.appendChild(meta);
 
     const ver = nodo("button", "equipo__ver", "Ver equipo");
@@ -174,6 +174,9 @@
     try {
       await API.post(`/api/invitaciones/${inv.idEquipo}/${aceptar ? "aceptar" : "rechazar"}`);
       await Promise.all([cargarInvitaciones(), cargarMios()]);
+      avisoExito(aceptar
+        ? `¡Listo! Ya formas parte de ${inv.equipo}. Lo vas a ver en "Tus equipos".`
+        : `Rechazaste la invitación de ${inv.equipo}.`);
     } catch (err) {
       btn.disabled = false;
       btn.textContent = aceptar ? "Aceptar" : "Rechazar";
@@ -204,6 +207,20 @@
     const el = $(id);
     el.textContent = mensaje || "";
     el.classList.toggle("is-visible", Boolean(mensaje));
+  }
+
+  /* Aviso de éxito en verde (existe para que el usuario sepa que
+     la operación salió bien, p. ej. "te uniste al equipo"). */
+  let avisoTimer = null;
+  function avisoExito(mensaje) {
+    const el = $("aviso-exito");
+    el.textContent = mensaje;
+    el.classList.add("is-visible");
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(() => {
+      el.classList.remove("is-visible");
+      el.textContent = "";
+    }, 8000);
   }
 
   $("form-crear").addEventListener("submit", async (e) => {
@@ -322,6 +339,10 @@
     lista.replaceChildren();
 
     if (!eq) return;
+    const yoId = (Auth.sesion() || {}).id;
+    // Solo el dueño administra: invitar, quitar y manejar el link.
+    const administra = Boolean(eq.puedeAdministrar);
+
     for (const p of eq.integrantes) {
       const li = nodo("li", "integrante");
 
@@ -338,16 +359,24 @@
       const nombre = nodo("span", "integrante__nombre", `${p.nombre} ${p.apellido}`.trim());
       li.append(av, nombre);
 
+      if (p.esDueno) {
+        li.appendChild(nodo("span", "integrante__tag integrante__tag--dueno", "Dueño"));
+      }
       if (p.esInvitado) {
         li.appendChild(nodo("span", "integrante__tag", "Invitado"));
       }
 
-      if (p.id === (Auth.sesion() || {}).id) {
+      if (p.id === yoId) {
         li.appendChild(nodo("span", "integrante__yo", "Vos"));
-      } else if (eq.esMio) {
+        // Uno siempre puede irse de un equipo.
+        const salir = nodo("button", "integrante__quitar integrante__salir", "Salir");
+        salir.type = "button";
+        salir.addEventListener("click", () => salirDelEquipo(p));
+        li.appendChild(salir);
+      } else if (administra) {
         const quitar = nodo("button", "integrante__quitar", "Quitar");
         quitar.type = "button";
-        quitar.addEventListener("click", () => quitarIntegrante(p.id));
+        quitar.addEventListener("click", () => quitarIntegrante(p));
         li.appendChild(quitar);
       }
 
@@ -364,10 +393,11 @@
       const eq = await API.get(`/api/equipos/${id}`);
       estado.equipo = eq;
       $("eqmodal-titulo").textContent = eq.nombre;
-      $("eqmodal-lead").textContent = eq.esMio
+      $("eqmodal-lead").textContent = eq.puedeAdministrar
         ? "Integrantes del equipo. Podés invitar o quitar jugadores."
         : "Integrantes del equipo.";
-      $("bloque-sumar").hidden = !eq.esMio;
+      // Invitar, invitaciones enviadas y link: solo del dueño.
+      $("bloque-sumar").hidden = !eq.puedeAdministrar;
       pintarIntegrantes();
       pintarEnviadas();
       pintarLink();
@@ -384,7 +414,7 @@
     const lista = $("lista-enviadas");
     lista.replaceChildren();
 
-    const enviadas = (eq && eq.invitaciones) || [];
+    const enviadas = (eq && eq.puedeAdministrar && eq.invitaciones) || [];
     bloque.hidden = !enviadas.length;
     if (!enviadas.length) return;
 
@@ -420,8 +450,8 @@
   function pintarLink() {
     const eq = estado.equipo;
     const bloque = $("bloque-link");
-    // Solo los integrantes del equipo ven (y manejan) el link
-    bloque.hidden = !(eq && eq.esMio);
+    // Solo el dueño del equipo ve (y maneja) el link
+    bloque.hidden = !(eq && eq.puedeAdministrar);
     if (bloque.hidden) return;
 
     const activo = Boolean(eq.link);
@@ -562,13 +592,31 @@
     }, 350);
   });
 
-  async function quitarIntegrante(idUsuario) {
+  async function quitarIntegrante(p) {
     if (!estado.equipo) return;
+    const nombre = `${p.nombre} ${p.apellido}`.trim() || "ese jugador";
+    if (!window.confirm(`¿Quitar a ${nombre} del equipo?`)) return;
     errorGeneral("error-equipo", "");
     try {
-      await API.del(`/api/equipos/${estado.equipo.id}/integrantes/${idUsuario}`);
+      await API.del(`/api/equipos/${estado.equipo.id}/integrantes/${p.id}`);
       await abrirEquipo(estado.equipo.id);
       await cargarMios();
+      avisoExito(`${nombre} ya no forma parte del equipo.`);
+    } catch (err) {
+      errorGeneral("error-equipo", err.message);
+    }
+  }
+
+  async function salirDelEquipo(p) {
+    if (!estado.equipo) return;
+    const eq = estado.equipo;
+    if (!window.confirm(`¿Salir de ${eq.nombre}?`)) return;
+    errorGeneral("error-equipo", "");
+    try {
+      await API.del(`/api/equipos/${eq.id}/integrantes/${p.id}`);
+      cerrarModal();
+      await cargarMios();
+      avisoExito(`Saliste de ${eq.nombre}.`);
     } catch (err) {
       errorGeneral("error-equipo", err.message);
     }

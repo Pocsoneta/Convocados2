@@ -12,7 +12,7 @@
       texto: "Armá tu equipo, publicá los puestos libres y encontrá el refuerzo ideal en tu zona para salir a la cancha.",
       lista: [
         "Partidos cerca de tu barrio",
-        "Perfiles por nivel de juego",
+        "Equipos e invitaciones por link",
         "Convocatorias simples y rápidas"
       ],
       imagen: "img/Imagen%20Convocado.jpeg",
@@ -22,10 +22,10 @@
     {
       eyebrow: "Armá el partido",
       titulo: "Publicá tu convocatoria",
-      texto: "Elegí cancha, día y horario, indicá cuántos jugadores faltan y el nivel que buscás. Lo tenés listo en un minuto.",
+      texto: "Elegí cancha, día y horario, indicá cuántos jugadores faltan. Lo tenés listo en un minuto.",
       lista: [
         "Elegí cancha, fecha y hora",
-        "Definí el nivel que buscás",
+        "Definí los cupos que necesitás",
         "Compartí el link con tu grupo"
       ],
       imagen: "img/Imagen%20Convocado.jpeg",
@@ -35,7 +35,7 @@
     {
       eyebrow: "Sumate a uno",
       titulo: "Encontrá tu próximo partido",
-      texto: "Filtrá por zona, horario y nivel, postulate con un toque y confirmá tu lugar en la cancha.",
+      texto: "Filtrá por zona y horario, postulate con un toque y confirmá tu lugar en la cancha.",
       lista: [
         "Filtros por zona y horario",
         "Confirmación de cupo al instante",

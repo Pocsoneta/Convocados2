@@ -1,7 +1,9 @@
 /* =========================================================
    perfil-deportivo.js — lógica de esta pantalla
-   Paso 2 de 2 del registro. Guarda la ficha en localStorage.
-   Para conectar un backend, reemplazá solo `guardarPerfil`.
+   Sirve para dos cosas: el paso 2 del registro (cuando la ficha
+   todavía no está completa) y para editar el perfil desde el menú
+   lateral. Guarda nombre y apellido (PUT /api/cuenta) y localidad
+   y foto (PUT /api/perfil).
    ========================================================= */
 
 (() => {
@@ -19,6 +21,9 @@
   const form = $("form-perfil");
   const btnSubmit = $("btn-submit");
   const errorGeneral = $("error-general");
+  // true cuando la ficha ya estaba completa: la pantalla pasa a ser
+  // "editar perfil" y al guardar se queda acá con un aviso de éxito.
+  let esEdicion = false;
 
   /* ---------- Foto de perfil ---------- */
   const btnFoto = $("btn-foto");
@@ -82,45 +87,58 @@
     });
   }
 
-  /* ---------- Validación ---------- */
-  const localidad = {
-    input: $("localidad"),
-    grupo: $("field-localidad"),
-    error: $("error-localidad")
-  };
+  /* ---------- Campos del formulario ---------- */
+  const campos = [
+    { clave: "nombre",    input: $("nombre"),    min: 2, vacio: "Ingresá tu nombre.",
+      corto: "Es muy corto." },
+    { clave: "apellido",  input: $("apellido"),  min: 2, vacio: "Ingresá tu apellido.",
+      corto: "Es muy corto." },
+    { clave: "localidad", input: $("localidad"), min: 3, vacio: "Ingresá tu barrio o localidad.",
+      corto: "Es muy corto." }
+  ];
 
-  function setError({ grupo, error }, mensaje) {
-    grupo.classList.toggle("has-error", Boolean(mensaje));
-    error.textContent = mensaje;
+  const grupoDe = (campo) => $(`field-${campo.clave}`);
+  const mensajeDe = (campo) => $(`error-${campo.clave}`);
+  const localidad = campos.find((c) => c.clave === "localidad");
+
+  function setErrorCampo(campo, mensaje) {
+    grupoDe(campo).classList.toggle("has-error", Boolean(mensaje));
+    mensajeDe(campo).textContent = mensaje;
+    campo.input.setAttribute("aria-invalid", mensaje ? "true" : "false");
   }
 
   function validar() {
     const errores = [];
-
-    const barrio = localidad.input.value.trim();
-    let msg = "";
-    if (!barrio) msg = "Ingresá tu barrio o localidad.";
-    else if (barrio.length < 3) msg = "Es muy corto.";
-    setError(localidad, msg);
-    localidad.input.setAttribute("aria-invalid", msg ? "true" : "false");
-    if (msg) errores.push(localidad.input);
-
+    for (const campo of campos) {
+      const valor = campo.input.value.trim();
+      const msg = !valor ? campo.vacio
+                : valor.length < campo.min ? campo.corto
+                : "";
+      setErrorCampo(campo, msg);
+      if (msg) errores.push(campo.input);
+    }
     return errores;
   }
 
   // Limpia el error apenas el usuario corrige
-  localidad.input.addEventListener("input", () => {
-    setError(localidad, "");
-    errorGeneral.classList.remove("is-visible");
+  campos.forEach((campo) => {
+    campo.input.addEventListener("input", () => {
+      setErrorCampo(campo, "");
+      errorGeneral.classList.remove("is-visible");
+    });
   });
 
   /* ---------- Guardado (backend Go) ---------- */
+  function guardarCuenta(datos) {
+    // PUT /api/cuenta — nombre y apellido de la cuenta.
+    return API.put("/api/cuenta", datos);
+  }
+
   function guardarPerfil(perfil) {
-    // PUT /api/perfil — guarda localidad, nivel y foto
-    // (la foto va como data URL en base64).
+    // PUT /api/perfil — localidad y foto (la foto va como data URL
+    // en base64).
     return API.put("/api/perfil", {
       localidad: perfil.localidad,
-      nivel: perfil.nivel,
       foto: perfil.foto
     });
   }
@@ -130,19 +148,50 @@
     btnSubmit.classList.toggle("is-loading", estado);
   }
 
+  /* ---------- Aviso de éxito ---------- */
+  let avisoTimer = null;
+  function avisoExito(mensaje) {
+    const el = $("aviso-exito");
+    el.textContent = mensaje;
+    el.classList.add("is-visible");
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(() => {
+      el.classList.remove("is-visible");
+      el.textContent = "";
+    }, 8000);
+  }
+
+  /* ---------- Ficha completada: la pantalla pasa a modo edición ---------- */
+  function modoEdicion() {
+    esEdicion = true;
+    $("steps-eyebrow").textContent = "Mi perfil";
+    $("steps-title").textContent = "Editá tu perfil";
+    $("steps-text").textContent =
+      "Tu nombre, tu barrio y tu foto se ven en los equipos y en los partidos.";
+    $("steps-progress").hidden = true;
+    $("perfil-title").textContent = "Mi perfil";
+    $("perfil-lead").textContent = "Actualizá tus datos cuando quieras.";
+    $("perfil-note").textContent =
+      "Los cambios se aplican en todas las pantallas de Convocados.";
+    $("edit-note").textContent = "Se guarda al tocar el botón.";
+    $("btn-label").textContent = "Guardar cambios";
+  }
+
   /* ---------- Ficha guardada (GET /api/perfil) ---------- */
   async function cargarPerfil() {
     try {
       const p = await API.get("/api/perfil");
+      if (p.nombre) $("nombre").value = p.nombre;
+      if (p.apellido) $("apellido").value = p.apellido;
       if (p.localidad) localidad.input.value = p.localidad;
-      const radio = form.querySelector(`input[name="nivel"][value="${(p.nivel || "").toLowerCase()}"]`);
-      if (radio) radio.checked = true;
       if (p.foto) {
         fotoDataURL = p.foto;
         fotoPreview.src = p.foto;
         fotoPreview.hidden = false;
         fotoPlaceholder.hidden = true;
       }
+      // Si ya había localidad, la ficha estaba completa: es una edición.
+      if (p.localidad) modoEdicion();
     } catch { /* sin ficha todavía: el formulario queda vacío */ }
   }
   cargarPerfil();
@@ -158,16 +207,31 @@
       return;
     }
 
+    const cuenta = {
+      nombre: $("nombre").value.trim(),
+      apellido: $("apellido").value.trim()
+    };
     const perfil = {
       foto: fotoDataURL,
-      localidad: localidad.input.value.trim(),
-      nivel: form.elements["nivel"].value
+      localidad: localidad.input.value.trim()
     };
 
     cargando(true);
     try {
-      await guardarPerfil(perfil);
-      Store.set("sesion", { ...sesion, perfilCompleto: true });
+      await Promise.all([guardarCuenta(cuenta), guardarPerfil(perfil)]);
+      Store.set("sesion", {
+        ...sesion,
+        perfilCompleto: true,
+        nombre: cuenta.nombre,
+        apellido: cuenta.apellido,
+        localidad: perfil.localidad
+      });
+      // Ya tenía perfil: nos quedamos y avisamos que se guardó.
+      if (esEdicion) {
+        cargando(false);
+        avisoExito("Perfil actualizado.");
+        return;
+      }
       window.location.href = APP.rutas.inicio;
     } catch {
       errorGeneral.textContent = "No pudimos guardar tu perfil. Probá de nuevo.";

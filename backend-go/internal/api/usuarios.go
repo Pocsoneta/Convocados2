@@ -88,7 +88,6 @@ func (s *Server) usuarioPublicoDetalle(w http.ResponseWriter, r *http.Request) {
 		"apellido":  capitalizar(u.Apellido),
 		"localidad": aString(u.Localidad),
 		"foto":      aString(u.Foto),
-		"nivel":     aString(u.Nivel),
 		"promedio":  u.Promedio,
 		"equipos":   equipos,
 	})

@@ -25,7 +25,6 @@ type partido struct {
 	Descripcion  string
 	Costo        sql.NullFloat64
 	Modalidad    string
-	Nivel        string
 	IDComplejo   sql.NullInt64
 	IDCancha     sql.NullInt64
 	IDCreador    sql.NullInt64
@@ -42,7 +41,7 @@ type partido struct {
 
 var colsPartido = `SELECT
 	p.id_partido, p.fecha_hora, p.cupo_total, p.jugadores_faltantes, p.estado,
-	COALESCE(p.descripcion, ''), p.costo_total, COALESCE(p.modalidad, ''), COALESCE(p.nivel, ''),
+	COALESCE(p.descripcion, ''), p.costo_total, COALESCE(p.modalidad, ''),
 	p.id_complejo, p.id_cancha, p.id_usuario_creador,
 	COALESCE(c.nombre, ''), COALESCE(c.direccion, ''), COALESCE(c.barrio, ''), COALESCE(c.ciudad, ''),
 	COALESCE(c.lat, 0), COALESCE(c.lng, 0),
@@ -141,7 +140,7 @@ func aIDCreador(creador sql.NullInt64) int64 {
 func escanearPartido(sc interface{ Scan(...any) error }) (*partido, error) {
 	p := &partido{}
 	err := sc.Scan(&p.ID, &p.Fecha, &p.CupoTotal, &p.Faltantes, &p.Estado,
-		&p.Descripcion, &p.Costo, &p.Modalidad, &p.Nivel,
+		&p.Descripcion, &p.Costo, &p.Modalidad,
 		&p.IDComplejo, &p.IDCancha, &p.IDCreador,
 		&p.Complejo, &p.Direccion, &p.Barrio, &p.Ciudad, &p.Lat, &p.Lng,
 		&p.Cancha, &p.NumeroCancha, &p.Inscriptos)
@@ -189,7 +188,6 @@ type partidoJSON struct {
 	// se geolocalizó). El front evita mostrar una distancia falsa y
 	// no lo dibuja en el mapa.
 	SinUbicacion  bool     `json:"sinUbicacion"`
-	Nivel         string   `json:"nivel"`
 	Inscripciones int      `json:"inscripciones"`
 	CupoTotal     int      `json:"cupoTotal"`
 	Estado        string   `json:"estado"`
@@ -219,7 +217,6 @@ func (p *partido) aJSON(complejos map[int64]complejoGeo, latOrigen, lngOrigen fl
 		Lat:           p.Lat,
 		Lng:           p.Lng,
 		SinUbicacion:  !conUbicacion,
-		Nivel:         p.Nivel,
 		Inscripciones: p.Inscriptos,
 		CupoTotal:     p.CupoTotal,
 		Estado:        p.Estado,
@@ -250,7 +247,6 @@ type filtros struct {
 	Q              string
 	Zona           string
 	Modalidad      string
-	Nivel          string
 	Desde          string
 	Hasta          string
 	Estado         string
@@ -267,7 +263,6 @@ func leerFiltros(r *http.Request) filtros {
 		Q:              strings.TrimSpace(q.Get("q")),
 		Zona:           strings.TrimSpace(q.Get("zona")),
 		Modalidad:      strings.TrimSpace(q.Get("modalidad")),
-		Nivel:          strings.TrimSpace(q.Get("nivel")),
 		Desde:          strings.TrimSpace(q.Get("desde")),
 		Hasta:          strings.TrimSpace(q.Get("hasta")),
 		Estado:         strings.TrimSpace(q.Get("estado")),
@@ -314,10 +309,6 @@ func (f filtros) where() (string, []any) {
 	if f.Modalidad != "" {
 		cond = append(cond, "p.modalidad = ?")
 		args = append(args, f.Modalidad)
-	}
-	if f.Nivel != "" {
-		cond = append(cond, "p.nivel = ?")
-		args = append(args, f.Nivel)
 	}
 	if f.Desde != "" {
 		cond = append(cond, "p.fecha_hora >= ?")
@@ -605,7 +596,6 @@ type partidoReq struct {
 	Descripcion        string         `json:"descripcion"`
 	CostoTotal         *float64       `json:"costoTotal"`
 	Modalidad          string         `json:"modalidad"`
-	Nivel              string         `json:"nivel"`
 	// IDEquipo es opcional: el equipo con el que se publica el partido.
 	// Se inscribe en EQUIPO_PARTIDO como confirmado.
 	IDEquipo int64 `json:"idEquipo"`
@@ -682,10 +672,6 @@ func (s *Server) crearPartido(w http.ResponseWriter, r *http.Request) {
 	if modalidad == "" {
 		modalidad = "Fútbol 5"
 	}
-	nivel := strings.TrimSpace(req.Nivel)
-	if nivel == "" {
-		nivel = "Amateur"
-	}
 
 	var idCancha any
 	if req.IDCancha != 0 {
@@ -733,11 +719,11 @@ func (s *Server) crearPartido(w http.ResponseWriter, r *http.Request) {
 	res, err := tx.Exec(
 		`INSERT INTO PARTIDO
 		   (id_complejo, id_cancha, id_usuario_creador, fecha_hora, cupo_total,
-		    jugadores_faltantes, estado, descripcion, costo_total, modalidad, nivel)
-		 VALUES (?, ?, ?, ?, ?, ?, 'Publicado', ?, ?, ?, ?)`,
+		    jugadores_faltantes, estado, descripcion, costo_total, modalidad)
+		 VALUES (?, ?, ?, ?, ?, ?, 'Publicado', ?, ?, ?)`,
 		req.IDComplejo, idCancha, claims.Sub, fecha.Format("2006-01-02 15:04:05"),
 		req.CupoTotal, req.JugadoresFaltantes, strings.TrimSpace(req.Descripcion),
-		costo, modalidad, nivel)
+		costo, modalidad)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return

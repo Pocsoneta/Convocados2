@@ -10,13 +10,12 @@ import (
 /* =========================================================
    Perfil deportivo (paso 2 del registro) y datos de la cuenta.
      GET  /api/perfil
-     PUT  /api/perfil   { localidad, nivel, foto }
+     PUT  /api/perfil   { localidad, foto }
      PUT  /api/cuenta    { nombre, apellido, telefono }
    ========================================================= */
 
 type perfilReq struct {
 	Localidad string  `json:"localidad"`
-	Nivel     string  `json:"nivel"`
 	Foto      *string `json:"foto"`
 }
 
@@ -48,10 +47,6 @@ func (s *Server) guardarPerfil(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusBadRequest, "Es muy corto.")
 		return
 	}
-	nivel := strings.TrimSpace(req.Nivel)
-	if nivel == "" {
-		nivel = "Amateur"
-	}
 
 	// La foto viene como data URL (base64); guardamos tal cual.
 	var foto any
@@ -60,8 +55,8 @@ func (s *Server) guardarPerfil(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := s.DB.Exec(
-		`UPDATE USUARIO SET localidad = ?, nivel = ?, foto = ? WHERE id_usuario = ?`,
-		localidad, nivel, foto, claims.Sub)
+		`UPDATE USUARIO SET localidad = ?, foto = ? WHERE id_usuario = ?`,
+		localidad, foto, claims.Sub)
 	if err != nil {
 		respondeErrJSON(w, err)
 		return

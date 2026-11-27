@@ -64,7 +64,7 @@
 
   // Debe devolver un array de partidos cercanos, por ejemplo:
   // { id, modalidad: "Fútbol 7", nombre: "Club Palermo Soho", zona: "Palermo, CABA",
-  //   distanciaKm: 1.2, nivel: "Amateur", cupos: 2 }
+  //   distanciaKm: 1.2, cupos: 2 }
   async function obtenerPartidosCercanos() {
     const datos = await API.get(await conCoords("/api/inicio/cercanos") + "&limit=6");
     return Array.isArray(datos) ? datos : [];
@@ -131,14 +131,12 @@
     top.append(el("span", "badge", p.modalidad), el("span", "match__dist", distanciaTexto(p)));
 
     const pie = el("div", "match__foot");
-    const nivel = el("div");
-    nivel.append(el("span", "match__label", "Nivel"), el("span", "match__value", p.nivel));
     const cupos = el("div");
     cupos.append(
       el("span", "match__label", "Disponibles"),
       el("span", "match__value match__value--accent", formatoCupos(p.cupos))
     );
-    pie.append(nivel, cupos);
+    pie.append(cupos);
 
     link.append(top, el("h3", "match__name", p.nombre), el("p", "match__zone", p.zona), pie);
     return link;
