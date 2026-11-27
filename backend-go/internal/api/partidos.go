@@ -471,6 +471,12 @@ func (s *Server) detallePartido(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Link de invitación del equipo del organizador: lo arma el helper
+	// compartido con la pantalla de administración
+	// (GET /api/partidos/{id}/administracion). Devuelve null en las dos
+	// claves si quien pide no es el organizador, y nunca crea un link.
+	equipoOrganizador, linkInvitacion := s.invitacionDelOrganizador(r, id)
+
 	JSON(w, http.StatusOK, map[string]any{
 		"partido":            p.aJSON(complejos, latOrigen, lngOrigen),
 		"descripcion":        p.Descripcion,
@@ -484,9 +490,61 @@ func (s *Server) detallePartido(w http.ResponseWriter, r *http.Request) {
 		"miEstado":           miEstado,
 		"miEquipo":           miEquipo,
 		"esOrganizador":      esOrganizador,
+		"equipoOrganizador":  equipoOrganizador,
+		"linkInvitacion":     linkInvitacion,
 		"puedeInscribirse": miEstado == "" && !esOrganizador && p.Estado == "Publicado" &&
 			p.Disponibles() > 0 && p.Fecha.After(time.Now()),
 	})
+}
+
+// invitacionDelOrganizador arma las claves equipoOrganizador y
+// linkInvitacion que comparten el detalle (GET /api/partidos/{id}) y la
+// administración (GET /api/partidos/{id}/administracion): el equipo
+// inscripto en el partido del que el organizador forma parte y su link
+// de invitación activo.
+//
+// EQUIPO no guarda creador, así que como en el resto del backend un
+// equipo es "suyo" por integrarlo (USUARIO_EQUIPO); si hubiera varios,
+// prioriza el confirmado. El token solo sale por acá si quien pide es
+// el organizador (nunca a otro usuario). Si el equipo no tiene link
+// activo NO se crea: se devuelve null y el front ofrece generarlo con
+// POST /api/equipos/{id}/link.
+func (s *Server) invitacionDelOrganizador(r *http.Request, idPartido int64) (equipo map[string]any, link map[string]any) {
+	claims := auth.ConClaims(r)
+	if claims == nil {
+		return // sin sesión: las dos claves quedan null
+	}
+
+	var creador sql.NullInt64
+	if err := s.DB.QueryRow("SELECT id_usuario_creador FROM PARTIDO WHERE id_partido = ?", idPartido).
+		Scan(&creador); err != nil || !creador.Valid || creador.Int64 != claims.Sub {
+		return // no es el organizador: el token no sale por acá
+	}
+
+	var idEq int64
+	var nombreEq string
+	err := s.DB.QueryRow(`
+		SELECT ep.id_equipo, e.nombre
+		  FROM EQUIPO_PARTIDO ep
+		  JOIN EQUIPO e ON e.id_equipo = ep.id_equipo
+		  JOIN USUARIO_EQUIPO ue ON ue.id_equipo = ep.id_equipo
+		 WHERE ep.id_partido = ? AND ue.id_usuario = ? AND ep.fecha_baja IS NULL
+		 ORDER BY ep.estado = 'Confirmado' DESC
+		 LIMIT 1`, idPartido, claims.Sub).Scan(&idEq, &nombreEq)
+	if err != nil {
+		return // el organizador no tiene equipo inscripto en el partido
+	}
+
+	equipo = map[string]any{"id": idEq, "nombre": nombreEq}
+	if token := s.linkDelEquipo(idEq); token != "" {
+		link = map[string]any{
+			"token":        token,
+			"url":          s.urlDelLink(r, token),
+			"equipoId":     idEq,
+			"equipoNombre": nombreEq,
+		}
+	}
+	return equipo, link
 }
 
 func (s *Server) listarParticipantes(idPartido int64) []participante {

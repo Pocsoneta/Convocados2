@@ -233,6 +233,44 @@
               <p class="error" id="error" role="alert"></p>
             </div>
 
+            <!-- Invitar gente por link (solo el organizador): usa el link
+                 de invitación del equipo con el que se publicó el partido -->
+            <div class="invitar" id="bloque-invitar" hidden aria-labelledby="titulo-invitar">
+              <div class="panel__head">
+                <h2 class="panel__title" id="titulo-invitar">Invitar gente</h2>
+                <span class="invitar__equipo" id="invitar-equipo"></span>
+              </div>
+
+              <p class="invitar__hint">
+                Compartí el link de tu equipo: quien lo abra se suma como
+                <strong>invitado</strong>, sin cuenta, y juega este partido con vos.
+              </p>
+
+              <div class="invitar__link" id="invitar-activo" hidden>
+                <input class="invitar__url" id="link-url" type="text" readonly
+                       aria-label="Link de invitación al equipo">
+                <div class="invitar__acciones">
+                  <button class="btn btn--outline invitar__btn" type="button" id="btn-copiar">Copiar link</button>
+                  <a class="btn btn--outline invitar__btn" id="btn-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="18" cy="5" r="3"/>
+                      <circle cx="6" cy="12" r="3"/>
+                      <circle cx="18" cy="19" r="3"/>
+                      <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>
+                    </svg>
+                    Compartir por WhatsApp
+                  </a>
+                  <button class="btn btn--ghost invitar__btn" type="button" id="btn-regenerar">Regenerar link</button>
+                </div>
+              </div>
+
+              <button class="btn btn--outline invitar__generar" type="button" id="btn-generar-link" hidden>
+                Generar link
+              </button>
+
+              <p class="error" id="invitar-error" role="alert"></p>
+            </div>
+
           </aside>
 
         </div>

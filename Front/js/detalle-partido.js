@@ -17,6 +17,13 @@
    Chat del partido (organizador y confirmados), con polling cada 5 s:
      GET  /api/partidos/{id}/mensajes?desde=   (lo nuevo desde ese id)
      POST /api/partidos/{id}/mensajes          (body {texto})
+
+   Invitar gente (bloque solo del organizador): usa el link de
+   invitación del equipo con el que se publicó el partido. El detalle
+   lo trae en linkInvitacion (o null si el equipo no tiene link
+   activo) y para generarlo o regenerarlo se usa el endpoint de
+   siempre de equipos:
+     POST /api/equipos/{id}/link               (genera o regenera el link)
    ========================================================= */
 
 (() => {
@@ -59,7 +66,16 @@
     chatForm: $("chat-form"),
     chatTexto: $("chat-texto"),
     chatEnviar: $("chat-enviar"),
-    chatError: $("chat-error")
+    chatError: $("chat-error"),
+    bloqueInvitar: $("bloque-invitar"),
+    invitarEquipo: $("invitar-equipo"),
+    invitarLink: $("invitar-activo"),
+    linkUrl: $("link-url"),
+    btnCopiar: $("btn-copiar"),
+    btnWhatsapp: $("btn-whatsapp"),
+    btnRegenerar: $("btn-regenerar"),
+    btnGenerarLink: $("btn-generar-link"),
+    invitarError: $("invitar-error")
   };
 
   let datos = null;
@@ -456,6 +472,7 @@
     renderJugadores(datos);
     renderAccion();
     renderChat();
+    renderInvitar();
   }
 
   async function ejecutar(peticion) {
@@ -501,6 +518,83 @@
     return ejecutar(() =>
       API.del(`/api/partidos/${encodeURIComponent(ID)}/equipos/${encodeURIComponent(eq.id)}`));
   }
+
+  /* ---------- Invitar gente (solo organizador) ---------- */
+  // El bloque usa el link de invitación del equipo del organizador
+  // inscripto en el partido: quien lo abra se suma al equipo como
+  // invitado y, con el equipo, ocupa lugar en este partido. El
+  // backend solo manda el token si esOrganizador es true.
+  function renderInvitar() {
+    const d = datos;
+    const eq = d && d.esOrganizador ? d.equipoOrganizador : null;
+    el.bloqueInvitar.hidden = !eq;
+    if (!eq) return;
+
+    const link = d.linkInvitacion;
+    const activo = Boolean(link && link.url);
+    el.invitarEquipo.textContent = eq.nombre || "";
+    el.invitarLink.hidden = !activo;
+    el.btnGenerarLink.hidden = activo;
+    el.btnCopiar.textContent = "Copiar link";
+    if (activo) {
+      el.linkUrl.value = link.url;
+      el.btnWhatsapp.href =
+        `https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp(link.url))}`;
+    }
+  }
+
+  // Texto que acompaña al link cuando se comparte por WhatsApp
+  function mensajeWhatsApp(url) {
+    const eq = datos && datos.equipoOrganizador;
+    const equipo = eq && eq.nombre ? ` al equipo ${eq.nombre}` : "";
+    return `¡Sumate${equipo} para jugar mi partido en Convocados! ` +
+      `Con este link entrás como invitado: ${url}`;
+  }
+
+  function mostrarErrorInvitar(mensaje) {
+    el.invitarError.textContent = mensaje || "";
+  }
+
+  // Genera (o regenera) el link del equipo y refresca el detalle para
+  // mostrar el link nuevo.
+  async function generarLink() {
+    const eq = datos && datos.esOrganizador ? datos.equipoOrganizador : null;
+    if (!eq) return;
+    mostrarErrorInvitar("");
+    el.btnGenerarLink.disabled = true;
+    el.btnRegenerar.disabled = true;
+    try {
+      await API.post(`/api/equipos/${eq.id}/link`);
+      await recargar();
+    } catch (err) {
+      mostrarErrorInvitar(err.message);
+    } finally {
+      el.btnGenerarLink.disabled = false;
+      el.btnRegenerar.disabled = false;
+    }
+  }
+
+  el.btnGenerarLink.addEventListener("click", generarLink);
+
+  el.btnRegenerar.addEventListener("click", () => {
+    if (!window.confirm(
+      "¿Regenerar el link? El anterior va a dejar de funcionar de inmediato.")) return;
+    generarLink();
+  });
+
+  el.btnCopiar.addEventListener("click", async () => {
+    const url = el.linkUrl.value;
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      el.btnCopiar.textContent = "Copiado";
+      setTimeout(() => { el.btnCopiar.textContent = "Copiar link"; }, 2000);
+    } catch {
+      // Sin permiso de portapapeles: selecciono el link para copiar a mano
+      el.linkUrl.select();
+      el.btnCopiar.textContent = "Seleccionado";
+    }
+  });
 
   async function cargarEquipos() {
     try {

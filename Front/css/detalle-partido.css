@@ -337,6 +337,69 @@
 }
 .error:empty { display: none; }
 
+/* ---------- Invitar gente por link (solo organizador) ---------- */
+.invitar {
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+}
+.invitar[hidden] { display: none; }
+
+/* Nombre del equipo al que pertenece el link (a la derecha del título) */
+.invitar__equipo {
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.invitar__hint {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.invitar__hint strong { color: var(--text); }
+
+.invitar__link { display: grid; gap: 8px; }
+.invitar__link[hidden] { display: none; }
+
+.invitar__url {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--well);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  cursor: text;
+  color-scheme: dark;
+}
+.invitar__url:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+
+.invitar__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.invitar__btn {
+  flex: 1 1 auto;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.invitar__generar { width: 100%; }
+.invitar__generar[hidden] { display: none; }
+
 /* ---------- Chat del partido ---------- */
 .chat {
   grid-column: 1 / -1;
@@ -481,4 +544,10 @@
   .datos .dato:last-child { grid-column: 1 / -1; }
 
   .cabecera__nombre { font-size: 26px; }
+
+  /* Invitar gente: acciones apiladas y a altura táctil completa */
+  .invitar__acciones { flex-direction: column; }
+  .invitar__btn { height: var(--tap); }
+  .invitar__generar { height: var(--tap); }
+  .invitar__url { height: var(--tap); }
 }
