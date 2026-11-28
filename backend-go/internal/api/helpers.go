@@ -91,10 +91,13 @@ func aString(v sql.NullString) string {
 }
 
 // capitalizar pone mayúscula inicial (igual que hace el front al mostrar).
+// Por rune y no por byte: con s[:1] un nombre que empieza con letra
+// acentuada ("álvaro") quedaba sin mayúscula.
 func capitalizar(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return s
 	}
-	return strings.ToUpper(s[:1]) + s[1:]
+	r := []rune(s)
+	return strings.ToUpper(string(r[0])) + string(r[1:])
 }

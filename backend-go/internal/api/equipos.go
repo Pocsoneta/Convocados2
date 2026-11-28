@@ -250,14 +250,14 @@ func (s *Server) detalleEquipo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSON(w, http.StatusOK, map[string]any{
-		"id":                 id,
-		"nombre":             nombre,
-		"esMio":              soyIntegrante,
-		"puedeAdministrar":   puedeAdministrar,
-		"integrantes":        integrantes,
-		"invitaciones":       invitaciones,
-		"link":               link,
-		"linkUrl":            urlLink,
+		"id":               id,
+		"nombre":           nombre,
+		"esMio":            soyIntegrante,
+		"puedeAdministrar": puedeAdministrar,
+		"integrantes":      integrantes,
+		"invitaciones":     invitaciones,
+		"link":             link,
+		"linkUrl":          urlLink,
 	})
 }
 
