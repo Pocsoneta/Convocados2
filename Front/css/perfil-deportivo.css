@@ -53,6 +53,7 @@
   background: var(--chip);
   overflow: hidden;
 }
+.progress[hidden] { display: none; }
 .progress__fill {
   display: block;
   width: 100%;

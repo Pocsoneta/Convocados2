@@ -54,9 +54,12 @@ pantalla de advertencia: hay que hacer clic en **Visit Site**.
 
 **Pantallas nuevas**
 - `equipos.html` (+ `js/equipos.js`, `css/equipos.css`): mis equipos, crear
-  equipo, buscar equipos y ventana de integrantes. Permite invitar jugadores,
-  ver y cancelar invitaciones enviadas, quitar integrantes y, para los
-  integrantes, generar, regenerar, copiar y revocar el **link de invitación**.
+  equipo, buscar equipos y ventana de integrantes. Invitar, quitar
+  integrantes, cancelar invitaciones y generar, regenerar, copiar y revocar
+  el **link de invitación** son acciones del **dueño** del equipo; el resto
+  de los integrantes puede verlos e irse con **Salir**. Cada fila marca al
+  **Dueño** y la tarjeta dice "Es tuyo" solo si el equipo es tuyo. Al aceptar
+  una invitación aparece un aviso de éxito: **"¡Listo! Ya formas parte de…"**.
   Los miembros que entraron por link se marcan como **Invitado**.
 - `invitar.html` (+ `js/invitar.js`, `css/invitar.css`): página pública del link
   de invitación. Muestra el equipo y permite unirse con la cuenta propia (si hay
@@ -76,9 +79,16 @@ pantalla de advertencia: hay que hacer clic en **Visit Site**.
   (con su etiqueta) y puede aceptarlas o rechazarlas, además de las de jugadores.
 - `crear-partido.html` / `js/crear-partido.js`: selector de equipo para crear el
   partido con un equipo inscripto (los cupos se calculan por integrante).
+- `perfil-deportivo.html` / `js/perfil-deportivo.js` /
+  `css/perfil-deportivo.css`: además de localidad y foto, ahora se editan
+  **nombre y apellido** (usan `PUT /api/cuenta`). Se quitó el selector de
+  **nivel**. Si la ficha ya estaba completa, la pantalla pasa a modo edición:
+  otros títulos, botón "Guardar cambios" y aviso de éxito sin redirigir.
 - `js/core.js`: nueva ruta `equipos` en `APP.rutas`.
 - `inicio.html`, `buscar.html`, `mis-partidos.html`: nuevo enlace **Equipo** en
   la barra lateral.
+- `onboarding.html`, `js/onboarding.js`, `js/inicio.js`, `js/crear-partido.js`:
+  se borraron todas las menciones al **nivel** (del jugador y del partido).
 
 ### Backend (`backend-go/`)
 
@@ -88,7 +98,22 @@ pantalla de advertencia: hay que hacer clic en **Visit Site**.
   rechaza. Nuevos endpoints `GET/DELETE /api/equipos/{id}/invitaciones`,
   `GET /api/invitaciones` y `POST /api/invitaciones/{equipo}/aceptar|rechazar`.
 - `GET /api/equipos/{id}` devuelve `invitaciones` pendientes y `link`/`linkUrl`
-  (solo para integrantes), y cada integrante trae `esInvitado`.
+  (solo para el **dueño**), `puedeAdministrar` para quien pregunta, y cada
+  integrante trae `rol`, `esDueno` y `esInvitado`.
+
+**Rol de dueño del equipo**
+- Migración `014_rol_equipo.sql`: columna `rol` (`Dueno`/`Miembro`) en
+  `USUARIO_EQUIPO`, con backfill (el integrante más antiguo de cada equipo
+  existente quedó como dueño).
+- Solo el dueño invita, quitar integrantes, cancela invitaciones y maneja el
+  link. Cualquiera puede irse de un equipo; si el dueño se va, el cargo pasa
+  al integrante más antiguo (y el último no puede irse: 409).
+
+**Perfiles sin "nivel"**
+- Migración `015_quitar_nivel.sql`: se borran `USUARIO.nivel` y
+  `PARTIDO.nivel`, y con ellas el filtro y el campo de nivel en partidos.
+- `PUT /api/perfil` recibe `{localidad, foto}`; el front edita nombre y
+  apellido con `PUT /api/cuenta`.
 
 **Link de invitación e invitados sin cuenta**
 - Migraciones `006_link_invitacion.sql` (tabla `LINK_INVITACION`, un link activo

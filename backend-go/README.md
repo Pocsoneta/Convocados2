@@ -107,7 +107,7 @@ Salvo lo indicado, **requieren** la cookie de sesión `convocados_token`.
 | `POST` | `/api/auth/logout` | – |
 | `GET` | `/api/auth/me` | – |
 | `GET` | `/api/perfil` | – |
-| `PUT` | `/api/perfil` | `{localidad, nivel, foto}` |
+| `PUT` | `/api/perfil` | `{localidad, foto}` |
 | `PUT` | `/api/cuenta` | `{nombre, apellido, telefono}` |
 | `GET` | `/api/usuarios?q=` | – → `[{id, nombre, apellido, foto, localidad}]`, busca por nombre / apellido / email (excluye la cuenta propia y los **invitados** sin cuenta). Lo usa **Equipo** para sumar integrantes |
 | `GET` | `/api/usuarios/{id}` | – (perfil público) |
@@ -125,8 +125,8 @@ Salvo lo indicado, **requieren** la cookie de sesión `convocados_token`.
 
 | Método | Ruta | Body / Query |
 |---|---|---|
-| `GET` | `/api/partidos` | `q, zona, modalidad, nivel, desde, hasta, orden, lat, lng, limit, pasados` |
-| `POST` | `/api/partidos` | `{idComplejo, idCancha, fechaHora, cupoTotal, jugadoresFaltantes, descripcion, costoTotal, modalidad, nivel, idEquipo}` — `idEquipo` es opcional: si viene, el equipo queda inscripto en el partido como **Confirmado** |
+| `GET` | `/api/partidos` | `q, zona, modalidad, desde, hasta, orden, lat, lng, limit, pasados` |
+| `POST` | `/api/partidos` | `{idComplejo, idCancha, fechaHora, cupoTotal, jugadoresFaltantes, descripcion, costoTotal, modalidad, idEquipo}` — `idEquipo` es opcional: si viene, el equipo queda inscripto en el partido como **Confirmado** |
 | `GET` | `/api/partidos/{id}` | `lat, lng` |
 | `POST` | `/api/partidos/{id}/inscripcion` | – |
 | `DELETE` | `/api/partidos/{id}/inscripcion` | – |
@@ -169,26 +169,36 @@ El front resalta los mensajes del organizador (verde) y del capitán (ámbar).
 
 | Método | Ruta | Body |
 |---|---|---|
-| `GET` | `/api/equipos` | `?q=` |
-| `GET` | `/api/equipos/mis-equipos` | – |
-| `GET` | `/api/equipos/{id}` | – (trae `integrantes` — con `esInvitado` en los que entraron por link —, `invitaciones` pendientes y `link`, solo para integrantes) |
-| `POST` | `/api/equipos` | `{nombre}` |
-| `POST` | `/api/equipos/{id}/integrantes` | `{idUsuario}` — **envía una invitación**, no suma a la fuerza |
-| `DELETE` | `/api/equipos/{id}/integrantes/{usuario}` | – |
-| `POST` | `/api/equipos/{id}/link` | – — genera (o regenera, rotando el token) el link de invitación. Solo integrantes |
-| `DELETE` | `/api/equipos/{id}/link` | – — revoca el link vigente. Solo integrantes |
-| `GET` | `/api/equipos/{id}/invitaciones` | – — las que mandó el equipo (solo integrantes) |
-| `DELETE` | `/api/equipos/{id}/invitaciones/{usuario}` | – — cancela una invitación enviada |
+| `GET` | `/api/equipos` | `?q=` → cada equipo trae `esDueno` (true si sos su dueño) |
+| `GET` | `/api/equipos/mis-equipos` | – (idem: `esDueno`) |
+| `GET` | `/api/equipos/{id}` | – (trae `integrantes` — con `rol` (`Dueno`/`Miembro`), `esDueno` y `esInvitado` en los que entraron por link —, más `esMio` y `puedeAdministrar` para quien pregunta; `invitaciones` pendientes y `link` solo los recibe el **dueño**) |
+| `POST` | `/api/equipos` | `{nombre}` — el que lo crea queda como **dueño** |
+| `POST` | `/api/equipos/{id}/integrantes` | `{idUsuario}` — **envía una invitación**, no suma a la fuerza. Solo el dueño |
+| `DELETE` | `/api/equipos/{id}/integrantes/{usuario}` | – — cualquiera se puede ir a sí mismo; sacar a otro es solo del dueño. Si el dueño se va, el cargo pasa al integrante más antiguo |
+| `POST` | `/api/equipos/{id}/link` | – — genera (o regenera, rotando el token) el link de invitación. Solo el dueño |
+| `DELETE` | `/api/equipos/{id}/link` | – — revoca el link vigente. Solo el dueño |
+| `GET` | `/api/equipos/{id}/invitaciones` | – — las que mandó el equipo (solo el dueño) |
+| `DELETE` | `/api/equipos/{id}/invitaciones/{usuario}` | – — cancela una invitación enviada (solo el dueño) |
 | `GET` | `/api/invitaciones` | – — las que me llegaron y no respondí |
 | `POST` | `/api/invitaciones/{equipo}/aceptar` | – — me suma al equipo |
 | `POST` | `/api/invitaciones/{equipo}/rechazar` | – |
 
 **Invitaciones a equipo:** hay una fila por equipo/jugador en
 `INVITACION_EQUIPO` (migración `005`), con estado `Pendiente`,
-`Aceptada` o `Rechazada`. Cualquier integrante puede invitar; el
+`Aceptada` o `Rechazada`. Solo el **dueño** del equipo invita; el
 jugador acepta o rechaza desde su pantalla de Equipos, y al aceptar
 el alta en `USUARIO_EQUIPO` y el cambio de estado ocurren en la misma
 transacción.
+
+**Roles del equipo** (migración `014_rol_equipo.sql`): `USUARIO_EQUIPO`
+tiene una columna `rol` con `Dueno` o `Miembro`. Nace con el que crea
+el equipo; en el backfill, el integrante más antiguo de cada equipo
+existente quedó como dueño. Administra el equipo **solo el dueño**:
+invita gente, quitar integrantes, cancela invitaciones y genera,
+regenera o revoca el link. Un miembro puede irse a sí mismo, pero
+nunca sacar a nadie (ni al dueño); si el dueño se va, el cargo pasa
+al integrante más antiguo, y si es el último no puede irse (409) para
+que el equipo no quede sin administración.
 
 **Link de invitación (invitados sin cuenta):** cada equipo tiene como
 mucho un link activo en `LINK_INVITACION` (migración `006`). Cualquiera
@@ -222,8 +232,7 @@ transacciones que bloquean el cupo.
   "fecha": "2026-11-02T21:00:00",
   "cupos": 7,
   "lat": -34.5806,
-  "lng": -58.4372,
-  "nivel": "Amateur"
+  "lng": -58.4372
 }
 ```
 
@@ -252,7 +261,7 @@ como "reemplazar cuando exista el backend" quedaron apuntando a la API:
 |---|---|---|
 | `js/login.js` | `autenticar` | `POST /api/auth/login` |
 | `js/registro.js` | `crearCuenta` | `POST /api/auth/registro` |
-| `js/perfil-deportivo.js` | `guardarPerfil` | `PUT /api/perfil` |
+| `js/perfil-deportivo.js` | `guardarPerfil` / `guardarCuenta` | `PUT /api/perfil` / `PUT /api/cuenta` |
 | `js/inicio.js` | `obtenerPartidosCercanos` / `obtenerProximoPartido` / `obtenerConteoModalidades` | `GET /api/inicio/...` |
 | `js/core.js` | `Auth.usuario` | `GET /api/auth/me` |
 
@@ -264,13 +273,29 @@ como "reemplazar cuando exista el backend" quedaron apuntando a la API:
   Endpoints: `GET/DELETE /api/equipos/{id}/invitaciones`,
   `GET /api/invitaciones`, `POST /api/invitaciones/{equipo}/aceptar|rechazar`.
 - `GET /api/equipos/{id}` devuelve `invitaciones`, `link` y `linkUrl` (solo
-  para integrantes), y cada integrante trae `esInvitado`.
+  para el **dueño**), `puedeAdministrar` para quien pregunta, y cada
+  integrante trae `rol`, `esDueno` y `esInvitado`.
+
+**Rol de dueño del equipo** (`014_rol_equipo.sql`)
+- Nueva columna `rol` (`Dueno`/`Miembro`) en `USUARIO_EQUIPO`, con backfill
+  para los equipos existentes.
+- Invitar, quitar integrantes, cancelar invitaciones y manejar el link son
+  acciones del dueño; el resto solo puede irse a sí mismo.
+- Si el dueño se va, el cargo hereda al integrante más antiguo; el último
+  integrante no puede irse (409).
+
+**Perfiles: sin "nivel"** (`015_quitar_nivel.sql`)
+- Se borran las columnas `USUARIO.nivel` y `PARTIDO.nivel`, y todo el código
+  que las leía o escribía (`perfil.go`, `auth.go`, `usuarios.go`,
+  `partidos.go`, `inicio.go`).
+- `PUT /api/perfil` ahora recibe `{localidad, foto}`; el nombre y el apellido
+  se editan con `PUT /api/cuenta`, que el front ahora usa desde Perfil.
 
 **Link de invitación e invitados sin cuenta** (`links.go`)
 - Migraciones `006_link_invitacion.sql` (tabla `LINK_INVITACION`) y
   `007_usuario_invitado.sql` (columna `es_invitado`).
 - `POST /api/equipos/{id}/link` genera o regenera el link (rota el token);
-  `DELETE /api/equipos/{id}/link` lo revoca. Solo integrantes.
+  `DELETE /api/equipos/{id}/link` lo revoca. Solo el dueño del equipo.
 - `GET /api/invitacion/{token}` y `POST /api/invitacion/{token}` son públicos.
   Con sesión, se suma con la cuenta; sin sesión, crea un usuario invitado sin
   contraseña. La cookie `convocados_invitado` (path `/api/invitacion`) hace que

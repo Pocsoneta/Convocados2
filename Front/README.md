@@ -34,15 +34,23 @@ Front/
 ## Cambios de esta versión
 
 **Pantallas nuevas**
-- `equipos.html`, `js/equipos.js`, `css/equipos.css`: gestión de equipos,
-  invitaciones (enviar, cancelar, aceptar y rechazar), quitar integrantes y
-  link de invitación (generar, regenerar, copiar, revocar). Los integrantes
-  que entraron por link se marcan como **Invitado**.
+- `equipos.html`, `js/equipos.js`, `css/equipos.css`: gestión de equipos e
+  invitaciones (enviar, cancelar, aceptar y rechazar). Invitar, quitar
+  integrantes, cancelar invitaciones y el link de invitación (generar,
+  regenerar, copiar, revocar) son acciones del **dueño** del equipo; el resto
+  solo puede ver e irse con **Salir**. Cada fila marca al **Dueño**. Al aceptar
+  una invitación se muestra un aviso de éxito. Los integrantes que entraron
+  por link se marcan como **Invitado**.
 - `invitar.html`, `js/invitar.js`, `css/invitar.css`: página pública del link.
   Con sesión, el usuario se suma con su cuenta; sin sesión, se suma como
   invitado con nombre y apellido.
 
 **Pantallas modificadas**
+- `perfil-deportivo.html`, `js/perfil-deportivo.js`,
+  `css/perfil-deportivo.css`: se editan **nombre y apellido** además de
+  localidad y foto; se quitó el selector de **nivel**. Si la ficha ya estaba
+  completa, la pantalla pasa a modo edición (títulos y botón cambiados, aviso
+  de éxito y sin redirigir al inicio).
 - `detalle-partido.html`, `js/detalle-partido.js`, `css/detalle-partido.css`:
   - Botón **Sumar mi equipo** con selector de equipos, y cancelación de la
     solicitud del equipo.
